@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.core.validators import MinLengthValidator
+
 # Create your models here.
 
 class Address(models.Model):
@@ -19,7 +21,7 @@ class Address(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=20)
-    rfc = models.CharField(max_length=13)
+    rfc = models.CharField(max_length=13, validators=[MinLengthValidator(12)])
     image_logo = models.CharField(max_length=250)
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
 
@@ -42,7 +44,7 @@ class Supplier(models.Model):
     company_supplier_id = models.CharField(max_length=20)
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=20)
-    rfc = models.CharField(max_length=13)
+    rfc = models.CharField(max_length=13, validators=[MinLengthValidator(12)])
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
 
     def __str__(self):
