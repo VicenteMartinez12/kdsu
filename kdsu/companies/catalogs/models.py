@@ -27,11 +27,11 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Warehouse(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    company_warehouse_id = models.CharField(max_length=25)
+    company_warehouse_id = models.CharField(max_length=20)
     name = models.CharField(max_length=200)
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
 
@@ -68,7 +68,6 @@ class Product(models.Model):
     
     
     
-
 
 
 
