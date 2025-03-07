@@ -18,9 +18,12 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     status = models.CharField(max_length=20)
     
-
-     
-        
+    def calculate(self):
+        order_details = self.orderdetail_set.all()
+        self.subtotal = sum([detail.subtotal for detail in order_details])
+        self.tax_value = sum([detail.tax_value for detail in order_details])
+        self.total = sum([detail.total for detail in order_details])
+        self.save()
 
     def __str__(self):
         return self.order_id
@@ -35,6 +38,13 @@ class OrderDetail(models.Model):
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
     tax_value = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     total = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
+    
+    
+    def calculate(self):
+        self.subtotal = self.cost * self.quantity
+        self.tax_value = self.subtotal * (self.tax_rate / 100)
+        self.total = self.subtotal + self.tax_value
+        self.save()
     
     def __str__(self):
         return f'{self.product} - {self.order.order_id}'
