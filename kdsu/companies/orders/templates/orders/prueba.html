@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba de Órdenes</title>
+</head>
+<body>
+    <h1>Crear Nueva Orden</h1>
+    <form method="post" action="/orders/prueba/">
+        {% csrf_token %}
+        <label>Company ID:</label><input type="text" name="company"><br>
+        <label>Supplier ID:</label><input type="text" name="supplier"><br>
+        <label>Warehouse ID:</label><input type="text" name="warehouse"><br>
+        <label>Order ID:</label><input type="text" name="order_id"><br>
+        <label>Es de Temporada:</label><input type="checkbox" name="is_season"><br>
+        <label>Es Prepagada:</label><input type="checkbox" name="is_prepaid"><br>
+        <label>Categoría:</label><input type="text" name="category"><br>
+        <label>Status:</label><input type="text" name="status"><br>
+        <button type="submit">Crear Orden</button>
+    </form>
+
+    <h1>Crear Detalle de Orden</h1>
+    <form method="post" action="/orders/prueba/">
+        {% csrf_token %}
+        <label>Order ID:</label><input type="text" name="order"><br>
+        <label>Product ID:</label><input type="text" name="product"><br>
+        <label>Costo:</label><input type="text" name="cost"><br>
+        <label>Cantidad:</label><input type="number" name="quantity"><br>
+        <label>Tasa de Impuesto:</label><input type="text" name="tax_rate"><br>
+        <button type="submit">Crear Detalle de Orden</button>
+    </form>
+</body>
+</html>
