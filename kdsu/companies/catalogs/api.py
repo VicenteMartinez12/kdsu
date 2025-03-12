@@ -1,65 +1,58 @@
-# api.py - Contiene la configuración de NinjaAPI y los endpoints
 from ninja import NinjaAPI
 from .schemas import CompanySchema, WarehouseSchema, SupplierSchema, ProductSchema, NotFoundSchema
 from .models import Company, Warehouse, Supplier, Product
-from typing import List, Optional
+from typing import List, Optional, Union
 
 api = NinjaAPI(urls_namespace="catalogs_api")
 
-# Endpoints de Company
-@api.get("/companies", response=List[CompanySchema])
-def get_companies(request, name: Optional[str] = None):
+# Endpoints de Company con ? para búsqueda y manejo de errores
+@api.get("/companies", response=Union[List[CompanySchema], NotFoundSchema])
+def get_companies(request, company_id: Optional[int] = None, name: Optional[str] = None):
+    queryset = Company.objects.all()
+    if company_id:
+        queryset = queryset.filter(id=company_id)
     if name:
-        return Company.objects.filter(name__icontains=name) | Company.objects.filter(short_name__icontains=name)
-    return Company.objects.all()
+        queryset = queryset.filter(name__icontains=name) | queryset.filter(short_name__icontains=name)
+    if not queryset.exists():
+        return {"message": "No se encontró ninguna compañía"}
+    return queryset
 
-@api.get("/companies/{company_id}", response={200: CompanySchema, 404: NotFoundSchema})
-def get_company(request, company_id: int):
-    try:
-        return 200, Company.objects.get(id=company_id)
-    except Company.DoesNotExist:
-        return 404, {"message": "Company not found"}
-
-# Endpoints de Warehouse
-@api.get("/warehouses", response=List[WarehouseSchema])
-def get_warehouses(request, company: Optional[int] = None, company_warehouse_id: Optional[str] = None):
+# Endpoints de Warehouse con ? para búsqueda y manejo de errores
+@api.get("/warehouses", response=Union[List[WarehouseSchema], NotFoundSchema])
+def get_warehouses(request, warehouse_id: Optional[int] = None, company: Optional[int] = None, company_warehouse_id: Optional[str] = None):
     queryset = Warehouse.objects.all()
+    if warehouse_id:
+        queryset = queryset.filter(id=warehouse_id)
     if company:
         queryset = queryset.filter(company_id=company)
     if company_warehouse_id:
         queryset = queryset.filter(company_warehouse_id=company_warehouse_id)
+    if not queryset.exists():
+        return {"message": "No se encontró ningún almacén"}
     return queryset
 
-@api.get("/warehouses/{warehouse_id}", response={200: WarehouseSchema, 404: NotFoundSchema})
-def get_warehouse(request, warehouse_id: int):
-    try:
-        return 200, Warehouse.objects.get(id=warehouse_id)
-    except Warehouse.DoesNotExist:
-        return 404, {"message": "Warehouse not found"}
-
-# Endpoints de Supplier
-@api.get("/suppliers", response=List[SupplierSchema])
-def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = None, rfc: Optional[str] = None):
+# Endpoints de Supplier con ? para búsqueda y manejo de errores
+@api.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema])
+def get_suppliers(request, supplier_id: Optional[int] = None, company: Optional[int] = None, name: Optional[str] = None, rfc: Optional[str] = None):
     queryset = Supplier.objects.all()
+    if supplier_id:
+        queryset = queryset.filter(id=supplier_id)
     if company:
         queryset = queryset.filter(company_id=company)
     if name:
         queryset = queryset.filter(name__icontains=name) | queryset.filter(short_name__icontains=name)
     if rfc:
         queryset = queryset.filter(rfc=rfc)
+    if not queryset.exists():
+        return {"message": "No se encontró ningún proveedor"}
     return queryset
 
-@api.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema})
-def get_supplier(request, supplier_id: int):
-    try:
-        return 200, Supplier.objects.get(id=supplier_id)
-    except Supplier.DoesNotExist:
-        return 404, {"message": "Supplier not found"}
-
-# Endpoints de Product
-@api.get("/products", response=List[ProductSchema])
+# Endpoints de Product con ? para búsqueda y manejo de errores
+@api.get("/products", response=Union[List[ProductSchema], NotFoundSchema])
 def get_products(request, supplier: Optional[int] = None):
     queryset = Product.objects.all()
     if supplier:
         queryset = queryset.filter(supplier_id=supplier)
+    if not queryset.exists():
+        return {"message": "No se encontraron productos"}
     return queryset
