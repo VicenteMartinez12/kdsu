@@ -48,3 +48,6 @@ class OrderDetail(models.Model):
     
     def __str__(self):
         return f'{self.product} - {self.order.order_id}'
+    
+    
+    
