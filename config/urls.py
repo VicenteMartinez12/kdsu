@@ -23,5 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('orders/', include('kdsu.companies.orders.urls')),
     path("companies/", include("kdsu.companies.catalogs.urls")),  
-   
+    path("api/", include("kdsu.companies.catalogs.api_urls")),  
+
+    
 ]
