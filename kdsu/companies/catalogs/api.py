@@ -46,4 +46,34 @@ def get_warehouse(request, warehouse_id: int):
         return 404, {"message": "No se encontró ningún almacén"}
 
 
+# Endpoint de Supplier
+@api.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema])
+def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = None, rfc: Optional[str] = None):
+    queryset = Supplier.objects.all()
+    if company:
+        queryset = queryset.filter(company_id=company)
+    if name:
+        queryset = queryset.filter(name__icontains=name) | queryset.filter(short_name__icontains=name)
+    if rfc:
+        queryset = queryset.filter(rfc=rfc)
+    if not queryset.exists():
+        return {"message": "No se encontró ningún proveedor"}
+    return queryset
 
+@api.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema})
+def get_supplier(request, supplier_id: int):
+    try:
+        return 200, Supplier.objects.get(id=supplier_id)
+    except Supplier.DoesNotExist:
+        return 404, {"message": "No se encontró ningún proveedor"}
+
+
+# Endpoint de Product
+@api.get("/products", response=Union[List[ProductSchema], NotFoundSchema])
+def get_products(request, supplier: Optional[int] = None):
+    queryset = Product.objects.all()
+    if supplier:
+        queryset = queryset.filter(supplier_id=supplier)
+    if not queryset.exists():
+        return {"message": "No se encontraron productos"}
+    return queryset

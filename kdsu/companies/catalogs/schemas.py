@@ -24,6 +24,7 @@ class WarehouseSchema(ModelSchema):
         fields = "__all__"
 
 class SupplierSchema(ModelSchema):
+    address: AddressSchema
     class Meta:
         model = Supplier
         fields = "__all__"
