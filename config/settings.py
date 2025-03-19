@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'kdsu.companies.catalogs',
-    'kdsu.companies.orders'
+    'kdsu.companies.orders',
+    'kdsu.companies.utils',
+    
 ]
 
 MIDDLEWARE = [
