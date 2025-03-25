@@ -24,6 +24,7 @@ urlpatterns = [
     path('orders/', include('kdsu.companies.orders.urls')),
     path("companies/", include("kdsu.companies.catalogs.urls")),  
     path("api/", include("kdsu.companies.catalogs.api_urls")),  
+    path("api/", include("kdsu.companies.orders.api_urls")),  
 
     
 ]

@@ -5,10 +5,10 @@ from decimal import Decimal
 from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
 
 # Order Model
+# Order Model
 class Order(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     order_id = models.CharField(max_length=20)
     is_season = models.BooleanField(default=False)
     is_prepaid = models.BooleanField(default=False)
@@ -17,6 +17,8 @@ class Order(models.Model):
     tax_value = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     total = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     status = models.CharField(max_length=20)
+    date_ordered = models.DateField() 
+    date_added = models.DateTimeField(auto_now_add=True)  
     
     def calculate(self):
         order_details = self.orderdetail_set.all()
@@ -32,13 +34,18 @@ class Order(models.Model):
 class OrderDetail(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)  
     cost = models.DecimalField(max_digits=12, decimal_places=4)
     quantity = models.IntegerField()
     subtotal = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
     tax_value = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
     total = models.DecimalField(max_digits=12, decimal_places=4, default=Decimal('0.0000'))
-    
+    packing_unit = models.CharField(max_length=20) 
+    master_package = models.IntegerField()  
+    inner_package = models.IntegerField()  
+    no_charge = models.BooleanField(default=False)
+    description = models.TextField()
     
     def calculate(self):
         self.subtotal = self.cost * self.quantity

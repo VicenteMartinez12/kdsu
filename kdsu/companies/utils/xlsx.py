@@ -4,7 +4,6 @@ from openpyxl import load_workbook
 
 def read_xlsx(file_path: str):
     """
-    Lee un archivo XLSX (solo la primera hoja) y lo convierte en una lista de diccionarios.
     :param file_path: Ruta del archivo XLSX
     :return: Lista de diccionarios con los datos de la hoja
     :raises FileNotFoundError: Si el archivo no existe
@@ -15,7 +14,7 @@ def read_xlsx(file_path: str):
 
     mime = magic.from_file(file_path, mime=True)
     if mime != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        raise ValueError(f"El archivo '{file_path}' no es un archivo XLSX válido. MIME: {mime}")
+        raise ValueError(f"El archivo '{file_path}' no es un archivo XLSX válido")
 
     wb = load_workbook(filename=file_path, read_only=True)
     ws = wb.active  # Toma la primera hoja activa
