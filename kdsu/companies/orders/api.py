@@ -94,10 +94,20 @@ def upload_orders(request, file: UploadedFile = File(...)):
                 raise ValueError(f"La orden '{row['Orden']}' ya existe para la compañía '{row['Compania']}'.")
 
             try:
-                supplier = Supplier.objects.get(company=company, company_supplier_id=clean_text(row["ClaveProveedor"]))
-                warehouse = Warehouse.objects.get(company=company, company_warehouse_id=clean_text(row["SucursalDestino"]))
+                proveedor = clean_text(row["ClaveProveedor"])
+                sucursal = clean_text(row["SucursalDestino"])
+
+                supplier = Supplier.objects.get(company=company, company_supplier_id=proveedor)
+                warehouse = Warehouse.objects.get(company=company, company_warehouse_id=sucursal)
+
+            except Supplier.DoesNotExist:
+                raise ValueError(f"No se encontró el proveedor '{proveedor}'")
+
+            except Warehouse.DoesNotExist:
+                raise ValueError(f"No se encontró la sucursal '{sucursal}'")
+
             except Exception as e:
-                raise ValueError(f"Error al buscar catálogos: {str(e)}")
+                raise ValueError(f"Error inesperado al buscar catálogos: {str(e)}")
 
             order = Order.objects.create(
                 company=company,
