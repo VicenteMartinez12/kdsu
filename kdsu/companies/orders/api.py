@@ -1,8 +1,6 @@
 from ninja import NinjaAPI, File
 from ninja.files import UploadedFile
-from ninja.errors import ValidationError
 from django.http import JsonResponse
-import mimetypes
 from datetime import datetime
 import tempfile, os
 from django.db import transaction
@@ -16,8 +14,6 @@ api = NinjaAPI(urls_namespace="orders_api")
 @api.exception_handler(Exception)
 def global_exception_handler(request, exc):
     return JsonResponse({"error": str(exc)}, status=400)
-
-
 
 def clean_text(value):
     return str(value).strip().replace("\n", "").replace("\r", "").replace("\ufeff", "")
@@ -34,10 +30,9 @@ def parse_fecha(fecha_raw):
         except ValueError:
             raise ValueError(f"Formato de fecha inválido: {fecha_raw}")
 
-
-@api.post("/orders/upload")
+@api.post("/orders/file")
 @transaction.atomic
-def upload_orders(request, file: UploadedFile = File(...)):
+def file_orders(request, file: UploadedFile = File(...)):
     ext = file.name.split('.')[-1].lower()
     if ext not in ["csv", "xlsx"]:
         return JsonResponse({"error": "Archivo no válido. Debe ser CSV o XLSX."}, status=400)
@@ -48,18 +43,11 @@ def upload_orders(request, file: UploadedFile = File(...)):
             temp_file.write(chunk)
 
     try:
-        if ext == "csv":
-            data = read_csv(temp_path)
-        else:
-            data = read_xlsx(temp_path)
+        data = read_csv(temp_path) if ext == "csv" else read_xlsx(temp_path)
     except Exception as e:
         return JsonResponse({"error": f"Error al leer el archivo: {str(e)}"}, status=400)
 
-    cleaned_data = []
-    for row in data:
-        cleaned_row = {key.replace(' ', ''): value for key, value in row.items()}
-        cleaned_data.append(cleaned_row)
-    data = cleaned_data
+    data = [{key.replace(' ', ''): value for key, value in row.items()} for row in data]
 
     required_columns = [
         "Compania", "Orden", "FechaPedido", "ClaveProveedor", "EsTemporada",
@@ -72,111 +60,282 @@ def upload_orders(request, file: UploadedFile = File(...)):
     if missing:
         return JsonResponse({"error": f"Faltan columnas: {', '.join(missing)}"}, status=400)
 
-    registros = 0
-    ordenes_creadas = {}
-    detalles_por_orden = {}
+    ordenes_por_clave = {}
+    detalles_por_clave = {}
+    detalles_a_guardar = []
 
+    # PRIMERA PASADA: VALIDACIÓN Y PREPARACIÓN EN MEMORIA
     for idx, row in enumerate(data):
-        cleaned = {k: clean_text(v) for k, v in row.items() if v not in [None, ""]}
+        row = {k: clean_text(v) for k, v in row.items()}
         for col in required_columns:
-            if col not in cleaned or cleaned[col] == "":
+            if col not in row or row[col] == "":
                 raise ValueError(f"Fila {idx+1}: El campo '{col}' está vacío o nulo.")
 
-        clave = (clean_text(row["Compania"]), clean_text(row["Orden"]))
-
+        clave_orden = (row["Compania"], row["Orden"])
         try:
-            company = Company.objects.get(short_name=clean_text(row["Compania"]))
+            company = Company.objects.get(short_name=row["Compania"])
         except Company.DoesNotExist:
             raise ValueError(f"La compañía '{row['Compania']}' no existe.")
 
-        if clave not in ordenes_creadas:
-            if Order.objects.filter(company=company, order_id=clean_text(row["Orden"])).exists():
+        if clave_orden not in ordenes_por_clave:
+            if Order.objects.filter(company=company, order_id=row["Orden"]).exists():
                 raise ValueError(f"La orden '{row['Orden']}' ya existe para la compañía '{row['Compania']}'.")
 
             try:
-                proveedor = clean_text(row["ClaveProveedor"])
-                sucursal = clean_text(row["SucursalDestino"])
-
-                supplier = Supplier.objects.get(company=company, company_supplier_id=proveedor)
-                warehouse = Warehouse.objects.get(company=company, company_warehouse_id=sucursal)
-
+                supplier = Supplier.objects.get(company=company, company_supplier_id=row["ClaveProveedor"])
             except Supplier.DoesNotExist:
-                raise ValueError(f"No se encontró el proveedor '{proveedor}'")
+                raise ValueError(f"No se encontró el proveedor '{row['ClaveProveedor']}'")
 
+            try:
+                _ = Warehouse.objects.get(company=company, company_warehouse_id=row["SucursalDestino"])
             except Warehouse.DoesNotExist:
-                raise ValueError(f"No se encontró la sucursal '{sucursal}'")
+                raise ValueError(f"No se encontró la sucursal '{row['SucursalDestino']}'")
 
-            except Exception as e:
-                raise ValueError(f"Error inesperado al buscar catálogos: {str(e)}")
-
-            order = Order.objects.create(
+            ordenes_por_clave[clave_orden] = Order(
                 company=company,
                 supplier=supplier,
-                order_id=clean_text(row["Orden"]),
-                is_season=clean_text(row["EsTemporada"]).upper() == "S",
-                is_prepaid=clean_text(row["EsPagoAnticipado"]).upper() == "S",
-                category=clean_text(row["Tipo"]),
+                order_id=row["Orden"],
+                is_season=row["EsTemporada"].upper() == "S",
+                is_prepaid=row["EsPagoAnticipado"].upper() == "S",
+                category=row["Tipo"],
                 status="Pendiente",
                 date_ordered=parse_fecha(row["FechaPedido"])
             )
-            ordenes_creadas[clave] = order
-
-        order = ordenes_creadas[clave]
 
         try:
-            product = Product.objects.get(
-                company=company,
-                supplier=order.supplier,
-                sku=clean_text(row["ClaveProducto"]),
-            )
+            product = Product.objects.get(company=company, supplier=supplier, sku=row["ClaveProducto"])
         except Product.DoesNotExist:
             raise ValueError(f"Producto '{row['ClaveProducto']}' no encontrado.")
 
-        try:
-            cost = float(row["CostoUnitario"])
-            quantity = int(row["Cantidad"])
-            tax = float(row["PorcentajeImpuesto"])
-            mpkg = int(row["EmpaqueMaster"])
-            ipkg = int(row["EmpaqueInner"])
-        except ValueError:
-            raise ValueError(f"Fila {idx+1}: Datos numéricos inválidos.")
+        cost = float(row["CostoUnitario"])
+        qty = int(row["Cantidad"])
+        tax = float(row["PorcentajeImpuesto"])
+        mpkg = int(row["EmpaqueMaster"])
+        ipkg = int(row["EmpaqueInner"])
+        if cost < 0 or qty <= 0 or tax < 0 or mpkg <= 0 or ipkg <= 0:
+            raise ValueError(f"Fila {idx+1}: Valores numéricos no válidos.")
 
-        if cost < 0 or quantity <= 0 or tax < 0 or mpkg <= 0 or ipkg <= 0:
-            raise ValueError(f"Fila {idx+1}: Los valores numéricos deben ser mayores a 0 y no negativos.")
-
-        sin_cargo = clean_text(row["EsMercanciaSinCargo"]).upper() == "S"
+        sin_cargo = row["EsMercanciaSinCargo"].upper() == "S"
         if sin_cargo and cost != 0:
             raise ValueError(f"Fila {idx+1}: Mercancía sin cargo debe tener costo 0.")
         if not sin_cargo and cost == 0:
             raise ValueError(f"Fila {idx+1}: Mercancía con cargo no puede tener costo 0.")
 
-        clave_uni = (clean_text(row["Orden"]), clean_text(row["SucursalDestino"]), clean_text(row["ClaveProducto"]))
-        if clave_uni in detalles_por_orden:
-            if detalles_por_orden[clave_uni] != sin_cargo:
+        clave_detalle = (row["Orden"], row["SucursalDestino"], row["ClaveProducto"])
+        if clave_detalle in detalles_por_clave:
+            if detalles_por_clave[clave_detalle] != sin_cargo:
                 pass
             else:
-                raise ValueError(f"Fila {idx+1}: Producto duplicado para sucursal y orden sin diferencia de cargo.")
-        else:
-            detalles_por_orden[clave_uni] = sin_cargo
+                raise ValueError(f"Fila {idx+1}: Producto duplicado en sucursal sin diferencia de cargo.")
+        detalles_por_clave[clave_detalle] = sin_cargo
 
-        detail = OrderDetail.objects.create(
+        warehouse = Warehouse.objects.get(company=company, company_warehouse_id=row["SucursalDestino"])
+
+        detalles_a_guardar.append({
+            "orden_clave": clave_orden,
+            "product": product,
+            "warehouse": warehouse,
+            "cost": cost,
+            "qty": qty,
+            "tax": tax,
+            "packing_unit": row["Unidad"],
+            "mpkg": mpkg,
+            "ipkg": ipkg,
+            "no_charge": sin_cargo,
+            "desc": row["Descripcion"]
+        })
+
+   
+    for orden in ordenes_por_clave.values():
+        orden.save()
+
+    for detalle in detalles_a_guardar:
+        order = ordenes_por_clave[detalle["orden_clave"]]
+        d = OrderDetail(
             order=order,
-            product=product,
-            warehouse=warehouse,
-            cost=cost,
-            quantity=quantity,
-            tax_rate=tax,
-            packing_unit=clean_text(row["Unidad"]),
-            master_package=mpkg,
-            inner_package=ipkg,
-            no_charge=sin_cargo,
-            description=clean_text(row["Descripcion"])
+            product=detalle["product"],
+            warehouse=detalle["warehouse"],
+            cost=detalle["cost"],
+            quantity=detalle["qty"],
+            tax_rate=detalle["tax"],
+            packing_unit=detalle["packing_unit"],
+            master_package=detalle["mpkg"],
+            inner_package=detalle["ipkg"],
+            no_charge=detalle["no_charge"],
+            description=detalle["desc"]
         )
-        detail.calculate()
-        registros += 1
+        d.calculate()
 
-    for orden in ordenes_creadas.values():
+    for orden in ordenes_por_clave.values():
         orden.calculate()
 
-    return JsonResponse({"message": f"Archivo procesado exitosamente. Órdenes creadas: {len(ordenes_creadas)}, registros: {registros}"})
+    return JsonResponse({
+        "message": f"Archivo procesado exitosamente. Órdenes creadas: {len(ordenes_por_clave)}, registros: {len(detalles_a_guardar)}"
+    })
+    
+    
+    
+      
+    
+@api.post("/orders/json")
+@transaction.atomic
+def json_orders(request, payload: dict):
+    ordenes_response = {}
 
+    if "ordenes" not in payload or not isinstance(payload["ordenes"], list):
+        return JsonResponse({"error": "La estructura no es válida"}, status=400)
+
+    for orden in payload["ordenes"]:
+        try:
+            clave_orden = orden.get("orden")
+            response = {"insertado": False}
+
+            # Validar estructura y campos requeridos
+            required_order_fields = [
+                "compania", "orden", "fechaPedido", "claveProveedor", "esTemporada",
+                "esPagoAnticipado", "tipo", "productos"
+            ]
+            for field in required_order_fields:
+                if field not in orden or orden[field] in [None, ""]:
+                    response["respuesta"] = "La estructura no es válida"
+                    ordenes_response[clave_orden] = response
+                    break
+            else:
+                productos = orden["productos"]
+                if not productos:
+                    response["respuesta"] = "La orden debe contener al menos un producto"
+                    ordenes_response[clave_orden] = response
+                    continue
+
+                try:
+                    company = Company.objects.get(short_name=orden["compania"])
+                except Company.DoesNotExist:
+                    response["respuesta"] = f"No se encontró la compañía {orden['compania']}"
+                    ordenes_response[clave_orden] = response
+                    continue
+
+                if Order.objects.filter(company=company, order_id=clave_orden).exists():
+                    response["respuesta"] = f"La orden {clave_orden} ya existe"
+                    ordenes_response[clave_orden] = response
+                    continue
+
+                try:
+                    supplier = Supplier.objects.get(company=company, company_supplier_id=orden["claveProveedor"])
+                except Supplier.DoesNotExist:
+                    response["respuesta"] = f"No se encontró el proveedor {orden['claveProveedor']}"
+                    ordenes_response[clave_orden] = response
+                    continue
+
+                detalles = []
+                claves_usadas = set()
+                for p in productos:
+                    for attr in ["sucursalDestino", "clave", "descripcion", "costoUnitario",
+                                 "cantidad", "porcentajeImpuesto", "unidad", "empaqueMaster",
+                                 "empaqueInner", "esMercanciaSinCargo"]:
+                        if attr not in p:
+                            response["respuesta"] = "La estructura no es válida"
+                            ordenes_response[clave_orden] = response
+                            break
+                    else:
+                        try:
+                            warehouse = Warehouse.objects.get(company=company, company_warehouse_id=p["sucursalDestino"])
+                        except Warehouse.DoesNotExist:
+                            response["respuesta"] = f"No se encontró la sucursal {p['sucursalDestino']}"
+                            ordenes_response[clave_orden] = response
+                            break
+
+                        try:
+                            product = Product.objects.get(company=company, supplier=supplier, sku=p["clave"])
+                        except Product.DoesNotExist:
+                            response["respuesta"] = f"Producto '{p['clave']}' no encontrado"
+                            ordenes_response[clave_orden] = response
+                            break
+
+                        costo = float(p["costoUnitario"])
+                        cantidad = int(p["cantidad"])
+                        impuesto = float(p["porcentajeImpuesto"])
+                        master = int(p["empaqueMaster"])
+                        inner = int(p["empaqueInner"])
+                        sin_cargo = p["esMercanciaSinCargo"]
+
+                        if cantidad <= 0:
+                            response["respuesta"] = f"El valor de cantidad para el producto {p['clave']} de la sucursal {p['sucursalDestino']} no es válido"
+                            ordenes_response[clave_orden] = response
+                            break
+                        if costo < 0:
+                            response["respuesta"] = f"El valor de costoUnitario para el producto {p['clave']} de la sucursal {p['sucursalDestino']} no es válido"
+                            ordenes_response[clave_orden] = response
+                            break
+                        if master <= 0 or inner <= 0:
+                            response["respuesta"] = f"El valor de empaqueMaster/Inner para el producto {p['clave']} de la sucursal {p['sucursalDestino']} no es válido"
+                            ordenes_response[clave_orden] = response
+                            break
+
+                        clave_detalle = (p["sucursalDestino"], p["clave"])
+                        if clave_detalle in claves_usadas:
+                            response["respuesta"] = f"El producto {p['clave']} se especificó más de una vez para la sucursal {p['sucursalDestino']}"
+                            ordenes_response[clave_orden] = response
+                            break
+                        claves_usadas.add(clave_detalle)
+
+                        if sin_cargo and costo != 0:
+                            response["respuesta"] = f"El producto {p['clave']} en la sucursal {p['sucursalDestino']} es mercancía sin cargo, su costo debe ser 0"
+                            ordenes_response[clave_orden] = response
+                            break
+                        if not sin_cargo and costo == 0:
+                            response["respuesta"] = f"El producto {p['clave']} en la sucursal {p['sucursalDestino']} no es mercancía sin cargo, su costo debe ser mayor a 0"
+                            ordenes_response[clave_orden] = response
+                            break
+
+                        detalles.append({
+                            "product": product,
+                            "warehouse": warehouse,
+                            "cost": costo,
+                            "quantity": cantidad,
+                            "tax_rate": impuesto,
+                            "packing_unit": p["unidad"],
+                            "master_package": master,
+                            "inner_package": inner,
+                            "no_charge": sin_cargo,
+                            "description": p["descripcion"]
+                        })
+
+                if response.get("respuesta"):
+                    continue
+
+                orden_obj = Order.objects.create(
+                    company=company,
+                    supplier=supplier,
+                    order_id=clave_orden,
+                    is_season=orden["esTemporada"],
+                    is_prepaid=orden["esPagoAnticipado"],
+                    category=orden["tipo"],
+                    status="new",
+                    date_ordered=datetime.strptime(orden["fechaPedido"], "%Y-%m-%d %H:%M:%S")
+                )
+
+                for d in detalles:
+                    detail = OrderDetail.objects.create(order=orden_obj, **d)
+                    detail.calculate()
+
+                orden_obj.calculate()
+
+                response = {
+                    "insertado": True,
+                    "referencia": orden_obj.id,
+                    "fechaInsercion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+
+        except Exception as e:
+            response = {
+                "insertado": False,
+                "respuesta": "Ocurrió un error al insertar la orden"
+            }
+
+        ordenes_response[clave_orden] = response
+
+    return JsonResponse({"ordenes": ordenes_response})
+
+    
+    
+    
