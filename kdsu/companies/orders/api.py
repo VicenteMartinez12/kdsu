@@ -8,6 +8,7 @@ from kdsu.companies.utils.csv import read_csv
 from kdsu.companies.utils.xlsx import read_xlsx
 from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
 from .models import Order, OrderDetail
+from ninja import Body
 
 api = NinjaAPI(urls_namespace="orders_api")
 
@@ -179,7 +180,7 @@ def file_orders(request, file: UploadedFile = File(...)):
     
 @api.post("/orders/json")
 @transaction.atomic
-def json_orders(request, payload: dict):
+def json_orders(request, payload: dict = Body(...)):
     ordenes_response = {}
 
     if "ordenes" not in payload or not isinstance(payload["ordenes"], list):
