@@ -2,12 +2,13 @@ from ninja import NinjaAPI
 from .schemas import CompanySchema, WarehouseSchema, SupplierSchema, ProductSchema, NotFoundSchema, AddressSchema
 from .models import Company, Warehouse, Supplier, Product
 from typing import List, Optional, Union
+from ninja import Router
 
-api = NinjaAPI(urls_namespace="catalogs_api")
+catalogs_router = Router(tags=["Catálogos"])
 
 
 # Endpoint de Company
-@api.get("/companies", response=Union[List[CompanySchema], NotFoundSchema])
+@catalogs_router.get("/companies", response=Union[List[CompanySchema], NotFoundSchema])
 def get_companies(request, name: Optional[str] = None):
     queryset = Company.objects.select_related("address").all()
     if name:
@@ -16,7 +17,7 @@ def get_companies(request, name: Optional[str] = None):
         return {"message": "No se encontró ninguna compañía"}
     return queryset
 
-@api.get("/companies/{company_id}", response={200: CompanySchema, 404: NotFoundSchema})
+@catalogs_router.get("/companies/{company_id}", response={200: CompanySchema, 404: NotFoundSchema})
 def get_company(request, company_id: int):
     try:
         company = Company.objects.select_related("address").get(id=company_id)
@@ -25,7 +26,7 @@ def get_company(request, company_id: int):
         return 404, {"message": "No se encontró ninguna compañía"}
 
 # Endpoint de Warehouse
-@api.get("/warehouses", response=Union[List[WarehouseSchema], NotFoundSchema])
+@catalogs_router.get("/warehouses", response=Union[List[WarehouseSchema], NotFoundSchema])
 def get_warehouses(request, company: Optional[int] = None, company_warehouse_id: Optional[str] = None):
     queryset = Warehouse.objects.all()
     if company:
@@ -38,7 +39,7 @@ def get_warehouses(request, company: Optional[int] = None, company_warehouse_id:
         return {"message": "No se encontró ningún almacén"}
     return queryset
 
-@api.get("/warehouses/{warehouse_id}", response={200: WarehouseSchema, 404: NotFoundSchema})
+@catalogs_router.get("/warehouses/{warehouse_id}", response={200: WarehouseSchema, 404: NotFoundSchema})
 def get_warehouse(request, warehouse_id: int):
     try:
         return 200, Warehouse.objects.get(id=warehouse_id)
@@ -47,7 +48,7 @@ def get_warehouse(request, warehouse_id: int):
 
 
 # Endpoint de Supplier
-@api.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema])
+@catalogs_router.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema])
 def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = None, rfc: Optional[str] = None):
     queryset = Supplier.objects.all()
     if company:
@@ -60,7 +61,7 @@ def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = 
         return {"message": "No se encontró ningún proveedor"}
     return queryset
 
-@api.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema})
+@catalogs_router.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema})
 def get_supplier(request, supplier_id: int):
     try:
         return 200, Supplier.objects.get(id=supplier_id)
@@ -69,7 +70,7 @@ def get_supplier(request, supplier_id: int):
 
 
 # Endpoint de Product
-@api.get("/products", response=Union[List[ProductSchema], NotFoundSchema])
+@catalogs_router.get("/products", response=Union[List[ProductSchema], NotFoundSchema])
 def get_products(request, supplier: Optional[int] = None):
     queryset = Product.objects.all()
     if supplier:

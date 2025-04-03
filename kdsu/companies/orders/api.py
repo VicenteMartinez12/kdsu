@@ -9,12 +9,13 @@ from kdsu.companies.utils.xlsx import read_xlsx
 from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
 from .models import Order, OrderDetail
 from ninja import Body
+from ninja import Router
 
-api = NinjaAPI(urls_namespace="orders_api")
 
-@api.exception_handler(Exception)
-def global_exception_handler(request, exc):
-    return JsonResponse({"error": str(exc)}, status=400)
+
+orders_router = Router(tags=["Órdenes"])
+
+
 
 def clean_text(value):
     return str(value).strip().replace("\n", "").replace("\r", "").replace("\ufeff", "")
@@ -31,7 +32,7 @@ def parse_fecha(fecha_raw):
         except ValueError:
             raise ValueError(f"Formato de fecha inválido: {fecha_raw}")
 
-@api.post("/orders/file")
+@orders_router.post("/file", summary="Carga de órdenes vía cvs y xlsx", description="Este endpoint permite cargar múltiples órdenes en  formato CSV Y XLSX")
 @transaction.atomic
 def file_orders(request, file: UploadedFile = File(...)):
     ext = file.name.split('.')[-1].lower()
@@ -178,7 +179,7 @@ def file_orders(request, file: UploadedFile = File(...)):
     
       
     
-@api.post("/orders/json")
+@orders_router.post("/json" ,summary="Carga de órdenes vía JSON",  description="Este endpoint permite cargar múltiples órdenes en formato JSON")
 @transaction.atomic
 def json_orders(request, payload: dict = Body(...)):
     ordenes_response = {}
