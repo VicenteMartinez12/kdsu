@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KDSU API Docs</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swagger-ui-dist/swagger-ui.css"
+    />
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
+
+    <style>
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .sidebar {
+        width: 250px;
+        background: #003366;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+      }
+
+      .content {
+        margin-left: 250px;
+
+        background: #f9f9f9;
+        min-height: 100vh;
+      }
+
+      .sidebar h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .sidebar a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        margin: 10px 0;
+        cursor: pointer;
+      }
+      .sidebar a:hover {
+        text-decoration: underline;
+      }
+
+      .header {
+        background: #003366;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+      }
+      .header img {
+        height: 35px;
+        margin-right: 10px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+      #swagger-ui {
+        padding: 20px;
+      }
+
+
+      .swagger-ui .topbar,
+      .swagger-ui .info {
+        display: none !important;
+      }
+
+     
+      .swagger-ui section {
+        display: content !important;
+      }
+
+      .swagger-ui .wrapper {
+        display: contents !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Menú lateral donde se muestran los tags -->
+    <div class="sidebar">
+      <h2>Módulos</h2>
+      <div id="menu-tags">Cargando...</div>
+      <!-- Aquí se mostrarán los módulos de la API -->
+    </div>
+
+    <!-- Área principal donde se renderiza Swagger UI -->
+    <div class="content">
+      <div class="header">
+        {# <img src="/static/img/kdsu.png" alt="Logo" /> #}
+        <h1>KDSU API Documentation</h1>
+      </div>
+      <div id="swagger-ui">
+        <!-- Aquí se renderizará la documentación al hacer clic en un módulo -->
+      </div>
+    </div>
+
+   
+
+    <script>
+      let ui; 
+
+      // Función que obtiene los tags (módulos) desde el archivo OpenAPI
+      async function getTagsFromOpenAPI() {
+        const res = await fetch("/api/v1/openapi.json"); // Hacemos una solicitud GET al archivo JSON
+        const data = await res.json(); 
+
+        const tags = new Set(); 
+
+        // Iteramos por los paths y methods de la API para obtener los tags
+        for (const path in data.paths) {
+          for (const method in data.paths[path]) {
+            const endpoint = data.paths[path][method];
+            if (endpoint.tags) {
+              endpoint.tags.forEach((tag) => tags.add(tag));
+            }
+          }
+        }
+        return Array.from(tags); 
+      }
+
+      // Función que configura el menú lateral y renderiza Swagger UI
+      async function setupMenuAndDocs() {
+        const tags = await getTagsFromOpenAPI(); 
+        const menu = document.getElementById("menu-tags");
+        menu.innerHTML = ""; 
+
+        // Creamos un enlace por cada tag para el menú
+        tags.forEach((tag) => {
+          const a = document.createElement("a");
+          a.textContent = tag; 
+          a.onclick = () => renderSwaggerUI(tag); 
+          menu.appendChild(a); 
+        });
+      }
+
+      // Función que renderiza Swagger UI para un tag específico
+      function renderSwaggerUI(tagToShow) {
+        document.getElementById("swagger-ui").innerHTML = ""; 
+
+        // Inicializamos Swagger UI con la configuración
+        ui = SwaggerUIBundle({
+          url: "/api/v1/openapi.json", 
+          dom_id: "#swagger-ui", 
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          layout: "StandaloneLayout", 
+          docExpansion: "list", 
+          deepLinking: true, 
+          defaultModelsExpandDepth: -1, 
+          onComplete: function () {
+            filterByTag(tagToShow); 
+          },
+        });
+      }
+
+      // Función para filtrar las secciones por el tag seleccionado
+      function filterByTag(tagName) {
+        const checkExist = setInterval(() => {
+          const tags = document.querySelectorAll(".opblock-tag-section");
+          if (tags.length) {
+            tags.forEach((tag) => {
+              const tagHeader = tag.querySelector(".opblock-tag");
+              const title = tagHeader?.innerText?.trim();
+              if (title !== tagName) {
+                tag.style.display = "none"; 
+              } else {
+                tag.style.display = "block"; 
+              }
+            });
+            clearInterval(checkExist); 
+          }
+        }, 100);
+      }
+
+      // Inicializamos el menú y la documentación
+      setupMenuAndDocs();
+    </script>
+  </body>
+</html>

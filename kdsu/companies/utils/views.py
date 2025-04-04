@@ -1,3 +1,6 @@
-from django.shortcuts import render
+# kdsu/companies/utils/views.py
 
-# Create your views here.
+from django.views.generic import TemplateView
+
+class CustomSwaggerView(TemplateView):
+    template_name = "docs.html" 

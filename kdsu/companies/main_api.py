@@ -7,7 +7,9 @@ api = NinjaAPI(
     title="KDSU API",
     version="1.0",
     description="API que une catálogos y órdenes",
-    docs_url=None
+
+  
+
 )
 
 @api.exception_handler(Exception)

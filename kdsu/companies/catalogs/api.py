@@ -8,7 +8,7 @@ catalogs_router = Router(tags=["Catálogos"])
 
 
 # Endpoint de Company
-@catalogs_router.get("/companies", response=Union[List[CompanySchema], NotFoundSchema])
+@catalogs_router.get("/companies", response=Union[List[CompanySchema], NotFoundSchema], summary="Carga los registros de compañias",  description="Este endpoint permite cargar registros de las compañias y se puede filtrar por nombre")
 def get_companies(request, name: Optional[str] = None):
     queryset = Company.objects.select_related("address").all()
     if name:
@@ -17,7 +17,7 @@ def get_companies(request, name: Optional[str] = None):
         return {"message": "No se encontró ninguna compañía"}
     return queryset
 
-@catalogs_router.get("/companies/{company_id}", response={200: CompanySchema, 404: NotFoundSchema})
+@catalogs_router.get("/companies/{company_id}", response={200: CompanySchema, 404: NotFoundSchema}, summary="Carga los registros de compañias filtrado por id",  description="Este endpoint permite cargar registros de las compañias y se puede filtrar por el id")
 def get_company(request, company_id: int):
     try:
         company = Company.objects.select_related("address").get(id=company_id)
@@ -26,7 +26,7 @@ def get_company(request, company_id: int):
         return 404, {"message": "No se encontró ninguna compañía"}
 
 # Endpoint de Warehouse
-@catalogs_router.get("/warehouses", response=Union[List[WarehouseSchema], NotFoundSchema])
+@catalogs_router.get("/warehouses", response=Union[List[WarehouseSchema], NotFoundSchema], summary="Carga los registros de almacenes",  description="Este endpoint permite cargar registros de los almacenes y se puede filtrar almacenes de una compañia")
 def get_warehouses(request, company: Optional[int] = None, company_warehouse_id: Optional[str] = None):
     queryset = Warehouse.objects.all()
     if company:
@@ -39,7 +39,7 @@ def get_warehouses(request, company: Optional[int] = None, company_warehouse_id:
         return {"message": "No se encontró ningún almacén"}
     return queryset
 
-@catalogs_router.get("/warehouses/{warehouse_id}", response={200: WarehouseSchema, 404: NotFoundSchema})
+@catalogs_router.get("/warehouses/{warehouse_id}", response={200: WarehouseSchema, 404: NotFoundSchema},summary="Carga los registros de almacenes",  description="Este endpoint permite cargar registros de los almacenes y se puede filtrar por id" )
 def get_warehouse(request, warehouse_id: int):
     try:
         return 200, Warehouse.objects.get(id=warehouse_id)
@@ -48,7 +48,7 @@ def get_warehouse(request, warehouse_id: int):
 
 
 # Endpoint de Supplier
-@catalogs_router.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema])
+@catalogs_router.get("/suppliers", response=Union[List[SupplierSchema], NotFoundSchema], summary="Carga los registros de los proveedores",  description="Este endpoint permite cargar registros de los proveedores y se puede filtrar id de la compañia, nombre y rfc")
 def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = None, rfc: Optional[str] = None):
     queryset = Supplier.objects.all()
     if company:
@@ -61,7 +61,7 @@ def get_suppliers(request, company: Optional[int] = None, name: Optional[str] = 
         return {"message": "No se encontró ningún proveedor"}
     return queryset
 
-@catalogs_router.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema})
+@catalogs_router.get("/suppliers/{supplier_id}", response={200: SupplierSchema, 404: NotFoundSchema}, summary="Carga los registros de los proveedores",  description="Este endpoint permite cargar registros de los proveedores y se puede filtrar por id")
 def get_supplier(request, supplier_id: int):
     try:
         return 200, Supplier.objects.get(id=supplier_id)
@@ -70,7 +70,7 @@ def get_supplier(request, supplier_id: int):
 
 
 # Endpoint de Product
-@catalogs_router.get("/products", response=Union[List[ProductSchema], NotFoundSchema])
+@catalogs_router.get("/products", response=Union[List[ProductSchema], NotFoundSchema], summary="Carga los registros de los proveedores",  description="Este endpoint permite cargar registros de los productos y se puede filtrar por proveedor")
 def get_products(request, supplier: Optional[int] = None):
     queryset = Product.objects.all()
     if supplier:
