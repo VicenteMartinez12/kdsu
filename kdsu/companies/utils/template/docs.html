@@ -2,122 +2,212 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>KDSU API Docs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="vapid-key" content="{{ vapid_key }}" />
+    {% if user.id %}
+    <meta name="user_id" content="{{ user.id }}" />
+    {% endif %} {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+    <script src="{% static 'app/js/init.js' %}"></script>
+    <script src="{% static 'app/js/menu.js' %}"></script>
+    <title>KDSU API Documentation</title>
+    <link rel="stylesheet" href="{% static 'app/css/menu.css' %}" />
+
     <link
       rel="stylesheet"
       href="https://unpkg.com/swagger-ui-dist/swagger-ui.css"
     />
+
+    <!-- Swagger UI Scripts -->
     <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
     <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
-
-    <style>
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-
-      .sidebar {
-        width: 250px;
-        background: #003366;
-        color: white;
-        padding: 20px;
-        box-sizing: border-box;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        overflow-y: auto;
-      }
-
-      .content {
-        margin-left: 250px;
-
-        background: #f9f9f9;
-        min-height: 100vh;
-      }
-
-      .sidebar h2 {
-        font-size: 18px;
-        margin-bottom: 15px;
-      }
-      .sidebar a {
-        display: block;
-        color: white;
-        text-decoration: none;
-        margin: 10px 0;
-        cursor: pointer;
-      }
-      .sidebar a:hover {
-        text-decoration: underline;
-      }
-
-      .header {
-        background: #003366;
-        color: white;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-      }
-      .header img {
-        height: 35px;
-        margin-right: 10px;
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 20px;
-      }
-      #swagger-ui {
-        padding: 20px;
-      }
-
-
-      .swagger-ui .topbar,
-      .swagger-ui .info {
-        display: none !important;
-      }
-
-     
-      .swagger-ui section {
-        display: content !important;
-      }
-
-      .swagger-ui .wrapper {
-        display: contents !important;
-      }
-    </style>
   </head>
+
+  <style>
+    .ui.top.attached.menu {
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    body.pushable {
+      background: #fff;
+    }
+
+    /* ========== CONTENIDO PRINCIPAL ========== */
+    .pusher {
+      /* Se ubica a la derecha del sidebar y debajo del header */
+      max-width: 100%;
+      padding: 1rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ========== 1. Ajustes básicos del body para quitar scroll global ========== */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      /* Evita todo scroll en la ventana => controlamos el scroll en contenedores */
+      overflow: hidden;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    .ui.top.fixed.menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      height: 3.5em;
+    }
+
+    .ui.sidebar {
+      position: fixed;
+      top: 7em; /* La altura del header */
+      left: 0;
+      bottom: 0;
+      width: 220px;
+      overflow-y: auto;
+      height: calc(100vh - 4em) !important; /* Ocupa el resto de la pantalla */
+    }
+
+    .ui.visible.left.sidebar ~ .fixed,
+    .ui.visible.left.sidebar ~ .pusher {
+      transform: translate3d(220px, 0, 0);
+    }
+
+    /* Main Content Styling */
+    .main-content {
+      height: calc(100vh - 5.5em);
+      width: calc(100% - 220px);
+      overflow-y: auto; /* Scroll vertical propio */
+      overflow-x: hidden; /* Oculta scroll horizontal en caso de desborde */
+      box-sizing: border-box; /* Para que padding no rompa el cálculo de altura */
+      margin-top: -30px;
+    }
+
+    .ui.accordion.item {
+      padding: 10px !important;
+      margin: 0 !important; /* Si también quieres quitar el margen */
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    #hoverZone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 10px;
+      height: 100vh; /* Toda la altura de la ventana */
+      background: transparent;
+      z-index: 9999;
+    }
+
+    body.pushable {
+      background: #fff;
+    }
+
+    .ui.left.sidebar {
+      position: fixed;
+      top: 4.15em; /* Debajo del header (que mide 3.5em) */
+      left: 0;
+      bottom: 0;
+      width: 220px; /* Ancho del sidebar */
+      overflow-y: auto; /* Scroll independiente si es muy largo */
+    }
+
+    .ui.visible.left.sidebar ~ .fixed,
+    .ui.visible.left.sidebar ~ .pusher {
+      transform: translate3d(220px, 0, 0);
+    }
+
+    .ui.accordion.item {
+      padding: 10px !important;
+      margin: 0 !important; /* Si también quieres quitar el margen */
+    }
+
+    .swagger-ui .topbar {
+      display: none;
+    }
+    .swagger-ui .wrapper {
+      max-width: 100%;
+    }
+    .swagger-ui .info {
+      margin: 30px 0;
+    }
+  </style>
+
   <body>
-    <!-- Menú lateral donde se muestran los tags -->
-    <div class="sidebar">
-      <h2>Módulos</h2>
-      <div id="menu-tags">Cargando...</div>
-      <!-- Aquí se mostrarán los módulos de la API -->
+    <!-- Header -->
+    <header>
+      <div class="ui top attached menu">
+        <a class="item" id="toggleSidebar" style="width: 50px">
+          <i class="ellipsis vertical icon"></i>
+        </a>
+        <h1 style="margin-left: 3%; margin-top: 20px; font-size: large">
+          KDSU API Documentation
+        </h1>
+        <div class="right menu">
+          <div
+            class="menu left transition hidden"
+            id="notificationContainer"
+            style="
+              max-height: 200px;
+              min-width: 400px;
+              max-width: 550px;
+              overflow-y: scroll;
+            "
+            tabindex="-1"
+          >
+            <div class="item textContainer">
+              <h5 class="center" onclick="clearNotifications()">
+                <i class="trash icon"></i> Borrar todas las notificaciones.
+              </h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar (left menu) -->
+    <div class="ui left visible sidebar vertical menu" id="mySidebar">
+      <div class="sidebar">
+        {# <h2 style="text-align: center; border-radius: 5%">APIS</h2> #}
+        <div id="menu-tags">Cargando...</div>
+        <!-- Módulos se cargarán aquí -->
+      </div>
     </div>
 
-    <!-- Área principal donde se renderiza Swagger UI -->
-    <div class="content">
-      <div class="header">
-        {# <img src="/static/img/kdsu.png" alt="Logo" /> #}
-        <h1>KDSU API Documentation</h1>
-      </div>
-      <div id="swagger-ui">
-        <!-- Aquí se renderizará la documentación al hacer clic en un módulo -->
+    <!-- Main Content (right side) -->
+    <div class="pusher">
+      <div class="main-content">
+        <div id="swagger-ui">
+          <!-- Swagger UI se renderizará aquí -->
+        </div>
       </div>
     </div>
-
-   
 
     <script>
-      let ui; 
+      let ui;
 
       // Función que obtiene los tags (módulos) desde el archivo OpenAPI
       async function getTagsFromOpenAPI() {
         const res = await fetch("/api/v1/openapi.json"); // Hacemos una solicitud GET al archivo JSON
-        const data = await res.json(); 
+        const data = await res.json();
 
-        const tags = new Set(); 
+        const tags = new Set();
 
         // Iteramos por los paths y methods de la API para obtener los tags
         for (const path in data.paths) {
@@ -128,39 +218,41 @@
             }
           }
         }
-        return Array.from(tags); 
+        return Array.from(tags);
       }
 
       // Función que configura el menú lateral y renderiza Swagger UI
       async function setupMenuAndDocs() {
-        const tags = await getTagsFromOpenAPI(); 
+        const tags = await getTagsFromOpenAPI();
         const menu = document.getElementById("menu-tags");
-        menu.innerHTML = ""; 
+        menu.innerHTML = "";
 
         // Creamos un enlace por cada tag para el menú
         tags.forEach((tag) => {
           const a = document.createElement("a");
-          a.textContent = tag; 
-          a.onclick = () => renderSwaggerUI(tag); 
-          menu.appendChild(a); 
+          a.textContent = tag;
+          a.classList.add("item");
+          a.onclick = () => renderSwaggerUI(tag); // Asocia el evento de clic para mostrar la documentación del tag
+          menu.appendChild(a);
         });
       }
 
       // Función que renderiza Swagger UI para un tag específico
       function renderSwaggerUI(tagToShow) {
-        document.getElementById("swagger-ui").innerHTML = ""; 
+        document.getElementById("swagger-ui").innerHTML = ""; // Limpia el contenido previo
 
         // Inicializamos Swagger UI con la configuración
         ui = SwaggerUIBundle({
-          url: "/api/v1/openapi.json", 
-          dom_id: "#swagger-ui", 
+          url: "/api/v1/openapi.json", // Se carga el archivo OpenAPI
+          dom_id: "#swagger-ui", // El ID donde se debe renderizar
           presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-          layout: "StandaloneLayout", 
-          docExpansion: "list", 
-          deepLinking: true, 
-          defaultModelsExpandDepth: -1, 
+          layout: "StandaloneLayout", // Layout tipo standalone
+          docExpansion: "list",
+          deepLinking: true, // Activa la vinculación profunda
+          defaultModelsExpandDepth: -1, // No expandir modelos por defecto
+          topbar: false,
           onComplete: function () {
-            filterByTag(tagToShow); 
+            filterByTag(tagToShow); // Filtra las secciones por la etiqueta seleccionada
           },
         });
       }
@@ -168,24 +260,141 @@
       // Función para filtrar las secciones por el tag seleccionado
       function filterByTag(tagName) {
         const checkExist = setInterval(() => {
-          const tags = document.querySelectorAll(".opblock-tag-section");
+          const tags = document.querySelectorAll(".opblock-tag-section"); // Selecciona todas las secciones
           if (tags.length) {
             tags.forEach((tag) => {
               const tagHeader = tag.querySelector(".opblock-tag");
               const title = tagHeader?.innerText?.trim();
               if (title !== tagName) {
-                tag.style.display = "none"; 
+                tag.style.display = "none"; // Oculta las secciones que no corresponden con el tag
               } else {
-                tag.style.display = "block"; 
+                tag.style.display = "block"; // Muestra las secciones que corresponden con el tag
               }
             });
-            clearInterval(checkExist); 
+            clearInterval(checkExist); // Detiene la comprobación
           }
         }, 100);
       }
 
       // Inicializamos el menú y la documentación
       setupMenuAndDocs();
+    </script>
+
+    <script>
+      let isSidebarVisible = true;
+      $(document).ready(function () {
+        // Inicializa la sidebar de Fomantic
+        $(".ui.sidebar").sidebar({
+          dimPage: false,
+          closable: false,
+          transition: "push", // valor inicial
+        });
+
+        // NUEVA variable para saber si se mostró con overlay o push
+        let isOverlay = false;
+
+        // ============== BOTÓN #toggleSidebar ==============
+        $("#toggleSidebar").on("click", function () {
+          // Desactivar el botón mientras la animación se ejecuta
+          $(this).addClass("disabled"); // Añade la clase para desactivar el botón
+
+          console.log(
+            "[toggleSidebar] clic - isSidebarVisible? ",
+            isSidebarVisible,
+            "isOverlay?",
+            isOverlay
+          );
+
+          if (isSidebarVisible) {
+            // SI ESTÁ VISIBLE => lo ocultamos con overlay
+            console.log("-> Ocultando sidebar con overlay");
+            $(".ui.sidebar").sidebar("setting", "transition", "overlay");
+            $(".ui.sidebar").sidebar("hide");
+            $(".main-content").css("width", "100%");
+
+            // CAMBIA el ícono en #toggleSidebar al ocultarse
+            $("#toggleSidebar i")
+              .removeClass("ellipsis vertical icon")
+              .addClass("ellipsis horizontal icon");
+
+            isSidebarVisible = false;
+            isOverlay = false; // Al quedar oculto, reseteamos
+          } else {
+            // SI ESTÁ OCULTO => lo mostramos con push
+            console.log("-> Mostrando sidebar con push");
+            $(".ui.sidebar").sidebar("setting", "transition", "push");
+            $(".ui.sidebar").sidebar("show");
+            $(".main-content").css("width", "calc(100% - 220px)");
+
+            $("#toggleSidebar i")
+              .removeClass("ellipsis horizontal icon")
+              .addClass("ellipsis vertical  icon");
+
+            isSidebarVisible = true;
+            isOverlay = false; // Se mostró vía push
+          }
+
+          // Después de la animación, reactivar el botón
+          setTimeout(() => {
+            // Rehabilitar el botón después de la animación (ajustar el tiempo si es necesario)
+            $("#toggleSidebar").removeClass("disabled");
+          }, 500); // Ajusta el tiempo (en milisegundos) según la duración de la animación
+        });
+
+        // ============== ACORDEÓN  ==============
+        $(".ui.accordion").accordion({
+          exclusive: false,
+          closeNested: false,
+        });
+
+        // ============== HOVER ZONE ==============
+        // Al pasar el ratón, SOLO si está oculto (contenido expandido):
+        // => lo mostramos con OVERLAY, sin restar ancho.
+        $("#hoverZone").on("mouseenter", function () {
+          console.log(
+            "[hoverZone] mouseenter - isSidebarVisible? ",
+            isSidebarVisible,
+            "isOverlay?",
+            isOverlay
+          );
+
+          if (!isSidebarVisible) {
+            console.log("-> Mostrando sidebar con overlay (por hover)");
+            // Aseguramos la transición overlay
+            $(".ui.sidebar").sidebar("setting", "transition", "overlay");
+            // Mostramos sin cambiar el width => overlay no requiere restar ancho
+            $(".ui.sidebar").sidebar("show");
+
+            // NO tocamos .main-content => sigue en width=100%
+            isSidebarVisible = true;
+            isOverlay = true; // Marcamos que se mostró vía overlay
+          }
+        });
+
+        // ============== MOUSELEAVE SIDEBAR ==============
+        // Si el sidebar está visible y se mostró por overlay => ocúltalo
+        // Si se mostró con push => no lo oculte.
+        $("#mySidebar").on("mouseleave", function () {
+          console.log(
+            "[mySidebar] mouseleave - isSidebarVisible? ",
+            isSidebarVisible,
+            "isOverlay?",
+            isOverlay
+          );
+
+          if (isSidebarVisible && isOverlay) {
+            console.log("-> Ocultando sidebar overlay al mouseleave");
+            $(".ui.sidebar").sidebar("setting", "transition", "overlay");
+            $(".ui.sidebar").sidebar("hide");
+            $(".main-content").css("width", "100%"); // Regresamos contenido expandido
+
+            isSidebarVisible = false;
+            isOverlay = false;
+          } else {
+            console.log("-> No se oculta, porque está con push o ya oculto");
+          }
+        });
+      });
     </script>
   </body>
 </html>

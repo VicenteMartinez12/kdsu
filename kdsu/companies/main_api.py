@@ -6,7 +6,7 @@ from django.http import JsonResponse
 api = NinjaAPI(
     title="KDSU API",
     version="1.0",
-    description="API que une catálogos y órdenes",
+    description="",
 
   
 
