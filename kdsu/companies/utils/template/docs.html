@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="vapid-key" content="{{ vapid_key }}" />
+    {% load static %}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <link
       rel="stylesheet"
@@ -166,8 +167,9 @@
         <a class="item" id="toggleSidebar" style="width: 50px">
           <i class="ellipsis vertical icon"></i>
         </a>
-        <h1 style="margin-left: 3%; margin-top: 20px; font-size: large">
-          KDSU API Documentation
+        <img src="{% static 'img/kdsu.png' %}" alt="KDSU Logo" style="height: 30px; width: auto; margin-top: 15px; margin-left: 10px;" />
+        <h1 style="margin-left: 10px; margin-top: 20px; font-size: large">
+          KDSU API Documentación
         </h1>
         <div class="right menu">
           <div
@@ -210,7 +212,7 @@
         <p>AQUÍ ENCONTRARÁ TODA LA DOCUMENTACIÓN RELACIONADA A LOS ENDPOINTS LOS CUALES SE UTILIZAN.</p>
       </div>
       <div class="image-container" style="text-align: center; margin-top: 20px;">
-        <img src="kdsu/kdsu/companies/utils/template/kdsu.png" alt="KDSU Logo" style="max-width: 100%; height: auto;" />
+        <img src="{% static 'img/kdsu.png' %}" alt="KDSU Logo" style="max-width: 100%; height: auto;" />
       </div>
       <div id="swagger-ui">
         <!-- Swagger UI se renderizará aquí -->

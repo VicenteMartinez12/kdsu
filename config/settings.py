@@ -120,12 +120,12 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Rutas de archivos estáticos
+
+STATIC_URL = '/static/'  # URL base para archivos estáticos (por ejemplo, /static/kdsu.png)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # La carpeta 'static' dentro de tu directorio raíz
+]
