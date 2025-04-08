@@ -4,9 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="vapid-key" content="{{ vapid_key }}" />
-    {% if user.id %}
-    <meta name="user_id" content="{{ user.id }}" />
-    {% endif %} {% load static %}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <link
       rel="stylesheet"
@@ -14,10 +11,8 @@
       href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
-    <script src="{% static 'app/js/init.js' %}"></script>
-    <script src="{% static 'app/js/menu.js' %}"></script>
+   
     <title>KDSU API Documentation</title>
-    <link rel="stylesheet" href="{% static 'app/css/menu.css' %}" />
 
     <link
       rel="stylesheet"
@@ -93,7 +88,7 @@
       overflow-y: auto; /* Scroll vertical propio */
       overflow-x: hidden; /* Oculta scroll horizontal en caso de desborde */
       box-sizing: border-box; /* Para que padding no rompa el cálculo de altura */
-      margin-top: -30px;
+     
     }
 
     .ui.accordion.item {
@@ -147,6 +142,21 @@
     .swagger-ui .info {
       margin: 30px 0;
     }
+
+
+    .welcome-header {
+      text-align: center;
+      margin-top: 50px; /* Añadir un poco de margen hacia abajo */
+    }
+
+    .welcome-text {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+      color: #333;
+    }
+
+
   </style>
 
   <body>
@@ -190,14 +200,23 @@
       </div>
     </div>
 
-    <!-- Main Content (right side) -->
-    <div class="pusher">
-      <div class="main-content">
-        <div id="swagger-ui">
-          <!-- Swagger UI se renderizará aquí -->
-        </div>
+  <!-- Main Content (right side) -->
+  <div class="pusher">
+    <div class="main-content">
+      <div class="welcome-header">
+        <h2>BIENVENIDOS A LA DOCUMENTACIÓN DE KDSU</h2>
+      </div>
+      <div class="welcome-text">
+        <p>AQUÍ ENCONTRARÁ TODA LA DOCUMENTACIÓN RELACIONADA A LOS ENDPOINTS LOS CUALES SE UTILIZAN.</p>
+      </div>
+      <div class="image-container" style="text-align: center; margin-top: 20px;">
+        <img src="kdsu/kdsu/companies/utils/template/kdsu.png" alt="KDSU Logo" style="max-width: 100%; height: auto;" />
+      </div>
+      <div id="swagger-ui">
+        <!-- Swagger UI se renderizará aquí -->
       </div>
     </div>
+  </div>
 
     <script>
       let ui;
@@ -239,6 +258,11 @@
 
       // Función que renderiza Swagger UI para un tag específico
       function renderSwaggerUI(tagToShow) {
+        // Ocultar la bienvenida al seleccionar una API
+        document.querySelector(".welcome-header").style.display = "none";
+        document.querySelector(".welcome-text").style.display = "none";
+        document.querySelector(".image-container").style.display = "none";
+
         document.getElementById("swagger-ui").innerHTML = ""; // Limpia el contenido previo
 
         // Inicializamos Swagger UI con la configuración
@@ -279,6 +303,7 @@
       // Inicializamos el menú y la documentación
       setupMenuAndDocs();
     </script>
+   
 
     <script>
       let isSidebarVisible = true;

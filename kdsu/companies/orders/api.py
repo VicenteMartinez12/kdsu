@@ -10,6 +10,7 @@ from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
 from .models import Order, OrderDetail
 from ninja import Body
 from ninja import Router
+from .schemas import Orden
 
 
 
@@ -181,7 +182,48 @@ def file_orders(request, file: UploadedFile = File(...)):
     
 @orders_router.post("/json" ,summary="Carga de órdenes vía JSON",  description="Este endpoint permite cargar múltiples órdenes en formato JSON")
 @transaction.atomic
-def json_orders(request, payload: dict = Body(...)):
+def json_orders(request, payload: dict = Body(..., example={
+    "ordenes": [
+        {
+            "compania": "TONY",
+            "orden": "47",
+            "fechaPedido": "2025-03-24 09:43:20",
+            "claveProveedor": "NORMA1",
+            "esTemporada": True,
+            "esPagoAnticipado": True,
+            "tipo": "normal",
+            "productos": [
+                {
+                    "sucursalDestino": "suc299",
+                    "clave": "SKU12345",
+                    "numeroArticulo": "MPN12345",
+                    "descripcion": "Libreta",
+                    "costoUnitario": 0,
+                    "cantidad": 100,
+                    "porcentajeImpuesto": 16.00,
+                    "unidad": "Caja",
+                    "empaqueMaster": 100,
+                    "empaqueInner": 10,
+                    "esMercanciaSinCargo": True
+                },
+                {
+                    "sucursalDestino": "suc299",
+                    "clave": "SKU67890",
+                    "numeroArticulo": "MPN67890",
+                    "descripcion": "Pluma",
+                    "costoUnitario": 32.80,
+                    "cantidad": 50,
+                    "porcentajeImpuesto": 0.00,
+                    "unidad": "Caja",
+                    "empaqueMaster": 50,
+                    "empaqueInner": 5,
+                    "esMercanciaSinCargo": False
+                }
+            ]
+        }
+    ]
+})):
+  
     ordenes_response = {}
 
     if "ordenes" not in payload or not isinstance(payload["ordenes"], list):
@@ -338,6 +380,5 @@ def json_orders(request, payload: dict = Body(...)):
 
     return JsonResponse({"ordenes": ordenes_response})
 
-    
     
     
