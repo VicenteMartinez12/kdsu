@@ -24,48 +24,4 @@ class Orden(Schema):
     tipo: str
     productos: List[Producto]
 
-    class Config:
-        # Definimos el ejemplo JSON que proporcionaste
-        schema_extra = {
-            "example": {
-                "ordenes": [
-                    {
-                        "compania": "TONY",
-                        "orden": "47",
-                        "fechaPedido": "2025-03-24 09:43:20",
-                        "claveProveedor": "NORMA1",
-                        "esTemporada": True,
-                        "esPagoAnticipado": True,
-                        "tipo": "normal",
-                        "productos": [
-                            {
-                                "sucursalDestino": "suc299",
-                                "clave": "SKU12345",
-                                "numeroArticulo": "MPN12345",
-                                "descripcion": "Libreta",
-                                "costoUnitario": 0,
-                                "cantidad": 100,
-                                "porcentajeImpuesto": 16.00,
-                                "unidad": "Caja",
-                                "empaqueMaster": 100,
-                                "empaqueInner": 10,
-                                "esMercanciaSinCargo": True
-                            },
-                            {
-                                "sucursalDestino": "suc299",
-                                "clave": "SKU67890",
-                                "numeroArticulo": "MPN67890",
-                                "descripcion": "Pluma",
-                                "costoUnitario": 32.80,
-                                "cantidad": 50,
-                                "porcentajeImpuesto": 0.00,
-                                "unidad": "Caja",
-                                "empaqueMaster": 50,
-                                "empaqueInner": 5,
-                                "esMercanciaSinCargo": False
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
+    
