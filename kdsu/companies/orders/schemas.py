@@ -16,8 +16,8 @@ class Producto(Schema):
 
 class Orden(Schema):
     compania: str
-    orden: str  # Asegúrate de que el campo "orden" sea tipo `str` si en tu ejemplo lo estás pasando como un string
-    fechaPedido: str  # El formato de fecha también debe coincidir con lo que esperas
+    orden: str 
+    fechaPedido: str  
     claveProveedor: str
     esTemporada: bool
     esPagoAnticipado: bool
