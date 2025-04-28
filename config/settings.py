@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-g^_2xg$r#osvo-37mcr$!rw*0iwzgj0)j@=8yk=hue8#9^0^#g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'kdsu.companies.catalogs',
     'kdsu.companies.orders',
     'kdsu.companies.utils',
+    'corsheaders',
     
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,6 +53,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://10.105.17.42:8010",  # Agrega esta línea
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -125,7 +131,11 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Rutas de archivos estáticos
 
-STATIC_URL = '/static/'  # URL base para archivos estáticos (por ejemplo, /static/kdsu.png)
+STATIC_URL = '/static/'  
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),  # La carpeta 'static' dentro de tu directorio raíz
+    os.path.join(BASE_DIR, "static"),  
 ]

@@ -10,5 +10,5 @@ urlpatterns = [
     path("", include("kdsu.companies.utils.urls")),
     path('api/', include('kdsu.companies.api_urls')),
 
-    
+
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
