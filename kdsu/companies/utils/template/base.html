@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {% load static %}
+
+    <!-- jQuery (debe ir primero) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Fomantic UI -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+    
+    <!-- Tus estilos -->
+    <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+    <link rel="stylesheet" href="{% static 'css/catalogo1.css' %}">
+
+    <!-- Tus scripts -->
+    <script src="{% static 'js/init.js' %}"></script>
+    <script src="{% static 'js/menu.js' %}"></script>
+    <script src="{% static 'js/exportador.js' %}"></script>
+
+
+   
+    
+    
+
+    <title>Menú fomantic</title>
+
+
+    <link rel="stylesheet" href="{% static 'css/menu.css'%}" />
+  
+  </head>
+
+  <body >
+
+  <!-- El overlay/dimmer Fomantic (global). Sin .page por defecto -->
+
+
+  <div id="globalWaitOverlay" class="ui dimmer">
+    <div id="globalWaitMessage" class="ui text loader">Hola</div>
+  </div>
+  
+  
+  
+
+    <header>
+      <div class="ui top attached menu">
+        <!-- Botón para mostrar/ocultar la sidebar -->
+        <a class="item" id="toggleSidebar" style="width:50px">
+          <i class="ellipsis vertical icon"></i>
+        </a>
+
+
+
+        {% block logo_nombre %}
+        
+        
+        {% endblock logo_nombre %}
+
+ 
+        
+           {% block navegacion %}
+
+
+      
+
+        {% endblock navegacion %}
+
+        <div class="right menu" id="notificaciones">
+          <div class="ui dropdown item blink" tabindex="0">
+            <div class="" id="notificationHeader">
+              <i class="bell icon"></i>
+              <div style="display:none" data-count="0" class="bottom floating ui yellow label" id="notificationCount">
+                0
+              </div>
+            </div>
+
+            <div
+              class="menu left transition hidden"
+              id="notificationContainer"
+              style="
+                max-height: 200px;
+                min-width: 400px;
+                max-width: 550px;
+                overflow-y: scroll;
+              "
+              tabindex="-1"
+            >
+              <div class="item textContainer" >
+                <h5 class="center" onclick="clearNotifications()">
+                  <i class="trash icon" ></i> Borrar todas las notificaciones.
+                </h5>
+              </div>
+
+            </div>
+          </div>
+
+         {% block usuario %}
+         
+         
+         {% endblock usuario %}
+
+          
+        </div>
+      </div>
+    </header>
+
+
+
+    <div id="hoverZone"></div>
+
+    <!-- ======= SIDEBAR (ASIDE) ======= -->
+    <div class="ui left visible sidebar vertical menu" id="mySidebar">
+
+      <!-- Campo de búsqueda -->
+      <div class="item">
+        <div class="ui icon input">
+          <input type="text" placeholder="Buscar..." />
+          <i class="search icon"></i>
+        </div>
+      </div>
+
+
+
+
+      <!-- Estructura de Accordion  -->
+
+
+
+      <div class="Opciones">
+
+        <div class="ui accordion item catalogos">
+          <div class="title">
+            <i class="layer group icon"></i>
+            Catálogos
+            <i class="dropdown icon"></i>
+          </div>
+          <div class="content">
+        
+     
+        
+            <a class="item" id="catalogoProducto">Catálogo productos</a>
+            <a class="item" id="catalogoProveedor">Catálogo proveedores</a>
+            <a class="item" id="catalogoSucursal">Catálogo sucursales</a>
+            <a class="item" id="mapaSucursal">Mapa de sucursales</a>
+            <a class="item" id="plantillaConsultas">Plantilla de consultas</a>
+            
+       
+
+
+          </div>
+        </div>
+
+      <div class="ui accordion item consultas">
+
+        <div class="title">
+          <i class="external alternate icon"></i>
+          Consultas
+          <i class="dropdown icon"></i>
+        </div>
+
+        <div class="content">
+          <a class="item">Opción 1.1</a>
+          <a class="item">Opción 1.2</a>
+        </div>
+      </div>
+
+
+      <div class="ui accordion item reportes">
+
+        <div class="title">
+          <i class="file icon"></i>
+          Reportes
+          <i class="dropdown icon"></i>
+        </div>
+
+        <div class="content">
+          <a class="item">Opción 1.1</a>
+          <a class="item">Opción 1.2</a>
+        </div>
+
+      </div>
+
+
+      <div class="ui accordion item procesos">
+
+        <div class="title">
+          <i class="sliders horizontal icon"></i>
+          Procesos
+          <i class="dropdown icon"></i>
+        </div>
+
+        <div class="content">
+          <a class="item">Opción 1.1</a>
+          <a class="item">Opción 1.2</a>
+        </div>
+      </div>
+
+    </div>
+
+    </div>
+
+
+    <!-- ======= CONTENEDOR PRINCIPAL (a la derecha del aside) ======= -->
+
+    <div class="pusher">
+
+      <!-- Contenedor con scroll -->
+      <div class="main-content" id="mainContent">
+   
+
+
+        {% block contenido %}
+        
+        
+        
+        {% endblock contenido %}
+        
+      </div>
+    </div>
+
+    <script>
+      let isSidebarVisible = true;
+      $(document).ready(function () {
+        // Inicializa la sidebar de Fomantic
+        $('.ui.sidebar').sidebar({
+          dimPage: false,
+          closable: false,
+          transition: 'push', // valor inicial
+        });
+      
+        // NUEVA variable para saber si se mostró con overlay o push
+        let isOverlay = false;
+      
+        // ============== BOTÓN #toggleSidebar ==============
+        $('#toggleSidebar').on('click', function () {
+          // Desactivar el botón mientras la animación se ejecuta
+          $(this).addClass("disabled"); // Añade la clase para desactivar el botón
+      
+          console.log("[toggleSidebar] clic - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
+      
+          if (isSidebarVisible) {
+            // SI ESTÁ VISIBLE => lo ocultamos con overlay
+            console.log("-> Ocultando sidebar con overlay");
+            $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
+            $('.ui.sidebar').sidebar('hide');
+            $('.main-content').css('width', '100%');
+      
+            // CAMBIA el ícono en #toggleSidebar al ocultarse
+            $('#toggleSidebar i')
+              .removeClass('ellipsis vertical icon')
+              .addClass('ellipsis horizontal icon');
+      
+            isSidebarVisible = false;
+            isOverlay = false; // Al quedar oculto, reseteamos
+          } else {
+            // SI ESTÁ OCULTO => lo mostramos con push
+            console.log("-> Mostrando sidebar con push");
+            $('.ui.sidebar').sidebar('setting', 'transition', 'push');
+            $('.ui.sidebar').sidebar('show');
+            $('.main-content').css('width', 'calc(100% - 220px)');
+      
+            $('#toggleSidebar i')
+              .removeClass('ellipsis horizontal icon')
+              .addClass('ellipsis vertical  icon');
+      
+            isSidebarVisible = true;
+            isOverlay = false; // Se mostró vía push
+          }
+      
+          // Después de la animación, reactivar el botón
+          $('.ui.sidebar').one('transitionend', function () {
+            // Rehabilitar el botón después de la animación (ajustar el tiempo si es necesario)
+            $('#toggleSidebar').removeClass('disabled');
+          });
+        });
+      
+        // ============== ACORDEÓN ==============
+        $('.ui.accordion').accordion({
+          exclusive: false,
+          closeNested: false
+        });
+      
+        // ============== HOVER ZONE ==============
+        // Al pasar el ratón, SOLO si está oculto (contenido expandido):
+        // => lo mostramos con OVERLAY, sin restar ancho.
+        $('#hoverZone').on('mouseenter', function () {
+          console.log("[hoverZone] mouseenter - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
+      
+          if (!isSidebarVisible) {
+            console.log("-> Mostrando sidebar con overlay (por hover)");
+            // Aseguramos la transición overlay
+            $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
+            // Mostramos sin cambiar el width => overlay no requiere restar ancho
+            $('.ui.sidebar').sidebar('show');
+      
+            // NO tocamos .main-content => sigue en width=100%
+            isSidebarVisible = true;
+            isOverlay = true; // Marcamos que se mostró vía overlay
+          }
+        });
+      
+        // ============== MOUSELEAVE SIDEBAR ==============
+        // Si el sidebar está visible y se mostró por overlay => ocúltalo
+        // Si se mostró con push => no lo oculte.
+        $('#mySidebar').on('mouseleave', function () {
+          console.log("[mySidebar] mouseleave - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
+      
+          if (isSidebarVisible && isOverlay) {
+            console.log("-> Ocultando sidebar overlay al mouseleave");
+            $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
+            $('.ui.sidebar').sidebar('hide');
+            $('.main-content').css('width', '100%'); // Regresamos contenido expandido
+      
+            isSidebarVisible = false;
+            isOverlay = false;
+          } else {
+           // console.log("-> No se oculta, porque está con push o ya oculto");
+          }
+        });
+      
+        // ============== NOTIFICACIONES ==============
+        $('#notificaciones').on('click', function (event) {
+          event.stopPropagation();
+          $('#notificationContainer').toggleClass('hidden');
+        });
+        $('#usuario').on('click', function (event) {
+          event.stopPropagation();
+        });
+        $(document).on('click', function (event) {
+          if (
+            !$(event.target).closest('#notificaciones').length &&
+            !$(event.target).closest('#notificationContainer').length &&
+            !$(event.target).closest('#usuario').length
+          ) {
+            $('#notificationContainer').addClass('hidden');
+          }
+        });
+      
+        // ============== MENÚ FLOTANTE USUARIO ==============
+        $('#usuario').on('click', function (event) {
+          event.stopPropagation();
+          $('#userMenu').toggle();
+        });
+        $(document).on('click', function (event) {
+          if (
+            !$(event.target).closest('#usuario').length &&
+            !$(event.target).closest('#userMenu').length
+          ) {
+            $('#userMenu').hide();
+          }
+        });
+      });
+      
+    </script>
+    
+    <script src="{% static '/js/registerSw.js' %}"></script>
+    <script src="{% static '/js/zw.js' %}"></script>
+  </body>
+</html>

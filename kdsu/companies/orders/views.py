@@ -4,6 +4,19 @@ from django.views import View
 
 from .models import Order, OrderDetail
 from .forms import OrderForm, OrderDetailForm
+from django.conf import settings
+
+
+
+
+def plantilla_consultas_view(request):
+    return render(request, 'orders/plantilla_consultas.html')
+
+
+   
+def index2(request):
+    return render(request, 'orders/index.html')
+
 
 class OrderTestView(View):
     def get(self, request, *args, **kwargs):

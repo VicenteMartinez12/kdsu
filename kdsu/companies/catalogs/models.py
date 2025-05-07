@@ -1,7 +1,8 @@
 from django.db import models
 
 from django.core.validators import MinLengthValidator
-
+from django.core.exceptions import ValidationError
+from decimal import Decimal
 # Create your models here.
 
 class Address(models.Model):
@@ -29,9 +30,6 @@ class Company(models.Model):
         return self.name
 
 
-from django.db import models
-from decimal import Decimal
-from django.core.exceptions import ValidationError
 
 class Warehouse(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)

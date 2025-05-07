@@ -1,0 +1,104 @@
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/css/plantilla_consultas.css' %}">
+
+
+
+
+<!-- plantilla_consultas.html -->
+<div class="ui segment">
+    <div class="">
+        <div class="ui grid middle aligned">
+          <div class="eight wide column" style="display: flex; align-items: left; gap: 0.5rem;">
+            
+            <h3 class="ui header" style="margin: 0;">
+               {% block icono  %}<i class="bars icon"></i>{% endblock icono %}  {% block titulo %}Consulta 1{% endblock titulo %}  </h3>
+          </div>
+
+          {% block botones %}
+          <div class="eight wide column right aligned">
+            {% comment %} <div class="ui icon input" id="buscadorDatatable">
+              <input type="text" placeholder="Buscar...">
+              <i class="search icon"></i>
+            </div> {% endcomment %}                    
+            
+            {% block refrescar %}
+       
+            <button class="ui blue button" id="btnRefrescar">
+              <i class=""></i> Refrescar
+            </button>
+            {% endblock refrescar %}
+
+            {% block procesar %}
+            <button class="ui blue button" id="btnProcesar">
+                <i class=""></i> Procesar
+              </button>
+           
+              {% endblock procesar %}
+
+            {% block exportar %}
+            <div class="ui dropdown button">
+              Exportar <i class="dropdown icon"></i>
+              <div class="menu">
+                <div id="exportarCsv" class="item">CSV</div>
+                <div id="exportarJson" class="item">JSON</div>
+                <div id="exportarXml" class="item">XML</div>
+              </div>
+            </div>
+            {% endblock exportar %}
+          </div>
+          {% endblock botones %}
+        </div>
+      </div>
+  
+ <!-- Panel de Filtros -->
+<div class="ui form filtros" style="margin-top: 1rem;">
+    <div class="fields">
+      <div class="field">
+        <label>Filtro de texto</label>
+        <input type="text" id="filtroTexto" placeholder="Buscar...">
+      </div>
+      <div class="field">
+        <label>Filtro de selección</label>
+        <select id="filtroSeleccion" class="ui dropdown" >
+          {% comment %} <option value="">Todos</option>
+          <option value="Item1">Item1</option>
+          <option value="Item2">Item2</option> {% endcomment %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha inicio</label>
+        <input type="date" id="fechaInicio">
+      </div>
+      <div class="field">
+        <label>Fecha fin</label>
+        <input type="date" id="fechaFin">
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="tabla-contenedor">
+    <table id="tablaPlantillaConsultas" class="ui celled striped table" style="display:none;">
+      <thead>
+        {% block columnas %}
+        <tr>
+            <th  ></th>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+            <th></th>
+          </tr>
+        {% endblock columnas %}
+      </thead>
+      <tbody>
+       
+      </tbody>
+    </table>
+  </div>
+
+  </div>
+  
+
+  

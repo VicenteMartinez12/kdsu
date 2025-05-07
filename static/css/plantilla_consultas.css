@@ -1,0 +1,103 @@
+/* catalogo1.css */
+
+.dataTables_footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    gap: 1rem;
+  }
+  
+  .dataTables_footer .dataTables_length {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .dataTables_footer .dataTables_info {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .dataTables_footer .dataTables_paginate {
+    flex: 1;
+    text-align: right;
+  }
+  
+  @media (max-width: 768px) {
+    .dataTables_footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      text-align: center;
+    }
+  
+    .dataTables_footer .dataTables_length,
+    .dataTables_footer .dataTables_info,
+    .dataTables_footer .dataTables_paginate {
+      width: 100%;
+      text-align: center;
+    }
+  
+    .dataTables_footer .dataTables_paginate {
+      justify-content: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+  }
+  
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #f9f9f9;
+    z-index: 11;
+  }
+  
+  .dataTables_length {
+    float: left;
+    text-align: left;
+  }
+  
+  .dataTables_info {
+    text-align: center;
+    padding-top: 0.5rem;
+  }
+  
+  .ui.segment {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    margin: 0px;
+  }
+  
+  .tabla-contenedor {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    margin-top: 0.5%;
+  }
+  
+  #tablaPlantillaConsultas thead th {
+    position: sticky;
+    top: 0;
+    background: #f9f9f9;
+    z-index: 1;
+  }
+  
+  #tablaPlantillaConsultas_wrapper {
+    max-height: 100%;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  
+
+  
+
+  
+  th.no-sort::after {
+    display: none !important;
+  }
+  
+  

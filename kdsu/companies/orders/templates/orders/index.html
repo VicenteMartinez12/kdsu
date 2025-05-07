@@ -1,0 +1,193 @@
+{% extends "base.html" %} {%load static%} {% block navegacion %}
+
+<style>
+
+
+h1 {
+    color: #007BFF;
+    margin-bottom: 10px;
+}
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ccc;
+    margin: 20px 0;
+}
+.subtitle {
+    color: red;
+    font-size: 1.4em;
+    font-weight: bold;
+}
+.message {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+.logo {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+.logo img {
+    max-width: 150px;
+    height: auto;
+}
+.signature {
+    font-weight: bold;
+}
+
+.inicio {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+ 
+}
+
+</style>
+
+<div
+  style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
+  "
+>
+  <div class="ui breadcrumb">
+    <a class="section">
+      <font style="vertical-align: inherit"
+        ><font style="vertical-align: inherit">Hogar</font></font
+      >
+    </a>
+    <i class="right angle icon divider"></i>
+    <a class="section">
+      <font style="vertical-align: inherit"
+        ><font style="vertical-align: inherit">Almacenar</font></font
+      >
+    </a>
+    <i class="right angle icon divider"></i>
+    <div class="active section">
+      <font style="vertical-align: inherit"
+        ><font style="vertical-align: inherit">Camiseta</font></font
+      >
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock navegacion %} {% block logo_nombre %}
+
+<!--pruebas-->
+<div class="item" style="width: 170px">
+  <!--<div id="branch-autocomplete" class="ui double search" id="highlightexample">
+    <div class="ui icon action input">
+      <input class="prompt" type="text" placeholder="Search..." />
+      <input type="hidden" class="h-value" name="h-autocomplete" />
+      <i class="search icon"></i>
+    </div>
+    <div class="results"></div>
+  </div>-->
+  <img
+    class="ui mini circular image"
+    src="{% static 'img/kdsu.png' %}"
+    style="height: 40px; width: auto"
+  />
+  <div class="content">
+    <div class="ui sub header"></div>
+    <font style="margin-left: 10px; vertical-align: inherit"
+      ><font style="vertical-align: inherit">KDSU PORTAL</font></font
+    >
+  </div>
+  <input type="hidden" name="hid_suc" value="" />
+</div>
+
+<div id="branch-list" class="ui  fullscreen modal">
+  <i class="close icon"></i>
+  <div class="header">Sucursales</div>
+  <div class="scrolling content"></div>
+  <div class="actions">
+    <button class="ui primary right labeled icon button">
+      Aceptar
+      <i class="checkmark icon"></i>
+    </button>
+    <button class="ui black deny button">Cerrar</button>
+  </div>
+</div>
+<!--pruebas-->
+
+{% endblock logo_nombre %} {% block usuario %}
+
+<div class="item" id="usuario" style="position: relative">
+  <div class="content">
+    <div class="ui sub header">
+      <font style="vertical-align: inherit"
+        ><font style="vertical-align: inherit">Elyse</font></font
+      >
+    </div>
+    <font style="vertical-align: inherit"
+      ><font style="vertical-align: inherit">Revelador</font></font
+    >
+  </div>
+  <img class="ui mini circular image" src="{% static 'img/kdsu.png' %}" />
+
+  <!-- Menú flotante oculto -->
+  <div
+    class="ui card hidden"
+    id="userMenu"
+    style="
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    "
+  >
+    <div class="content fotoUsuario" style="text-align: center">
+      <img
+        class="ui centered circular image"
+        src="{% static 'img/kdsu.png' %}"
+        style="width: 100px; height: 100px"
+        id="fotoPerfil"
+      />
+      <div class="header nombre" style="margin-top: 10px" id="nombreUsuario">
+        Elyse
+      </div>
+      <div class="meta puesto" id="puestoUsuario">Revelador</div>
+    </div>
+
+    <div class="ui vertical menu opcionesUsuario" id="todasOpcionesUsuario">
+      <a class="perfil item" id="perfilLink">
+        <i class="perfilUsuario icon"></i> Perfil
+      </a>
+      <a class="configuracion item" id="configuracionLink">
+        <i class="configuracionUsuario icon"></i> Configuración
+      </a>
+      <a class="mensajes item" id="mensajeLink">
+        <i class="mensajesUsuario icon"></i> Mensajes
+      </a>
+      <a class="cerrarSesion item" id="cerrarSesionLink">
+        <i class="cerrarSesionUsuario icon"></i> Cerrar sesión
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock usuario %} 
+{% block contenido %}
+<div class="inicio">
+<h1>Bienvenido al Portal KDSU</h1>
+
+    <div class="logo">
+        <img src="{% static 'img/kdsu.png' %}" alt="Logo">
+    </div>
+    
+    <hr>
+
+    <p class="subtitle">Aviso Importante</p>
+
+    <p class="message">Recuerde que, para solicitar una cita, se requiere la carga de desglose de información por bulto para las facturas subidas al portal.</p>
+
+    <hr>
+
+    <p class="signature">Atte. Administración del portal de KDSU</p>
+  </div>
+{% endblock contenido %}

@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-g^_2xg$r#osvo-37mcr$!rw*0iwzgj0)j@=8yk=hue8#9^0^#g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    '*', 'localhost', '127.0.0.1'
+]
 
 
 # Application definition
@@ -54,6 +56,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": "BF9GA1s6qJWd7-pCXJSveTiRqQuXQ1LG-xnqBua5jO3PgP2N4TS7A6PH9Z-cleguuO8-zPPNjVA1vNoLAbCZt9A",
+    "VAPID_PRIVATE_KEY": "GzjFyQ8WAcQRunDtTD1y7-B2JfJbZY92RTBWahp6vCY",
+    "VAPID_ADMIN_EMAIL": "rrojasz@tony.mx"
+}
+
+
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://10.105.17.42:8010",  # Agrega esta línea
