@@ -236,4 +236,67 @@ $('#btnRefrescar').off('click').on('click', function () {
 
 
 
+
+function initDetalleModalTable() {
+  if ($.fn.DataTable.isDataTable('#tablaDetalle')) {
+    $('#tablaDetalle').DataTable().destroy();
+  }
+
+  const totalColumnas = $('#tablaDetalle thead th').length;
+  console.log('Total columnas en tablaDetalle:', totalColumnas);
+
+  $('#tablaDetalle').DataTable({
+    dom: 'lrtip',
+    language: {
+      lengthMenu: "Mostrar _MENU_ registros",
+      zeroRecords: "No se encontraron resultados",
+      info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
+      infoEmpty: "Mostrando 0 a 0 de 0 registros",
+      infoFiltered: "",
+      paginate: {
+        first: "Primero",
+        last: "Último",
+        next: "Siguiente",
+        previous: "Anterior"
+      }
+    },
+    columnDefs: [
+      { orderable: false, targets: [0, totalColumnas - 1] }
+    ],
+    order: [],
+    initComplete: function () {
+      const wrapper = $('#tablaDetalle_wrapper');
+      const length = wrapper.find('.dataTables_length').detach();
+      const info = wrapper.find('.dataTables_info').detach();
+      const paginate = wrapper.find('.dataTables_paginate').detach();
+
+      const footer = $('<div class="dataTables_footer"></div>');
+      footer.append(length).append(info).append(paginate);
+      wrapper.append(footer);
+    }
+  });
+}
+
+
+
+$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
+  const row = $(this).closest('tr');
+  const orderId = row.find('td:eq(1)').text();
+  const category = row.find('td:eq(2)').text();
+  const status = row.find('td:eq(4)').text();
+
+  const tableBody = $('#tablaDetalle tbody');
+  tableBody.empty();
+  tableBody.append(`
+    <tr><td>${orderId}</td><td>${category}</td><td>${status}</td></tr>
+  `);
+
+  // Inicializa el DataTable del modal con la misma configuración
+  initDetalleModalTable();
+
+  // Muestra el modal
+  $('#detalleModal').modal('show');
+});
+
+
 }

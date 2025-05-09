@@ -110,7 +110,7 @@
       <tbody>
         {% for order in orders %}
         <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"  data-proveedor="{{ order.supplier.short_name }}">
-        <td><i class="plus icon"></i></td>
+        <td><i class="plus icon" style="cursor: pointer; "></i></td>
         <td>{{ order.order_id }}</td>
         <td>{{ order.category }}</td>
         <td>{{ order.date_ordered }}</td>
@@ -129,6 +129,35 @@
       </tbody>
     </table>
   </div>
+
+
+{% comment %} Modal de detalle {% endcomment %}
+
+<div class="ui modal" id="detalleModal">
+  <div class="header">
+    Detalle de la Orden
+  </div>
+  <div class="content">
+    <table class="ui celled table" id="tablaDetalle">
+      <thead>
+        <tr>
+          <th>Columna 1</th>
+          <th>Columna 2</th>
+          <th>Columna 3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aquí se inyectarán las filas dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+  <div class="actions">
+    <button class="ui button deny">Cerrar</button>
+  </div>
+</div>
+
+
+
 
   </div>
   
