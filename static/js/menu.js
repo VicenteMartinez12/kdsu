@@ -75,186 +75,7 @@
 
 
 
-  $(document).ready(function () {
-    const catalogoBtn = $('#catalogoProveedor');
-    const contentDiv = $('#mainContent');
-  
-    if (catalogoBtn.length === 0) {
-      console.error("No se encontró el botón #catalogoProveedor");
-      return;
-    }
-  
-    catalogoBtn.on('click', function (e) {
-      e.preventDefault();
-  
-      $.ajax({
-        url: '/catalogo_proveedor/', 
-        type: 'GET',
-        success: function (data) {
-          const overlay = $('#globalWaitOverlay');
-          if (overlay.length) {
-            $('body').append(overlay.detach()); 
-          }
-          
-          contentDiv.html(data); 
-          
-          pantallaEspera("Cargando proveedores...", false);
-          
-        
-    
-            initCatalogoProveedores();
-         
-        },
-        
-        error: function (xhr, status, error) {
-          console.error("Error al cargar el catálogo:", status, error);
-          contentDiv.html(`
-            <div class="ui negative message">
-              <div class="header">Error al cargar el contenido</div>
-              <p>${xhr.status} - ${xhr.statusText}</p>
-            </div>
-          `);
-       
-        }
-      });
-    });
-  });
 
-  $(document).ready(function () {
-    const catalogoBtn = $('#catalogoProducto');
-    const contentDiv = $('#mainContent');
-  
-    if (catalogoBtn.length === 0) {
-      console.error("No se encontró el botón #catalogoProducto");
-      return;
-    }
-  
-    catalogoBtn.on('click', function (e) {
-      e.preventDefault();
-  
-      $.ajax({
-        url: '/catalogo_producto/', 
-        type: 'GET',
-        success: function (data) {
-          const overlay = $('#globalWaitOverlay');
-          if (overlay.length) {
-            $('body').append(overlay.detach()); 
-          }
-          
-          contentDiv.html(data); 
-          
-          pantallaEspera("Cargando productos...", false);
-          
-        
-    
-          initCatalogoProductos();
-         
-        },
-        
-        error: function (xhr, status, error) {
-          console.error("Error al cargar el catálogo:", status, error);
-          contentDiv.html(`
-            <div class="ui negative message">
-              <div class="header">Error al cargar el contenido</div>
-              <p>${xhr.status} - ${xhr.statusText}</p>
-            </div>
-          `);
-       
-        }
-      });
-    });
-  });
-
-  $(document).ready(function () {
-    const catalogoBtn = $('#catalogoSucursal');
-    const contentDiv = $('#mainContent');
-  
-    if (catalogoBtn.length === 0) {
-      console.error("No se encontró el botón #catalogoSucursal");
-      return;
-    }
-  
-    catalogoBtn.on('click', function (e) {
-      e.preventDefault();
-  
-      $.ajax({
-        url: '/catalogo_sucursal/', 
-        type: 'GET',
-        success: function (data) {
-          const overlay = $('#globalWaitOverlay');
-          if (overlay.length) {
-            $('body').append(overlay.detach()); 
-          }
-          
-          contentDiv.html(data); 
-          
-          pantallaEspera("Cargando sucursales...", false);
-          
-        
-    
-          initCatalogoSucursales();
-         
-        },
-        
-        error: function (xhr, status, error) {
-          console.error("Error al cargar el catálogo:", status, error);
-          contentDiv.html(`
-            <div class="ui negative message">
-              <div class="header">Error al cargar el contenido</div>
-              <p>${xhr.status} - ${xhr.statusText}</p>
-            </div>
-          `);
-       
-        }
-      });
-    });
-  });
-
-
-  $(document).ready(function () {
-    const catalogoBtn = $('#mapaSucursal');
-    const contentDiv = $('#mainContent');
-  
-    if (catalogoBtn.length === 0) {
-      console.error("No se encontró el botón #mapaSucursal");
-      return;
-    }
-  
-    catalogoBtn.on('click', function (e) {
-      e.preventDefault();
-  
-      $.ajax({
-        url: '/mapa_sucursal/', 
-        type: 'GET',
-        success: function (data) {
-          const overlay = $('#globalWaitOverlay');
-          if (overlay.length) {
-            $('body').append(overlay.detach()); 
-          }
-          
-          contentDiv.html(data); 
-          
-          cargarSucursales();
-          
-          pantallaEspera("Cargando mapa de sucursales...", false);
-    
-          
-         
-        },
-        
-        error: function (xhr, status, error) {
-          console.error("Error al cargar el catálogo:", status, error);
-          contentDiv.html(`
-            <div class="ui negative message">
-              <div class="header">Error al cargar el contenido</div>
-              <p>${xhr.status} - ${xhr.statusText}</p>
-            </div>
-          `);
-       
-        }
-      });
-    });
-  });
 
   $(document).ready(function () {
     const catalogoBtn = $('#plantillaConsultas');
@@ -269,7 +90,7 @@
       e.preventDefault();
   
       $.ajax({
-        url: '/plantilla_consultas/', 
+        url: '/orders/plantilla_consultas/',
         type: 'GET',
         success: function (data) {
           const overlay = $('#globalWaitOverlay');
@@ -304,4 +125,6 @@
   
   
   
-  
+
+
+

@@ -41,9 +41,10 @@ function initPlantilla() {
       footer.append(length).append(info).append(paginate);
       wrapper.append(footer);
 
-      $('#filtroSeleccion input').on('keyup', function () {
+      $('#filtroTexto').on('keyup', function () {
         tablaConsultas.search(this.value).draw();
       });
+      
     }
   });
 
@@ -110,6 +111,12 @@ window.getCatalogoRegistros = function (modo = 'all') {
   console.log(`📊 Total de registros devueltos (${modo}):`, data.length);
   return data;
 };
+
+
+
+
+
+
 
 
 

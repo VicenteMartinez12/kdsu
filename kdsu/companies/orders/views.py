@@ -10,7 +10,15 @@ from django.conf import settings
 
 
 def plantilla_consultas_view(request):
-    return render(request, 'orders/plantilla_consultas.html')
+    orders = Order.objects.select_related('supplier').all()
+    
+    # Proveedores únicos (por ID) usados en las órdenes
+    suppliers = orders.values_list('supplier__id', 'supplier__short_name').distinct()
+
+    return render(request, 'orders/plantilla_consultas.html', {
+        'orders': orders,
+        'suppliers': suppliers
+    })
 
 
    

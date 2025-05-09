@@ -1,6 +1,6 @@
 
 {% load static %}
-<link rel="stylesheet" href="{% static 'app/css/plantilla_consultas.css' %}">
+<link rel="stylesheet" href="{% static 'css/plantilla_consultas.css' %}">
 
 
 
@@ -60,20 +60,23 @@
       </div>
       <div class="field">
         <label>Filtro de selección</label>
-        <select id="filtroSeleccion" class="ui dropdown" >
-          {% comment %} <option value="">Todos</option>
-          <option value="Item1">Item1</option>
-          <option value="Item2">Item2</option> {% endcomment %}
+        <select id="filtroSeleccion" class="ui dropdown">
+          <option value="">Selecciona un proveedor</option>
+          {% for id, name in suppliers %}
+          <option value="{{ id }}">{{ name }}</option>
+
+          {% endfor %}
         </select>
+        
       </div>
-      <div class="field">
-        <label>Fecha inicio</label>
-        <input type="date" id="fechaInicio">
-      </div>
-      <div class="field">
-        <label>Fecha fin</label>
-        <input type="date" id="fechaFin">
-      </div>
+<div class="field">
+  <label>Fecha inicio</label>
+  <input type="date" id="fechaInicio"  onkeydown="return false">
+</div>
+<div class="field">
+  <label>Fecha fin</label>
+  <input type="date" id="fechaFin"  onkeydown="return false">
+</div>
     </div>
   </div>
   
@@ -90,9 +93,28 @@
             <th>Estatus</th>
             <th></th>
           </tr>
+
         {% endblock columnas %}
       </thead>
+
       <tbody>
+        {% for order in orders %}
+        <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"  data-proveedor="{{ order.supplier.short_name }}">
+        <td><i class="plus icon"></i></td>
+        <td>{{ order.order_id }}</td>
+        <td>{{ order.category }}</td>
+        <td>{{ order.date_ordered }}</td>
+        <td>{{ order.status }}</td>
+        <td>
+          <button class="ui icon button activar" title="Activar">
+            <i class="power icon"></i>
+          </button>
+          <button class="ui icon button eliminar" title="Eliminar">
+            <i class="trash icon"></i>
+          </button>
+        </td>
+      </tr>
+    {% endfor %}
        
       </tbody>
     </table>
