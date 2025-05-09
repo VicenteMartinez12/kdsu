@@ -69,14 +69,24 @@
         </select>
         
       </div>
-<div class="field">
-  <label>Fecha inicio</label>
-  <input type="date" id="fechaInicio"  onkeydown="return false">
-</div>
-<div class="field">
-  <label>Fecha fin</label>
-  <input type="date" id="fechaFin"  onkeydown="return false">
-</div>
+      <div class="field">
+        <label>Fecha inicio</label>
+        <div class="ui calendar" id="rangestart">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" id="fechaInicio" placeholder="Inicio" readonly  onkeydown="return false" style="cursor: pointer;" >
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Fecha fin</label>
+        <div class="ui calendar" id="rangeend">
+          <div class="ui input left icon" >
+            <i class="calendar icon"></i>
+            <input type="text" id="fechaFin" placeholder="Fin" readonly   onkeydown="return false" style="cursor: pointer;" >
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   

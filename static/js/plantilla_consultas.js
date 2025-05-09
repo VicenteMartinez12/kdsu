@@ -114,9 +114,125 @@ window.getCatalogoRegistros = function (modo = 'all') {
 
 
 
+$('#rangestart').calendar({
+  type: 'date',
+  endCalendar: $('#rangeend'),
+  formatter: {
+    date: function (date, settings) {
+      if (!date) return '';
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+  }
+});
+
+$('#rangeend').calendar({
+  type: 'date',
+  startCalendar: $('#rangestart'),
+  formatter: {
+    date: function (date, settings) {
+      if (!date) return '';
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+  }
+});
+
+// Forzar perder el foco inmediatamente al intentar escribir o enfocar
+$('#fechaInicio, #fechaFin').on('focus', function(e) {
+  $(this).blur();
+});
+
+$('#rangestart').calendar({
+  type: 'date',
+  endCalendar: $('#rangeend'),
+  text: {
+    days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+    months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    today: 'Hoy',
+    now: 'Ahora',
+    am: 'AM',
+    pm: 'PM'
+  },
+  formatter: {
+    date: function (date, settings) {
+      if (!date) return '';
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yyyy = date.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;  // Día/Mes/Año en números
+    }
+  }
+});
+
+$('#rangeend').calendar({
+  type: 'date',
+  startCalendar: $('#rangestart'),
+  text: {
+    days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+    months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    today: 'Hoy',
+    now: 'Ahora',
+    am: 'AM',
+    pm: 'PM'
+  },
+  formatter: {
+    date: function (date, settings) {
+      if (!date) return '';
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yyyy = date.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;  // Día/Mes/Año en números
+    }
+  }
+});
 
 
 
+//Filtrado de fechas
+// Limpiar filtros anteriores
+$.fn.dataTable.ext.search = [];
+
+// Definir nuevo filtro personalizado
+$.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+  if (!tablaConsultas) return true;
+
+  const row = tablaConsultas.row(dataIndex).node();
+  const fechaRow = row.getAttribute('data-fecha'); // Formato: YYYY-MM-DD
+
+  const fechaInicioStr = $('#fechaInicio').val(); // Formato: DD/MM/YYYY
+  const fechaFinStr = $('#fechaFin').val();
+
+  if (!fechaInicioStr || !fechaFinStr) return true; // Si no hay rango, mostrar todo
+
+  // Convertir de DD/MM/YYYY a YYYY-MM-DD
+  const parseFecha = (str) => {
+    const [dd, mm, yyyy] = str.split('/');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const fechaInicio = parseFecha(fechaInicioStr);
+  const fechaFin = parseFecha(fechaFinStr);
+
+  console.log(`🔍 Filtro de fechas desde ${fechaInicio} hasta ${fechaFin} (fila: ${fechaRow})`);
+
+  // Comparar fechas
+  return fechaRow >= fechaInicio && fechaRow <= fechaFin;
+});
+
+// Ejecutar filtro al dar clic en Refrescar
+$('#btnRefrescar').off('click').on('click', function () {
+  console.log('🔄 Aplicando filtros por fechas...');
+  if (tablaConsultas) {
+    tablaConsultas.draw();
+  }
+});
 
 
 
