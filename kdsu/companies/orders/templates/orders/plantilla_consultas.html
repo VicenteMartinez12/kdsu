@@ -134,23 +134,35 @@
 {% comment %} Modal de detalle {% endcomment %}
 
 <div class="ui modal" id="detalleModal">
-  <div class="header">
-    Detalle de la Orden
-  </div>
+  <div class="header">Detalle de la Orden</div>
   <div class="content">
-    <table class="ui celled table" id="tablaDetalle">
-      <thead>
-        <tr>
-          <th>Columna 1</th>
-          <th>Columna 2</th>
-          <th>Columna 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Aquí se inyectarán las filas dinámicamente -->
-      </tbody>
-    </table>
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="detalles">Detalles</a>
+      <a class="item" data-tab="costos">Costos</a>
+    </div>
+
+    <div class="ui bottom attached active tab segment" data-tab="detalles">
+      <table class="ui celled table" id="tablaDetalle">
+        <thead>
+          <tr><th>Producto</th><th>Almacén</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="costos">
+      <table class="ui celled table" id="tablaCostos">
+        <thead>
+          <tr><th>Costo</th><th>Cantidad</th><th>Subtotal</th><th>IVA</th><th>IVA $</th><th>Total</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    
   </div>
+
+
   <div class="actions">
     <button class="ui button deny">Cerrar</button>
   </div>

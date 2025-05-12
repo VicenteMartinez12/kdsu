@@ -236,67 +236,47 @@ $('#btnRefrescar').off('click').on('click', function () {
 
 
 
+$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
 
-function initDetalleModalTable() {
-  if ($.fn.DataTable.isDataTable('#tablaDetalle')) {
-    $('#tablaDetalle').DataTable().destroy();
-  }
+  const orderId = $(this).closest('tr').data('id');
+  console.log("Cargando detalles para la orden:", orderId);
 
-  const totalColumnas = $('#tablaDetalle thead th').length;
-  console.log('Total columnas en tablaDetalle:', totalColumnas);
+  $.ajax({
+    url: `/orders/detalle_orden/${orderId}/`,
+    method: 'GET',
+    success: function (data) {
+      // Detalles
+      const tbodyDetalle = $('#tablaDetalle tbody').empty();
+      data.detalles.forEach(det => {
+        tbodyDetalle.append(`<tr><td>${det.product}</td><td>${det.warehouse}</td></tr>`);
+      });
 
-  $('#tablaDetalle').DataTable({
-    dom: 'lrtip',
-    language: {
-      lengthMenu: "Mostrar _MENU_ registros",
-      zeroRecords: "No se encontraron resultados",
-      info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
-      infoEmpty: "Mostrando 0 a 0 de 0 registros",
-      infoFiltered: "",
-      paginate: {
-        first: "Primero",
-        last: "Último",
-        next: "Siguiente",
-        previous: "Anterior"
-      }
+      // Costos
+      const tbodyCostos = $('#tablaCostos tbody').empty();
+      data.costos.forEach(cost => {
+        tbodyCostos.append(`
+          <tr>
+            <td>${cost.cost}</td>
+            <td>${cost.quantity}</td>
+            <td>${cost.subtotal}</td>
+            <td>${cost.tax_rate}%</td>
+            <td>${cost.tax_value}</td>
+            <td>${cost.total}</td>
+          </tr>`);
+      });
+
+      // Activar Tabs
+      $('#detalleModal .menu .item').tab();
+
+      // Mostrar el Modal
+      $('#detalleModal').modal('show');
     },
-    columnDefs: [
-      { orderable: false, targets: [0, totalColumnas - 1] }
-    ],
-    order: [],
-    initComplete: function () {
-      const wrapper = $('#tablaDetalle_wrapper');
-      const length = wrapper.find('.dataTables_length').detach();
-      const info = wrapper.find('.dataTables_info').detach();
-      const paginate = wrapper.find('.dataTables_paginate').detach();
-
-      const footer = $('<div class="dataTables_footer"></div>');
-      footer.append(length).append(info).append(paginate);
-      wrapper.append(footer);
+    error: function () {
+      console.error("Error al cargar los detalles.");
     }
   });
-}
-
-
-
-$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
-  const row = $(this).closest('tr');
-  const orderId = row.find('td:eq(1)').text();
-  const category = row.find('td:eq(2)').text();
-  const status = row.find('td:eq(4)').text();
-
-  const tableBody = $('#tablaDetalle tbody');
-  tableBody.empty();
-  tableBody.append(`
-    <tr><td>${orderId}</td><td>${category}</td><td>${status}</td></tr>
-  `);
-
-  // Inicializa el DataTable del modal con la misma configuración
-  initDetalleModalTable();
-
-  // Muestra el modal
-  $('#detalleModal').modal('show');
 });
+
 
 
 }

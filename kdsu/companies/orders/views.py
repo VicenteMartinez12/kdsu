@@ -5,6 +5,7 @@ from django.views import View
 from .models import Order, OrderDetail
 from .forms import OrderForm, OrderDetailForm
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 
 
@@ -47,3 +48,29 @@ class OrderTestView(View):
             return JsonResponse({'message': 'Detalle creado y calculado', 'order_detail_id': order_detail.id})
 
         return JsonResponse({'error': 'Invalid data'}, status=400)
+
+
+def obtener_detalles_orden(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    detalles = []
+    costos = []
+
+    for detalle in order.orderdetail_set.select_related('product', 'warehouse'):
+        detalles.append({
+            'product': detalle.product.sku,
+            'warehouse': detalle.warehouse.name
+        })
+        costos.append({
+            'cost': str(detalle.cost),
+            'quantity': detalle.quantity,
+            'subtotal': str(detalle.subtotal),
+            'tax_rate': str(detalle.tax_rate),
+            'tax_value': str(detalle.tax_value),
+            'total': str(detalle.total),
+        })
+
+    return JsonResponse({
+        'detalles': detalles,
+        'costos': costos,
+        'order_id': order.order_id
+    })
