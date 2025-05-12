@@ -236,8 +236,35 @@ $('#btnRefrescar').off('click').on('click', function () {
 
 
 
-$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
+// Configurar tabs de Fomantic
+$('#detalleModal .menu .item').tab({
+  onVisible: function(tabPath) {
+    console.log('Tab activo:', tabPath);
 
+    // Oculta todas las tablas primero
+    $('#tablaDetalle').closest('.tab.segment').hide();
+    $('#tablaCostos').closest('.tab.segment').hide();
+
+    // Muestra solo la tabla correspondiente
+    if (tabPath === 'detalles') {
+      $('#tablaDetalle').closest('.tab.segment').show();
+    } else if (tabPath === 'costos') {
+      $('#tablaCostos').closest('.tab.segment').show();
+    }
+  }
+});
+
+// Mostrar solo el tab de Detalles por defecto al abrir el modal
+function mostrarModalDetalles() {
+  // Activa el primer tab al mostrar el modal
+  $('#detalleModal .menu .item[data-tab="detalles"]').addClass('active').siblings().removeClass('active');
+  $('#detalleModal .tab.segment[data-tab="detalles"]').addClass('active').show();
+  $('#detalleModal .tab.segment[data-tab="costos"]').removeClass('active').hide();
+  $('#detalleModal').modal('show');
+}
+
+// Evento cuando das clic al ícono de plus
+$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
   const orderId = $(this).closest('tr').data('id');
   console.log("Cargando detalles para la orden:", orderId);
 
@@ -245,13 +272,11 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
     url: `/orders/detalle_orden/${orderId}/`,
     method: 'GET',
     success: function (data) {
-      // Detalles
       const tbodyDetalle = $('#tablaDetalle tbody').empty();
       data.detalles.forEach(det => {
         tbodyDetalle.append(`<tr><td>${det.product}</td><td>${det.warehouse}</td></tr>`);
       });
 
-      // Costos
       const tbodyCostos = $('#tablaCostos tbody').empty();
       data.costos.forEach(cost => {
         tbodyCostos.append(`
@@ -265,17 +290,14 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
           </tr>`);
       });
 
-      // Activar Tabs
-      $('#detalleModal .menu .item').tab();
-
-      // Mostrar el Modal
-      $('#detalleModal').modal('show');
+      mostrarModalDetalles();
     },
     error: function () {
       console.error("Error al cargar los detalles.");
     }
   });
 });
+
 
 
 
