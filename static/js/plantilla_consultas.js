@@ -272,26 +272,31 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
     url: `/orders/detalle_orden/${orderId}/`,
     method: 'GET',
     success: function (data) {
-      const tbodyDetalle = $('#tablaDetalle tbody').empty();
+      // ⚠️ Revisar si la tabla ya está activa y usar clear/draw
+      const tablaDetalle = $('#tablaDetalle').DataTable();
+      tablaDetalle.clear();
       data.detalles.forEach(det => {
-        tbodyDetalle.append(`<tr><td>${det.product}</td><td>${det.warehouse}</td></tr>`);
+        tablaDetalle.row.add([det.product, det.warehouse]);
       });
-
-      const tbodyCostos = $('#tablaCostos tbody').empty();
+      tablaDetalle.draw();
+    
+      const tablaCostos = $('#tablaCostos').DataTable();
+      tablaCostos.clear();
       data.costos.forEach(cost => {
-        tbodyCostos.append(`
-          <tr>
-            <td>${cost.cost}</td>
-            <td>${cost.quantity}</td>
-            <td>${cost.subtotal}</td>
-            <td>${cost.tax_rate}%</td>
-            <td>${cost.tax_value}</td>
-            <td>${cost.total}</td>
-          </tr>`);
+        tablaCostos.row.add([
+          cost.cost,
+          cost.quantity,
+          cost.subtotal,
+          `${cost.tax_rate}%`,
+          cost.tax_value,
+          cost.total
+        ]);
       });
-
+      tablaCostos.draw();
+    
       mostrarModalDetalles();
-    },
+    }
+    ,
     error: function () {
       console.error("Error al cargar los detalles.");
     }
@@ -299,6 +304,53 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
 });
 
 
+function inicializarTabla(selectorTabla) {
+  if ($.fn.DataTable.isDataTable(selectorTabla)) {
+    $(selectorTabla).DataTable().destroy();
+  }
+
+  const totalColumnas = $(`${selectorTabla} thead th`).length;
+  console.log(`Inicializando ${selectorTabla} con ${totalColumnas} columnas`);
+
+  const dt = $(selectorTabla).DataTable({
+    dom: 'lrtip',
+    language: {
+      lengthMenu: "Mostrar _MENU_ registros",
+      zeroRecords: "No se encontraron resultados",
+      info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
+      infoEmpty: "Mostrando 0 a 0 de 0 registros",
+      infoFiltered: "",
+      paginate: {
+        first: "Primero",
+        last: "Último",
+        next: "Siguiente",
+        previous: "Anterior"
+      }
+    },
+    columnDefs: [
+      { orderable: false, targets: [0, totalColumnas - 1] }
+    ],
+    order: [],
+    initComplete: function () {
+      $(selectorTabla).fadeIn();
+
+      const wrapper = $(`${selectorTabla}_wrapper`);
+      const length = wrapper.find('.dataTables_length').detach();
+      const info = wrapper.find('.dataTables_info').detach();
+      const paginate = wrapper.find('.dataTables_paginate').detach();
+
+      const footer = $('<div class="dataTables_footer"></div>');
+      footer.append(length).append(info).append(paginate);
+      wrapper.append(footer);
+    }
+  });
+
+  return dt;
+}
+
+
+inicializarTabla('#tablaDetalle');
+inicializarTabla('#tablaCostos');
 
 
 }
