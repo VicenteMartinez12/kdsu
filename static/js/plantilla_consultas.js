@@ -264,7 +264,7 @@ function mostrarModalDetalles() {
 }
 
 // Evento cuando das clic al ícono de plus
-$('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
+$('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
   const orderId = $(this).closest('tr').data('id');
   console.log("Cargando detalles para la orden:", orderId);
 
@@ -272,14 +272,21 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
     url: `/orders/detalle_orden/${orderId}/`,
     method: 'GET',
     success: function (data) {
-      // ⚠️ Revisar si la tabla ya está activa y usar clear/draw
+      // Detalles
+      if (!$.fn.DataTable.isDataTable('#tablaDetalle')) {
+        inicializarTabla('#tablaDetalle');
+      }
       const tablaDetalle = $('#tablaDetalle').DataTable();
       tablaDetalle.clear();
       data.detalles.forEach(det => {
-        tablaDetalle.row.add([det.product, det.warehouse]);
+        tablaDetalle.row.add([det.product, det.warehouse]); // SOLO 2 columnas
       });
       tablaDetalle.draw();
-    
+
+      // Costos
+      if (!$.fn.DataTable.isDataTable('#tablaCostos')) {
+        inicializarTabla('#tablaCostos');
+      }
       const tablaCostos = $('#tablaCostos').DataTable();
       tablaCostos.clear();
       data.costos.forEach(cost => {
@@ -290,13 +297,12 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
           `${cost.tax_rate}%`,
           cost.tax_value,
           cost.total
-        ]);
+        ]); // 6 columnas
       });
       tablaCostos.draw();
-    
+
       mostrarModalDetalles();
-    }
-    ,
+    },
     error: function () {
       console.error("Error al cargar los detalles.");
     }
@@ -305,52 +311,70 @@ $('#tablaPlantillaConsultas').on('click', '.plus.icon', function () {
 
 
 function inicializarTabla(selectorTabla) {
-  if ($.fn.DataTable.isDataTable(selectorTabla)) {
-    $(selectorTabla).DataTable().destroy();
+  const $tabla = $(selectorTabla);
+
+  if (!$tabla.length || !$tabla.find('thead th').length) {
+      console.warn(`⚠️ La tabla ${selectorTabla} no está en el DOM o no tiene columnas definidas.`);
+      return;
   }
 
-  const totalColumnas = $(`${selectorTabla} thead th`).length;
+  // Eliminar completamente el wrapper anterior
+  if ($.fn.DataTable.isDataTable(selectorTabla)) {
+      $tabla.DataTable().destroy();
+      const wrapperId = `${selectorTabla}_wrapper`;
+      $tabla.closest('.dataTables_wrapper').remove(); // Elimina el contenedor completo
+      // Reconstruye el table limpio en el DOM
+      const cleanTable = $(`<table id="${selectorTabla.replace('#', '')}" class="ui celled table">
+          ${$tabla.html()}
+      </table>`);
+      $(selectorTabla).replaceWith(cleanTable);
+  }
+
+  const totalColumnas = $(selectorTabla).find('thead th').length;
   console.log(`Inicializando ${selectorTabla} con ${totalColumnas} columnas`);
 
   const dt = $(selectorTabla).DataTable({
-    dom: 'lrtip',
-    language: {
-      lengthMenu: "Mostrar _MENU_ registros",
-      zeroRecords: "No se encontraron resultados",
-      info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
-      infoEmpty: "Mostrando 0 a 0 de 0 registros",
-      infoFiltered: "",
-      paginate: {
-        first: "Primero",
-        last: "Último",
-        next: "Siguiente",
-        previous: "Anterior"
+      dom: 'lrtip',
+      language: {
+          lengthMenu: "Mostrar _MENU_ registros",
+          zeroRecords: "No se encontraron resultados",
+          info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
+          infoEmpty: "Mostrando 0 a 0 de 0 registros",
+          infoFiltered: "",
+          paginate: {
+              first: "Primero",
+              last: "Último",
+              next: "Siguiente",
+              previous: "Anterior"
+          }
+      },
+      columnDefs: [
+          { orderable: false, targets: [0, totalColumnas - 1] }
+      ],
+      order: [],
+      initComplete: function () {
+        $tabla.fadeIn();
+        const wrapper = $(`${selectorTabla}_wrapper`);
+      
+        // ✅ LIMPIAR FOOTERS ANTERIORES
+        wrapper.find('.dataTables_footer').remove();
+      
+        const length = wrapper.find('.dataTables_length').detach();
+        const info = wrapper.find('.dataTables_info').detach();
+        const paginate = wrapper.find('.dataTables_paginate').detach();
+      
+        const footer = $('<div class="dataTables_footer"></div>');
+        footer.append(length).append(info).append(paginate);
+        wrapper.append(footer);
       }
-    },
-    columnDefs: [
-      { orderable: false, targets: [0, totalColumnas - 1] }
-    ],
-    order: [],
-    initComplete: function () {
-      $(selectorTabla).fadeIn();
-
-      const wrapper = $(`${selectorTabla}_wrapper`);
-      const length = wrapper.find('.dataTables_length').detach();
-      const info = wrapper.find('.dataTables_info').detach();
-      const paginate = wrapper.find('.dataTables_paginate').detach();
-
-      const footer = $('<div class="dataTables_footer"></div>');
-      footer.append(length).append(info).append(paginate);
-      wrapper.append(footer);
-    }
   });
 
   return dt;
 }
 
 
-inicializarTabla('#tablaDetalle');
-inicializarTabla('#tablaCostos');
+
+
 
 
 }
