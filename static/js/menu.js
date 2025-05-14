@@ -102,7 +102,7 @@
           
           // cargarSucursales();
           
-          //  pantallaEspera("Cargando Plantilla...", false);
+            pantallaEspera("Cargando plantilla nueva", false);
     
           initPlantilla();
          

@@ -44,6 +44,7 @@ function initPlantilla() {
       $('#filtroTexto').on('keyup', function () {
         tablaConsultas.search(this.value).draw();
       });
+       hideWaitScreen();
       
     }
   });
