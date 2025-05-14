@@ -301,6 +301,8 @@ $('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon
       });
       tablaCostos.draw();
 
+      configurarTabs();
+
       mostrarModalDetalles();
     },
     error: function () {
@@ -314,65 +316,74 @@ function inicializarTabla(selectorTabla) {
   const $tabla = $(selectorTabla);
 
   if (!$tabla.length || !$tabla.find('thead th').length) {
-      console.warn(`⚠️ La tabla ${selectorTabla} no está en el DOM o no tiene columnas definidas.`);
-      return;
+    console.warn(`⚠️ La tabla ${selectorTabla} no está en el DOM o no tiene columnas definidas.`);
+    return;
   }
 
-  // Eliminar completamente el wrapper anterior
+  // ✅ Eliminar DataTable y limpiar contenido anterior
   if ($.fn.DataTable.isDataTable(selectorTabla)) {
-      $tabla.DataTable().destroy();
-      const wrapperId = `${selectorTabla}_wrapper`;
-      $tabla.closest('.dataTables_wrapper').remove(); // Elimina el contenedor completo
-      // Reconstruye el table limpio en el DOM
-      const cleanTable = $(`<table id="${selectorTabla.replace('#', '')}" class="ui celled table">
-          ${$tabla.html()}
-      </table>`);
-      $(selectorTabla).replaceWith(cleanTable);
+    $tabla.DataTable().destroy();
+    $tabla.closest('.dataTables_wrapper').remove();
   }
 
-  const totalColumnas = $(selectorTabla).find('thead th').length;
+  // ✅ Limpiar las filas del tbody
+  $tabla.find('tbody').empty();
+
+  // ✅ Reconstruir tabla limpia si fue eliminada
+  const cleanTable = $(`<table id="${selectorTabla.replace('#', '')}" class="ui celled table">
+      ${$tabla.html()}
+  </table>`);
+  $(selectorTabla).replaceWith(cleanTable);
+
+  const totalColumnas = cleanTable.find('thead th').length;
   console.log(`Inicializando ${selectorTabla} con ${totalColumnas} columnas`);
 
-  const dt = $(selectorTabla).DataTable({
-      dom: 'lrtip',
-      language: {
-          lengthMenu: "Mostrar _MENU_ registros",
-          zeroRecords: "No se encontraron resultados",
-          info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
-          infoEmpty: "Mostrando 0 a 0 de 0 registros",
-          infoFiltered: "",
-          paginate: {
-              first: "Primero",
-              last: "Último",
-              next: "Siguiente",
-              previous: "Anterior"
-          }
-      },
-      columnDefs: [
-          { orderable: false, targets: [0, totalColumnas - 1] }
-      ],
-      order: [],
-      initComplete: function () {
-        $tabla.fadeIn();
-        const wrapper = $(`${selectorTabla}_wrapper`);
-      
-        // ✅ LIMPIAR FOOTERS ANTERIORES
-        wrapper.find('.dataTables_footer').remove();
-      
-        const length = wrapper.find('.dataTables_length').detach();
-        const info = wrapper.find('.dataTables_info').detach();
-        const paginate = wrapper.find('.dataTables_paginate').detach();
-      
-        const footer = $('<div class="dataTables_footer"></div>');
-        footer.append(length).append(info).append(paginate);
-        wrapper.append(footer);
+  const dt = cleanTable.DataTable({
+    dom: 'lrtip',
+    language: {
+      lengthMenu: "Mostrar _MENU_ registros",
+      zeroRecords: "No se encontraron resultados",
+      info: "Mostrando _START_ de _END_ de _TOTAL_ registros",
+      infoEmpty: "Mostrando 0 a 0 de 0 registros",
+      infoFiltered: "",
+      paginate: {
+        first: "Primero",
+        last: "Último",
+        next: "Siguiente",
+        previous: "Anterior"
       }
+    },
+    columnDefs: [
+      { orderable: false, targets: [0, totalColumnas - 1] }
+    ],
+    order: [],
+    initComplete: function () {
+      cleanTable.fadeIn();
+      const wrapper = $(`${selectorTabla}_wrapper`);
+      wrapper.find('.dataTables_footer').remove();
+      const length = wrapper.find('.dataTables_length').detach();
+      const info = wrapper.find('.dataTables_info').detach();
+      const paginate = wrapper.find('.dataTables_paginate').detach();
+      const footer = $('<div class="dataTables_footer"></div>');
+      footer.append(length).append(info).append(paginate);
+      wrapper.append(footer);
+    }
   });
 
   return dt;
 }
 
 
+
+function configurarTabs() {
+  $('#detalleModal .menu .item').tab({
+    onVisible: function(tabPath) {
+      console.log('Tab activo:', tabPath);
+      $('#detalleModal .tab.segment').hide(); // Oculta todos
+      $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show(); // Muestra solo el activo
+    }
+  });
+}
 
 
 
