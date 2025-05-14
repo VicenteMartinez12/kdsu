@@ -257,6 +257,8 @@ $('#detalleModal .menu .item').tab({
 
 // Mostrar solo el tab de Detalles por defecto al abrir el modal
 function mostrarModalDetalles() {
+ 
+  $('#detalleModal').modal('hide');
   // Activa el primer tab al mostrar el modal
   $('#detalleModal .menu .item[data-tab="detalles"]').addClass('active').siblings().removeClass('active');
   $('#detalleModal .tab.segment[data-tab="detalles"]').addClass('active').show();
@@ -377,16 +379,25 @@ function inicializarTabla(selectorTabla) {
 
 
 function configurarTabs() {
-  $('#detalleModal .menu .item').tab({
-    onVisible: function(tabPath) {
+  const items = $('#detalleModal .menu .item');
+  const segments = $('#detalleModal .tab.segment');
+
+  // Desvincular eventos anteriores
+  items.off();
+  segments.hide();
+
+  // Volver a configurar
+  items.tab({
+    onVisible: function (tabPath) {
       console.log('Tab activo:', tabPath);
-      $('#detalleModal .tab.segment').hide(); // Oculta todos
-      $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show(); // Muestra solo el activo
+      segments.hide();
+      $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show();
     }
   });
 }
 
 
 
+$('.ui.dimmer.modals').remove();
 
 }

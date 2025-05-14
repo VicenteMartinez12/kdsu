@@ -20,11 +20,27 @@ def plantilla_consultas_view(request):
         'orders': orders,
         'suppliers': suppliers
     })
+    
+    
+def plantilla_pdf_view(request):
+    orders = Order.objects.select_related('supplier').all()
+    
+    # Proveedores únicos (por ID) usados en las órdenes
+    suppliers = orders.values_list('supplier__id', 'supplier__short_name').distinct()
+
+    return render(request, 'orders/plantilla_pdf.html', {
+        'orders': orders,
+        'suppliers': suppliers
+    })
+
 
 
    
 def index2(request):
     return render(request, 'orders/index.html')
+
+
+
 
 
 class OrderTestView(View):

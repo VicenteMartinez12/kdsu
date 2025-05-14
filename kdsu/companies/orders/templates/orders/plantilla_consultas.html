@@ -3,7 +3,9 @@
 
 
 <link rel="stylesheet" href="{% static 'css/plantilla_consultas.css' %}">
+{% block scripts %}
 
+{% endblock %}
 
 
 
@@ -109,6 +111,8 @@
         {% endblock columnas %}
       </thead>
 
+      {% block contenido %}
+
       <tbody>
         {% for order in orders %}
         <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"  data-proveedor="{{ order.supplier.short_name }}">
@@ -127,8 +131,13 @@
         </td>
       </tr>
     {% endfor %}
+
+
+  
        
       </tbody>
+
+        {% endblock contenido %}
     </table>
   </div>
 
