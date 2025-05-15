@@ -1,37 +1,35 @@
-let tabsConfigurados = false;
-
-function configurarTabs() {
-  if (tabsConfigurados) return;
-
+function configurarTabsPdf() {
+  console.log("Configurando tabs para PDF");
   $('#detalleModal .menu .item').tab({
-    onVisible: function(tabPath) {
-      console.log('Tab activo:', tabPath);
+    onVisible: function (tabPath) {
+      console.log(`Tab activo: ${tabPath}`);
       $('#detalleModal .tab.segment').hide();
       $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show();
     }
   });
-
-  tabsConfigurados = true;
 }
-
 
 function initPdf() {
   console.log("Inicializando plantilla PDF...");
 
-  // Aquí podrías cargar datos dinámicamente si lo necesitas
-  // Por ahora solo inicializa el comportamiento base de plantilla
   initPlantilla();
+  configurarTabsPdf();
 
-  // Aquí puedes agregar lógica específica para PDF si lo deseas
-  $('#exportarCsv').off('click').on('click', function () {
-    console.log("Exportar CSV desde PDF");
+  $('#exportarPdf').off('click').on('click', function () {
+    console.log("Exportando a PDF...");
   });
 
-  $('#exportarJson').off('click').on('click', function () {
-    console.log("Exportar JSON desde PDF");
-  });
+  $('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
+    const orderId = $(this).closest('tr').data('id');  // Se llama orderId
+    console.log("Abriendo detalle para la orden:", orderId);
 
-  $('#exportarXml').off('click').on('click', function () {
-    console.log("Exportar XML desde PDF");
+    cargarContenidoEnModal({
+      modalId: 'detalleModal',
+      tableMappings: [
+        { tableId: 'tablaDetalle', dataKey: 'detalles' },
+        { tableId: 'tablaCostos', dataKey: 'costos' }
+      ],
+      fetchUrl: `/orders/detalle_orden/${orderId}/`
+    });
   });
 }

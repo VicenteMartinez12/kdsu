@@ -195,127 +195,73 @@ $('#rangeend').calendar({
 });
 
 
+function configurarFiltradoFechas() {
+  $.fn.dataTable.ext.search = [];
+  $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    if (!tablaConsultas) return true;
+    const row = tablaConsultas.row(dataIndex).node();
+    const fechaRow = row.getAttribute('data-fecha');
+    const fechaInicio = $('#fechaInicio').val();
+    const fechaFin = $('#fechaFin').val();
+    if (!fechaInicio || !fechaFin) return true;
+    const parseFecha = str => str.split('/').reverse().join('-');
+    return fechaRow >= parseFecha(fechaInicio) && fechaRow <= parseFecha(fechaFin);
+  });
 
-//Filtrado de fechas
-// Limpiar filtros anteriores
-$.fn.dataTable.ext.search = [];
-
-// Definir nuevo filtro personalizado
-$.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-  if (!tablaConsultas) return true;
-
-  const row = tablaConsultas.row(dataIndex).node();
-  const fechaRow = row.getAttribute('data-fecha'); // Formato: YYYY-MM-DD
-
-  const fechaInicioStr = $('#fechaInicio').val(); // Formato: DD/MM/YYYY
-  const fechaFinStr = $('#fechaFin').val();
-
-  if (!fechaInicioStr || !fechaFinStr) return true; // Si no hay rango, mostrar todo
-
-  // Convertir de DD/MM/YYYY a YYYY-MM-DD
-  const parseFecha = (str) => {
-    const [dd, mm, yyyy] = str.split('/');
-    return `${yyyy}-${mm}-${dd}`;
-  };
-
-  const fechaInicio = parseFecha(fechaInicioStr);
-  const fechaFin = parseFecha(fechaFinStr);
-
-  console.log(`🔍 Filtro de fechas desde ${fechaInicio} hasta ${fechaFin} (fila: ${fechaRow})`);
-
-  // Comparar fechas
-  return fechaRow >= fechaInicio && fechaRow <= fechaFin;
-});
-
-// Ejecutar filtro al dar clic en Refrescar
-$('#btnRefrescar').off('click').on('click', function () {
-  console.log('🔄 Aplicando filtros por fechas...');
-  if (tablaConsultas) {
-    tablaConsultas.draw();
-  }
-});
-
-
-
-// Configurar tabs de Fomantic
-$('#detalleModal .menu .item').tab({
-  onVisible: function(tabPath) {
-    console.log('Tab activo:', tabPath);
-
-    // Oculta todas las tablas primero
-    $('#tablaDetalle').closest('.tab.segment').hide();
-    $('#tablaCostos').closest('.tab.segment').hide();
-
-    // Muestra solo la tabla correspondiente
-    if (tabPath === 'detalles') {
-      $('#tablaDetalle').closest('.tab.segment').show();
-    } else if (tabPath === 'costos') {
-      $('#tablaCostos').closest('.tab.segment').show();
-    }
-  }
-});
-
-// Mostrar solo el tab de Detalles por defecto al abrir el modal
-function mostrarModalDetalles() {
- 
-  $('#detalleModal').modal('hide');
-  // Activa el primer tab al mostrar el modal
-  $('#detalleModal .menu .item[data-tab="detalles"]').addClass('active').siblings().removeClass('active');
-  $('#detalleModal .tab.segment[data-tab="detalles"]').addClass('active').show();
-  $('#detalleModal .tab.segment[data-tab="costos"]').removeClass('active').hide();
-  $('#detalleModal').modal('show');
+  $('#btnRefrescar').off('click').on('click', function () {
+    if (tablaConsultas) tablaConsultas.draw();
+  });
 }
 
-// Evento cuando das clic al ícono de plus
-$('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
-  const orderId = $(this).closest('tr').data('id');
-  console.log("Cargando detalles para la orden:", orderId);
+function inicializarTabla(selectorTabla) {
+  const $tabla = $(selectorTabla);
+  if ($.fn.DataTable.isDataTable(selectorTabla)) $tabla.DataTable().destroy();
+  $tabla.find('tbody').empty();
+  return $tabla.DataTable({ dom: 'lrtip' });
+}
 
-  $.ajax({
-    url: `/orders/detalle_orden/${orderId}/`,
-    method: 'GET',
-    success: function (data) {
-      // Detalles
-      if (!$.fn.DataTable.isDataTable('#tablaDetalle')) {
-        inicializarTabla('#tablaDetalle');
-      }
-      const tablaDetalle = $('#tablaDetalle').DataTable();
-      tablaDetalle.clear();
-      data.detalles.forEach(det => {
-        tablaDetalle.row.add([det.product, det.warehouse]); // SOLO 2 columnas
-      });
-      tablaDetalle.draw();
+function mostrarModalDetalles(modalId = 'detalleModal') {
+  $(`#${modalId}`).modal('show');
+}
 
-      // Costos
-      if (!$.fn.DataTable.isDataTable('#tablaCostos')) {
-        inicializarTabla('#tablaCostos');
-      }
-      const tablaCostos = $('#tablaCostos').DataTable();
-      tablaCostos.clear();
-      data.costos.forEach(cost => {
-        tablaCostos.row.add([
-          cost.cost,
-          cost.quantity,
-          cost.subtotal,
-          `${cost.tax_rate}%`,
-          cost.tax_value,
-          cost.total
-        ]); // 6 columnas
-      });
-      tablaCostos.draw();
-
-      configurarTabs();
-
-      mostrarModalDetalles();
-    },
-    error: function () {
-      console.error("Error al cargar los detalles.");
+function configurarTabs(modalId = 'detalleModal') {
+  $(`#${modalId} .menu .item`).tab({
+    onVisible: function (tabPath) {
+      console.log(`Tab activo: ${tabPath}`);
+      $(`#${modalId} .tab.segment`).hide();
+      $(`#${modalId} .tab.segment[data-tab="${tabPath}"]`).show();
     }
   });
-});
+}
+
+window.cargarContenidoEnModal = function ({ modalId, tableMappings, fetchUrl }) {
+  console.log("Cargando contenido del modal desde:", fetchUrl);
+  $.ajax({
+    url: fetchUrl,
+    method: 'GET',
+    success: function (data) {
+      tableMappings.forEach(mapping => {
+        inicializarYMostrarDatos(`#${mapping.tableId}`, data[mapping.dataKey]);
+      });
+      configurarTabs(modalId);
+
+      // 👇👇 Agrega esto para controlar qué tab se muestra al abrir
+      const firstTab = $(`#${modalId} .menu .item`).first();
+      const firstTabPath = firstTab.data('tab');
+      firstTab.addClass('active').siblings().removeClass('active');
+      $(`#${modalId} .tab.segment`).hide();
+      $(`#${modalId} .tab.segment[data-tab="${firstTabPath}"]`).show();
+      // ☝☝ Esto garantiza que solo la primera tab se muestre
+      mostrarModalDetalles(modalId);
+    },
+    error: function () {
+      console.error("Error al cargar datos en el modal.");
+    }
+  });
+};
 
 
-function inicializarTabla(selectorTabla) {
+function inicializarYMostrarDatos(selectorTabla, datos) {
   const $tabla = $(selectorTabla);
 
   if (!$tabla.length || !$tabla.find('thead th').length) {
@@ -323,18 +269,18 @@ function inicializarTabla(selectorTabla) {
     return;
   }
 
-  // ✅ Eliminar DataTable y limpiar contenido anterior
+  // Destruir y limpiar tabla previa
   if ($.fn.DataTable.isDataTable(selectorTabla)) {
     $tabla.DataTable().destroy();
     $tabla.closest('.dataTables_wrapper').remove();
   }
 
-  // ✅ Limpiar las filas del tbody
+  // Limpiar tbody
   $tabla.find('tbody').empty();
 
-  // ✅ Reconstruir tabla limpia si fue eliminada
+  // Reconstruir tabla limpia
   const cleanTable = $(`<table id="${selectorTabla.replace('#', '')}" class="ui celled table">
-      ${$tabla.html()}
+    ${$tabla.html()}
   </table>`);
   $(selectorTabla).replaceWith(cleanTable);
 
@@ -357,7 +303,7 @@ function inicializarTabla(selectorTabla) {
       }
     },
     columnDefs: [
-      { orderable: false, targets: [0, totalColumnas - 1] }
+     
     ],
     order: [],
     initComplete: function () {
@@ -373,31 +319,16 @@ function inicializarTabla(selectorTabla) {
     }
   });
 
-  return dt;
+  // Agregar datos
+  if (Array.isArray(datos)) {
+    datos.forEach(row => dt.row.add(Object.values(row)));
+  }
+
+  dt.draw();
 }
 
 
-
-function configurarTabs() {
-  const items = $('#detalleModal .menu .item');
-  const segments = $('#detalleModal .tab.segment');
-
-  // Desvincular eventos anteriores
-  items.off();
-  segments.hide();
-
-  // Volver a configurar
-  items.tab({
-    onVisible: function (tabPath) {
-      console.log('Tab activo:', tabPath);
-      segments.hide();
-      $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show();
-    }
-  });
-}
-
-
-
+// Limpieza de overlays duplicados o huérfanos
 $('.ui.dimmer.modals').remove();
 
 }

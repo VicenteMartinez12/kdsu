@@ -1,68 +1,73 @@
 {% extends "orders/plantilla_consultas.html" %}
 {% load static %}
 
-
-
-
-
-
-  {% block exportar %}
+{% block exportar %}
   <div class="ui dropdown button">
     Exportar <i class="dropdown icon"></i>
     <div class="menu">
       <div id="exportarPdf" class="item">PDF</div>
     </div>
   </div>
-  {% endblock exportar %}
-</div>
-
-
+{% endblock exportar %}
 
 {% block columnas %}
 <tr>
-    <th  class="no-sort"><input type="checkbox" id="checkAll"></th>
-    <th  ></th>
-    <th>Clave</th>
-    <th>Nombre</th>
-    <th>Fecha</th>
-    <th>Estatus</th>
-    <th></th>
-  </tr>
-
-
+  <th></th>
+  <th>Clave</th>
+  <th>Nombre</th>
+  <th>Fecha</th>
+  <th>Estatus</th>
+  <th></th>
+</tr>
 {% endblock columnas %}
 
-
 {% block contenido %}
-
 <tbody>
-    {% for order in orders %}
-    <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"  data-proveedor="{{ order.supplier.short_name }}">
-    <td><input type="checkbox"></td>
-    <td><i class="plus icon" style="cursor: pointer; "></i></td>
+  {% for order in orders %}
+  <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}" data-proveedor="{{ order.supplier.short_name }}">
+    <td><i class="plus icon" style="cursor: pointer;"></i></td>
     <td>{{ order.order_id }}</td>
     <td>{{ order.category }}</td>
     <td>{{ order.date_ordered }}</td>
     <td>{{ order.status }}</td>
     <td>
-      <button class="ui icon button activar" title="Activar">
-        <i class="power icon"></i>
-      </button>
-      <button class="ui icon button eliminar" title="Eliminar">
-        <i class="trash icon"></i>
-      </button>
+      <button class="ui icon button activar" title="Activar"><i class="power icon"></i></button>
+      <button class="ui icon button eliminar" title="Eliminar"><i class="trash icon"></i></button>
     </td>
   </tr>
-{% endfor %}
-
-
-
-   
-  </tbody>
-
-
-
+  {% endfor %}
+</tbody>
 {% endblock contenido %}
 
+{% block menuModal %}
+<div class="ui modal" id="detalleModal">
+  <div class="header">Detalle de la Orden</div>
+  <div class="content">
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="detalles">Detalles</a>
+      <a class="item" data-tab="costos">Costos</a>
+    </div>
 
+    <div class="ui bottom attached active tab segment" data-tab="detalles">
+      <table class="ui celled table" id="tablaDetalle">
+        <thead>
+          <tr><th>Producto</th><th>Almacén</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
+    <div class="ui bottom attached tab segment" data-tab="costos">
+      <table class="ui celled table" id="tablaCostos">
+        <thead>
+          <tr><th>Costo</th><th>Cantidad</th><th>Subtotal</th><th>IVA</th><th>IVA $</th><th>Total</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="ui button deny">Cerrar</button>
+  </div>
+</div>
+{% endblock menuModal %}
