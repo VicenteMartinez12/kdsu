@@ -117,7 +117,7 @@ def draw_pdf_header(p, width, height, company, order, page_num):
 
     # Logo
     if os.path.exists(logo_path):
-        p.drawImage(logo_path, margin_left, height - 90, width=100, height=40, mask='auto')
+        p.drawImage(logo_path, margin_left, height - 100, width=100, height=50, mask='auto')
 
     # Títulos centrales
     p.setFont("Helvetica-Bold", 12)
