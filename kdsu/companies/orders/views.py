@@ -108,20 +108,20 @@ def obtener_detalles_orden(request, order_id):
     
     
 def draw_pdf_header(p, width, height, company, order, page_num):
-    logo_path = os.path.join(settings.BASE_DIR, 'kdsu', 'static', 'img', 'tony.png')
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'tony.png')
     margin_left = 20
     rect_x = width - 150
-    rect_y = height - 80
+    rect_y = height - 100
     rect_width = 130
     rect_height = 60
 
     if os.path.exists(logo_path):
-        p.drawImage(logo_path, margin_left, height - 70, width=50, height=40, mask='auto')
+        p.drawImage(logo_path, margin_left, height - 90, width=100, height=40, mask='auto')
 
     p.setFont("Helvetica-Bold", 12)
     p.drawCentredString(width / 2, height - 50, company.name)
-    p.drawCentredString(width / 2, height - 65, "ORDEN DE MERCANCÍA")
-    p.drawCentredString(width / 2, height - 80, order.category)
+    p.drawCentredString(width / 2, height - 75, "ORDEN DE MERCANCÍA")
+    p.drawCentredString(width / 2, height - 100, order.category)
 
     p.rect(rect_x, rect_y, rect_width, rect_height)
 
@@ -131,9 +131,10 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     p.drawString(rect_x + 5, rect_y + rect_height - 36, "ENTREGA: ALMACÉN")
     p.drawString(rect_x + 5, rect_y + rect_height - 48, f"PÁGINA: {page_num} de 1")
 
+
     p.setFont("Helvetica", 10)
-    p.drawString(margin_left, height - 100, f"NO.PROVEEDOR: {order.supplier.company_supplier_id}")
-    p.drawString(margin_left + 150, height - 100, f"RAZÓN SOCIAL: {order.supplier.name}")
+    p.drawString(margin_left, height - 140, f"NO.PROVEEDOR: {order.supplier.company_supplier_id}")
+    p.drawString(margin_left + 150, height - 140, f"RAZÓN SOCIAL: {order.supplier.name}")
 
     
 def export_pdf_django(request):
@@ -154,43 +155,36 @@ def export_pdf_django(request):
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    page_number = 1
+    for page_number, order in enumerate(orders, start=1):
+        # Dibuja el encabezado para cada orden
+        draw_pdf_header(p, width, height, company, order, page_number)
 
-    # Header general para todas las órdenes en una sola tabla
-    draw_pdf_header(p, width, height, company, orders.first(), page_number)
+        # Encabezado de tabla
+        y_position = height - 130
+        p.setFont("Helvetica-Bold", 9)
+        headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos", "P. Unit", "Total"]
+        col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
 
-    # Encabezado de la tabla
-    y_position = height - 130
-    p.setFont("Helvetica-Bold", 9)
-    headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos", "P. Unit", "Total"]
-    col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
+        for idx, header in enumerate(headers):
+            p.drawString(col_x_positions[idx], y_position, header)
+        y_position -= 15
 
-    for idx, header in enumerate(headers):
-        p.drawString(col_x_positions[idx], y_position, header)
-    y_position -= 15
+        p.setFont("Helvetica", 8)
 
-    p.setFont("Helvetica", 8)
-
-    for order in orders:
         for detail in order.orderdetail_set.all():
-            # Cálculo de bultos
-            try:
-                bultos = (detail.quantity // (detail.product.master_package * detail.product.inner_package)
-                          if (detail.product.master_package and detail.product.inner_package and 
-                              detail.quantity % (detail.product.master_package * detail.product.inner_package) == 0)
-                          else "")
-            except ZeroDivisionError:
-                bultos = ""
+            bultos = ""
+            if detail.product.master_package and detail.product.inner_package:
+                if detail.quantity % (detail.product.master_package * detail.product.inner_package) == 0:
+                    bultos = str(detail.quantity // (detail.product.master_package * detail.product.inner_package))
 
-            # Línea de detalle
             detail_values = [
                 detail.product.sku,
                 str(detail.quantity),
                 detail.product.packing_unit,
-                detail.product.description[:30],  # Limita la descripción
+                detail.product.description[:30],
                 detail.product.mpn,
                 f"{detail.product.master_package}/{detail.product.inner_package}",
-                str(bultos),
+                bultos,
                 f"${detail.cost:.2f}" if order.is_prepaid else "",
                 f"${detail.subtotal:.2f}" if order.is_prepaid else ""
             ]
@@ -200,18 +194,16 @@ def export_pdf_django(request):
 
             y_position -= 12
 
-            # Salto de página si es necesario
             if y_position < 50:
                 p.showPage()
-                page_number += 1
                 draw_pdf_header(p, width, height, company, order, page_number)
                 y_position = height - 130
                 for idx, header in enumerate(headers):
                     p.drawString(col_x_positions[idx], y_position, header)
                 y_position -= 15
 
-    p.showPage()
+        # Termina la página y pasa a la siguiente orden
+        p.showPage()
+
     p.save()
     return response
-
-
