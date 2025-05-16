@@ -115,26 +115,49 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     rect_width = 130
     rect_height = 60
 
+    # Logo
     if os.path.exists(logo_path):
         p.drawImage(logo_path, margin_left, height - 90, width=100, height=40, mask='auto')
 
+    # Títulos centrales
     p.setFont("Helvetica-Bold", 12)
     p.drawCentredString(width / 2, height - 50, company.name)
     p.drawCentredString(width / 2, height - 75, "ORDEN DE MERCANCÍA")
     p.drawCentredString(width / 2, height - 100, order.category)
 
+    # Cuadro a la derecha
     p.rect(rect_x, rect_y, rect_width, rect_height)
+    p.setFont("Helvetica", 8)
+    p.drawString(rect_x + 5, rect_y + rect_height - 12, "NO.PEDIDO:")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(rect_x + 65, rect_y + rect_height - 12, f"{order.order_id}")
 
     p.setFont("Helvetica", 8)
-    p.drawString(rect_x + 5, rect_y + rect_height - 12, f"NO.PEDIDO: {order.order_id}")
-    p.drawString(rect_x + 5, rect_y + rect_height - 24, f"FECHA: {order.date_ordered.strftime('%d/%m/%Y')}")
-    p.drawString(rect_x + 5, rect_y + rect_height - 36, "ENTREGA: ALMACÉN")
-    p.drawString(rect_x + 5, rect_y + rect_height - 48, f"PÁGINA: {page_num} de 1")
+    p.drawString(rect_x + 5, rect_y + rect_height - 24, "FECHA:")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(rect_x + 65, rect_y + rect_height - 24, f"{order.date_ordered.strftime('%d/%m/%Y')}")
 
+    p.setFont("Helvetica", 8)
+    p.drawString(rect_x + 5, rect_y + rect_height - 36, "ENTREGA:")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(rect_x + 65, rect_y + rect_height - 36, "ALMACÉN")
+
+    p.setFont("Helvetica", 8)
+    p.drawString(rect_x + 5, rect_y + rect_height - 48, "PÁGINA:")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(rect_x + 65, rect_y + rect_height - 48, f"{page_num} de 1")
+
+    # Proveedor y Razón Social
+    p.setFont("Helvetica", 10)
+    p.drawString(margin_left, height - 140, "NO.PROVEEDOR:")
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(margin_left + 80, height - 140, f"{order.supplier.company_supplier_id}")
 
     p.setFont("Helvetica", 10)
-    p.drawString(margin_left, height - 140, f"NO.PROVEEDOR: {order.supplier.company_supplier_id}")
-    p.drawString(margin_left + 150, height - 140, f"RAZÓN SOCIAL: {order.supplier.name}")
+    p.drawString(margin_left + 150, height - 140, "RAZÓN SOCIAL:")
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(margin_left + 230, height - 140, f"{order.supplier.name}")
+
 
     
 def export_pdf_django(request):
