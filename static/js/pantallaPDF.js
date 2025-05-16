@@ -1,8 +1,6 @@
 function configurarTabsPdf() {
-  console.log("Configurando tabs para PDF");
   $('#detalleModal .menu .item').tab({
     onVisible: function (tabPath) {
-      console.log(`Tab activo: ${tabPath}`);
       $('#detalleModal .tab.segment').hide();
       $(`#detalleModal .tab.segment[data-tab="${tabPath}"]`).show();
     }
@@ -10,8 +8,6 @@ function configurarTabsPdf() {
 }
 
 function initPdf() {
-  console.log("Inicializando plantilla PDF...");
-
   initPlantilla();
   configurarTabsPdf();
 
@@ -21,17 +17,16 @@ function initPdf() {
       alert('Selecciona al menos una orden.');
       return;
     }
+
     const ids = registros.map(r => r.id);
-    const companyId = 1; // O toma el id de la compañía activa en tu contexto
-  
-    const url = `/orders/pdf/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
+    const companyId = 1;  // Ajusta este valor si es dinámico
+
+    const url = `/orders/export_pdf/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');
   });
 
   $('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
-    const orderId = $(this).closest('tr').data('id');  // Se llama orderId
-    console.log("Abriendo detalle para la orden:", orderId);
-
+    const orderId = $(this).closest('tr').data('id');
     cargarContenidoEnModal({
       modalId: 'detalleModal',
       tableMappings: [
@@ -42,6 +37,3 @@ function initPdf() {
     });
   });
 }
-
-
-
