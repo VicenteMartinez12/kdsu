@@ -100,4 +100,22 @@
     display: none !important;
   }
   
-  
+
+/* Hace que el modal use más ancho y alto según la pantalla */
+.ui.modal.responsive-modal {
+  width: 80% !important;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  top: 5% !important;
+}
+
+/* Para pantallas pequeñas */
+@media (max-width: 768px) {
+  .ui.modal.responsive-modal {
+    width: 95% !important;
+    max-width: 95% !important;
+    max-height: 90vh;
+    font-size: 0.85em;
+  }
+}

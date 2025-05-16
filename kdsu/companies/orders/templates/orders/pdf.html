@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .header, .footer { border: 1px solid #000; padding: 5px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        table, th, td { border: 1px solid black; padding: 4px; }
+        .totals { text-align: right; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    {% for order in orders %}
+        <div class="header">
+            <img src="{{ company.image_logo }}" alt="Logo" height="50">
+            <h2>ORDEN DE MERCANCÍA</h2>
+            <p>No. Proveedor: {{ order.supplier.company_supplier_id }}<br>
+               Razón Social: {{ order.supplier.name }}<br>
+               No. Pedido: {{ order.order_id }}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Cantidad</th>
+                    <th>U/M</th>
+                    <th>Descripción</th>
+                    <th>No. Art.</th>
+                    <th>Empaque</th>
+                    <th>Bultos</th>
+                    {% if order.is_prepaid %}
+                        <th>P. Unit</th>
+                        <th>Total</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in order.orderdetail_set.all %}
+                <tr>
+                    <td>{{ detail.product.sku }}</td>
+                    <td>{{ detail.quantity }}</td>
+                    <td>{{ detail.product.packing_unit }}</td>
+                    <td>{{ detail.product.description }}</td>
+                    <td>{{ detail.product.mpn }}</td>
+                    <td>{{ detail.product.master_package }}/{{ detail.product.inner_package }}</td>
+                    <td>
+                        {% with total_bultos=detail.quantity|divisibleby:detail.product.master_package|yesno:"{{ detail.quantity|divisibleby:detail.product.inner_package }}, " %}
+                            {{ total_bultos }}
+                        {% endwith %}
+                    </td>
+                    {% if order.is_prepaid %}
+                        <td>${{ detail.cost }}</td>
+                        <td>${{ detail.subtotal }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if order.is_prepaid %}
+            <div class="totals">
+                <p>Subtotal: ${{ order.subtotal }}</p>
+                <p>IVA: ${{ order.tax_value }}</p>
+                <p>Total: ${{ order.total }}</p>
+            </div>
+        {% endif %}
+
+        <div class="footer">
+            <p>Factura A: {{ company.name }} - {{ company.address }}</p>
+            <p>Consignar a: {{ order.orderdetail_set.first.warehouse.name }} - {{ order.orderdetail_set.first.warehouse.address }}</p>
+        </div>
+        <div style="page-break-after: always;"></div>
+    {% endfor %}
+</body>
+</html>

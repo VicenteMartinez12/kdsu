@@ -15,8 +15,17 @@ function initPdf() {
   initPlantilla();
   configurarTabsPdf();
 
-  $('#exportarPdf').off('click').on('click', function () {
-    console.log("Exportando a PDF...");
+  $('#exportarPdf').on('click', function () {
+    const registros = window.getCatalogoRegistros('checked');
+    if (registros.length === 0) {
+      alert('Selecciona al menos una orden.');
+      return;
+    }
+    const ids = registros.map(r => r.id);
+    const companyId = 1; // O toma el id de la compañía activa en tu contexto
+  
+    const url = `/orders/pdf/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
+    window.open(url, '_blank');
   });
 
   $('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
@@ -33,3 +42,6 @@ function initPdf() {
     });
   });
 }
+
+
+

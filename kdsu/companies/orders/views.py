@@ -6,6 +6,15 @@ from .models import Order, OrderDetail
 from .forms import OrderForm, OrderDetailForm
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+import pdfkit
+from kdsu.companies import pdf_config
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
+
+
+
+
 
 
 
@@ -90,3 +99,39 @@ def obtener_detalles_orden(request, order_id):
         'costos': costos,
         'order_id': order.order_id
     })
+    
+    
+    
+    
+def export_orders_pdf(request):
+    company_id = request.GET.get('company_id')
+    order_ids = request.GET.getlist('order_ids[]')
+
+    if not company_id or not order_ids:
+        return HttpResponse("Faltan parámetros", status=400)
+
+    company = get_object_or_404(Company, id=company_id)
+    orders = Order.objects.filter(id__in=order_ids).prefetch_related('orderdetail_set', 'supplier')
+
+    if not orders.exists():
+        return HttpResponse("No se encontraron órdenes.", status=404)
+
+    # Renderizar el HTML como string
+    html_string = render_to_string('orders/pdf.html', {
+        'company': company,
+        'orders': orders
+    })
+
+    # Ruta de salida (puede ser en memoria o temporal)
+    output_path = 'output.pdf'
+
+    # Generar el PDF
+    pdfkit.from_string(html_string, output_path, configuration=pdf_config.PDFKIT_CONFIG)
+
+    # Devolver el archivo como respuesta o hacer lo que necesites
+    with open(output_path, 'rb') as f:
+        pdf_content = f.read()
+
+    response = HttpResponse(pdf_content, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ordenes.pdf"'
+    return response

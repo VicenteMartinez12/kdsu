@@ -50,7 +50,7 @@ function initPlantilla() {
   });
 
   $('.ui.dropdown').dropdown();
-
+  configurarFiltradoFechas();
 
 //  Checkbox global que selecciona todas las filas de todas las páginas
 $('#tablaPlantillaConsultas thead').on('change', '#checkAll', function () {
@@ -93,7 +93,7 @@ window.getCatalogoRegistros = function (modo = 'all') {
     console.log(`🔍 Modo '${modo}': obteniendo filas visibles en pantalla.`);
   } else {
     rows = tablaConsultas.rows();
-    console.log(`📦 Modo 'all': obteniendo todas las filas de la tabla.`);
+    console.log(` Modo 'all': obteniendo todas las filas de la tabla.`);
   }
 
   rows.every(function () {
@@ -109,7 +109,7 @@ window.getCatalogoRegistros = function (modo = 'all') {
     console.log('✅ Registro agregado:', item);
     data.push(item);
   });
-  console.log(`📊 Total de registros devueltos (${modo}):`, data.length);
+  console.log(`Total de registros devueltos (${modo}):`, data.length);
   return data;
 };
 
@@ -213,12 +213,7 @@ function configurarFiltradoFechas() {
   });
 }
 
-function inicializarTabla(selectorTabla) {
-  const $tabla = $(selectorTabla);
-  if ($.fn.DataTable.isDataTable(selectorTabla)) $tabla.DataTable().destroy();
-  $tabla.find('tbody').empty();
-  return $tabla.DataTable({ dom: 'lrtip' });
-}
+
 
 function mostrarModalDetalles(modalId = 'detalleModal') {
   $(`#${modalId}`).modal('show');
@@ -245,13 +240,13 @@ window.cargarContenidoEnModal = function ({ modalId, tableMappings, fetchUrl }) 
       });
       configurarTabs(modalId);
 
-      // 👇👇 Agrega esto para controlar qué tab se muestra al abrir
+      
       const firstTab = $(`#${modalId} .menu .item`).first();
       const firstTabPath = firstTab.data('tab');
       firstTab.addClass('active').siblings().removeClass('active');
       $(`#${modalId} .tab.segment`).hide();
       $(`#${modalId} .tab.segment[data-tab="${firstTabPath}"]`).show();
-      // ☝☝ Esto garantiza que solo la primera tab se muestre
+   
       mostrarModalDetalles(modalId);
     },
     error: function () {

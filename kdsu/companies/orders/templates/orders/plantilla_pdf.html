@@ -1,5 +1,10 @@
 {% extends "orders/plantilla_consultas.html" %}
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/plantilla_pdf.css' %}">
+
+
+
+
 
 {% block exportar %}
   <div class="ui dropdown button">
@@ -12,6 +17,7 @@
 
 {% block columnas %}
 <tr>
+  <th  class="no-sort"><input type="checkbox" id="checkAll"></th>
   <th></th>
   <th>Clave</th>
   <th>Nombre</th>
@@ -25,6 +31,7 @@
 <tbody>
   {% for order in orders %}
   <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}" data-proveedor="{{ order.supplier.short_name }}">
+    <td><input type="checkbox"></td>
     <td><i class="plus icon" style="cursor: pointer;"></i></td>
     <td>{{ order.order_id }}</td>
     <td>{{ order.category }}</td>
@@ -40,7 +47,7 @@
 {% endblock contenido %}
 
 {% block menuModal %}
-<div class="ui modal" id="detalleModal">
+<div class="ui modal scrolling" id="detalleModal" style="max-height: 80vh; overflow-y: auto;">
   <div class="header">Detalle de la Orden</div>
   <div class="content">
     <div class="ui top attached tabular menu">
@@ -71,3 +78,4 @@
   </div>
 </div>
 {% endblock menuModal %}
+
