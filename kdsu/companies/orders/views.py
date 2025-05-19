@@ -185,6 +185,7 @@ def export_pdf_django(request):
     width, height = letter
 
     for page_number, order in enumerate(orders, start=1):
+        
         # Dibuja el encabezado para cada orden
         draw_pdf_header(p, width, height, company, order, page_number)
 
@@ -236,10 +237,21 @@ def export_pdf_django(request):
             if y_position < 50:
                 p.showPage()
                 draw_pdf_header(p, width, height, company, order, page_number)
-                y_position = height - 130
+                
+                y_position = height - 160
+                p.setFont("Helvetica-Bold", 9)
+
+                # Dibujar bordes de las celdas en nueva página
                 for idx, header in enumerate(headers):
-                    p.drawString(col_x_positions[idx], y_position, header)
-                y_position -= 15
+                    next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                    p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+
+                # Dibujar textos en celdas en nueva página
+                for idx, header in enumerate(headers):
+                    p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+
+                y_position -= 35
+                p.setFont("Helvetica", 8)
 
         # Termina la página y pasa a la siguiente orden
         p.showPage()
