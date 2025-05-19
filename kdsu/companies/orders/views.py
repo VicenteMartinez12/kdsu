@@ -189,21 +189,31 @@ def export_pdf_django(request):
         draw_pdf_header(p, width, height, company, order, page_number)
 
         # Encabezado de tabla
-        y_position = height - 180
+        y_position = height - 160
         p.setFont("Helvetica-Bold", 9)
         headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos", "P. Unit", "Total"]
         col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
 
+        cell_height = 22  # Altura fija de la celda
+        text_vertical_offset = 4  # Desplazamiento vertical para centrar mejor el texto
+
+        # Dibujar el borde de cada celda primero
         for idx, header in enumerate(headers):
-            p.drawString(col_x_positions[idx], y_position, header)
-        y_position -= 15
+            next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+            p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+
+        # Luego dibujar el texto centrado verticalmente dentro de las celdas
+        for idx, header in enumerate(headers):
+            p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+
+        y_position -= 35 # Mover posición después de las celdas
 
         p.setFont("Helvetica", 8)
 
         for detail in order.orderdetail_set.all():
             bultos = ""
             if detail.product.master_package and detail.product.inner_package:
-               if detail.quantity % (detail.master_package * detail.inner_package) == 0:
+                if detail.quantity % (detail.master_package * detail.inner_package) == 0:
                     bultos = str(detail.quantity // (detail.master_package * detail.inner_package))
 
             detail_values = [
@@ -212,7 +222,7 @@ def export_pdf_django(request):
                 detail.product.packing_unit,
                 detail.product.description[:30],
                 detail.product.mpn,
-               f"{detail.master_package}/{detail.inner_package}",
+                f"{detail.master_package}/{detail.inner_package}",
                 bultos,
                 f"${detail.cost:.2f}" if order.is_prepaid else "",
                 f"${detail.subtotal:.2f}" if order.is_prepaid else ""
@@ -221,7 +231,7 @@ def export_pdf_django(request):
             for idx, val in enumerate(detail_values):
                 p.drawString(col_x_positions[idx], y_position, val)
 
-            y_position -= 12
+            y_position -= 18
 
             if y_position < 50:
                 p.showPage()
