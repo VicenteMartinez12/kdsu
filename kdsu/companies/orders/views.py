@@ -151,7 +151,7 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     p.setFont("Helvetica", 8)
     p.drawString(rect_x + 5, rect_y + rect_height - 48, "PÁGINA:")
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(rect_x + 65, rect_y + rect_height - 48, f"{page_num} de 1")
+    p.drawString(rect_x + 65, rect_y + rect_height - 48, f"{page_num}")
 
     # Proveedor y Razón Social
     p.setFont("Helvetica", 10)
@@ -163,6 +163,70 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     p.drawString(margin_left + 220, height - 150, "RAZÓN SOCIAL:")
     p.setFont("Helvetica-Bold", 10)
     p.drawString(margin_left + 300, height - 150, f"{order.supplier.name}")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+def draw_footer(p, width, company, warehouse):
+    start_y = 20
+    box_height = 60
+    box1_width = width * 0.45
+    box2_width = width * 0.45
+    box3_width = width - box1_width - box2_width - 20
+
+    # Caja 1 - Factura A
+    p.rect(10, start_y, box1_width, box_height)
+    margin_x = 15
+    margin_y = start_y + box_height - 12
+    line_spacing = 10  # Espacio entre líneas
+
+    p.setFont("Helvetica", 8)
+    p.drawString(margin_x, margin_y, "FACTURAR A:")
+    margin_y -= line_spacing
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(margin_x, margin_y, f"{company.name}")
+    margin_y -= line_spacing
+    address = company.address
+    p.setFont("Helvetica", 8)
+    p.drawString(margin_x, margin_y, f"{address.street} {address.exterior_number}, {address.neighborhood}")
+    margin_y -= line_spacing
+    p.drawString(margin_x, margin_y, f"CP {address.postcode} {address.city}, {address.state}")
+
+    # Línea divisoria horizontal para "POR TRANSPORTES:"
+    p.line(10, start_y + 12, 10 + box1_width, start_y + 12)
+    p.setFont("Helvetica", 8)
+    p.drawString(15, start_y + 2, "POR TRANSPORTES:")
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(95, start_y + 2, "PROVEEDOR")
+
+    # Caja 2 - Consignar a
+    p.rect(10 + box1_width, start_y, box2_width, box_height)
+    margin_x = 15 + box1_width
+    margin_y = start_y + box_height - 12
+
+    p.setFont("Helvetica", 8)
+    p.drawString(margin_x, margin_y, "CONSIGNAR A:")
+    margin_y -= line_spacing
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(margin_x, margin_y, f"{warehouse.company_warehouse_id}  {warehouse.name}")
+    margin_y -= line_spacing
+    wh_address = warehouse.address
+    p.setFont("Helvetica", 8)
+    p.drawString(margin_x, margin_y, f"{wh_address.street} {wh_address.exterior_number}, {wh_address.neighborhood}")
+    margin_y -= line_spacing
+    p.drawString(margin_x, margin_y, f"{wh_address.city}, {wh_address.state}")
+
+    # Caja 3 - Vacía
+    p.rect(10 + box1_width + box2_width, start_y, box3_width, box_height)
+
+
+
 
 
     
@@ -184,34 +248,32 @@ def export_pdf_django(request):
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    for page_number, order in enumerate(orders, start=1):
-        
-        # Dibuja el encabezado para cada orden
+    for order in orders:
+        page_number = 1
+        y_position = height - 160
+        footer_reserved_height = 80
+        row_height = 18
+
         draw_pdf_header(p, width, height, company, order, page_number)
 
-        # Encabezado de tabla
-        y_position = height - 160
-        p.setFont("Helvetica-Bold", 9)
         headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos", "P. Unit", "Total"]
         col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
+        cell_height = 22
+        text_vertical_offset = 4
 
-        cell_height = 22  # Altura fija de la celda
-        text_vertical_offset = 4  # Desplazamiento vertical para centrar mejor el texto
-
-        # Dibujar el borde de cada celda primero
+        # Dibujar encabezado de tabla
+        p.setFont("Helvetica-Bold", 9)
         for idx, header in enumerate(headers):
             next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
             p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-
-        # Luego dibujar el texto centrado verticalmente dentro de las celdas
-        for idx, header in enumerate(headers):
             p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
-
-        y_position -= 35 # Mover posición después de las celdas
-
+        y_position -= 35
         p.setFont("Helvetica", 8)
 
-        for detail in order.orderdetail_set.all():
+        details = list(order.orderdetail_set.all())
+        total_details = len(details)
+
+        for i, detail in enumerate(details):
             bultos = ""
             if detail.product.master_package and detail.product.inner_package:
                 if detail.quantity % (detail.master_package * detail.inner_package) == 0:
@@ -229,32 +291,39 @@ def export_pdf_django(request):
                 f"${detail.subtotal:.2f}" if order.is_prepaid else ""
             ]
 
-            for idx, val in enumerate(detail_values):
-                p.drawString(col_x_positions[idx], y_position, val)
-
-            y_position -= 18
-
-            if y_position < 50:
+            # Verificar si cabe la fila y el footer
+            if y_position - row_height < footer_reserved_height:
                 p.showPage()
+                page_number += 1
                 draw_pdf_header(p, width, height, company, order, page_number)
-                
+
                 y_position = height - 160
                 p.setFont("Helvetica-Bold", 9)
-
-                # Dibujar bordes de las celdas en nueva página
                 for idx, header in enumerate(headers):
                     next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
                     p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-
-                # Dibujar textos en celdas en nueva página
-                for idx, header in enumerate(headers):
                     p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
-
                 y_position -= 35
                 p.setFont("Helvetica", 8)
 
-        # Termina la página y pasa a la siguiente orden
+            # Dibujar la fila del detalle
+            for idx, val in enumerate(detail_values):
+                p.drawString(col_x_positions[idx], y_position, val)
+            y_position -= row_height
+
+        # Footer solo después de los detalles
+        draw_footer(p, width, company, order.orderdetail_set.first().warehouse)
         p.showPage()
 
     p.save()
     return response
+
+
+
+
+
+
+
+
+
+
