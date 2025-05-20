@@ -259,7 +259,6 @@ def export_pdf_django(request):
         cell_height = 22
         text_vertical_offset = 4
 
-        # Encabezado de tabla con bordes
         p.setFont("Helvetica-Bold", 9)
         for idx, header in enumerate(headers):
             next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
@@ -301,8 +300,8 @@ def export_pdf_django(request):
 
             y_position -= 18
 
-            # Verificar si hay espacio para el siguiente detalle más los totales
-            if i + 1 == len(details):  # último detalle
+            # Verifica espacio si es el último o uno más
+            if i + 1 == len(details):
                 if y_position < 100:
                     p.showPage()
                     page_number += 1
@@ -316,6 +315,7 @@ def export_pdf_django(request):
                         p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
                     y_position -= 35
                     p.setFont("Helvetica", 8)
+
             elif y_position < 115:
                 p.showPage()
                 page_number += 1
@@ -336,7 +336,8 @@ def export_pdf_django(request):
             page_number += 1
             draw_pdf_header(p, width, height, company, order, page_number)
             y_position = height - 160
-        y_position +=5
+
+        y_position += 5
         p.setFont("Helvetica-Bold", 8)
         p.line(450, y_position + 8, 510, y_position + 8)
         p.drawRightString(450, y_position, "SUBTOTAL:")
@@ -347,11 +348,25 @@ def export_pdf_django(request):
         y_position -= 15
         p.drawRightString(450, y_position, "TOTAL:")
         p.drawString(460, y_position, f"${total:,.2f}")
-        draw_footer(p, width, company, details.first().warehouse)
+
+        # Footer con validación de existencia
+        first_detail = details.first()
+        if first_detail and first_detail.warehouse:
+            draw_footer(p, width, company, first_detail.warehouse)
+        else:
+            print(f" Orden {order.id} no tiene detalles o el warehouse no está definido.")
+            draw_footer(
+                p,
+                width,
+                company,
+                Warehouse(name="SIN DATOS", company_warehouse_id="N/A", address=company.address)
+            )
+
         p.showPage()
 
     p.save()
     return response
+
 
 
 
