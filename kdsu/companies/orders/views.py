@@ -176,8 +176,8 @@ def draw_pdf_header(p, width, height, company, order, page_num):
 def draw_footer(p, width, company, warehouse):
     start_y = 20
     box_height = 60
-    box1_width = width * 0.45
-    box2_width = width * 0.45
+    box1_width = width * 0.39
+    box2_width = width * 0.39
     box3_width = width - box1_width - box2_width - 20
 
     # Caja 1 - Factura A
@@ -193,7 +193,6 @@ def draw_footer(p, width, company, warehouse):
     p.drawString(margin_x, margin_y, f"{company.name}")
     margin_y -= line_spacing
     address = company.address
-    p.setFont("Helvetica", 8)
     p.drawString(margin_x, margin_y, f"{address.street} {address.exterior_number}, {address.neighborhood}")
     margin_y -= line_spacing
     p.drawString(margin_x, margin_y, f"CP {address.postcode} {address.city}, {address.state}")
@@ -203,7 +202,7 @@ def draw_footer(p, width, company, warehouse):
     p.setFont("Helvetica", 8)
     p.drawString(15, start_y + 2, "POR TRANSPORTES:")
     p.setFont("Helvetica-Bold", 9)
-    p.drawString(95, start_y + 2, "PROVEEDOR")
+    p.drawString(100, start_y + 2, "PROVEEDOR")
 
     # Caja 2 - Consignar a
     p.rect(10 + box1_width, start_y, box2_width, box_height)
@@ -217,7 +216,6 @@ def draw_footer(p, width, company, warehouse):
     p.drawString(margin_x, margin_y, f"{warehouse.company_warehouse_id}  {warehouse.name}")
     margin_y -= line_spacing
     wh_address = warehouse.address
-    p.setFont("Helvetica", 8)
     p.drawString(margin_x, margin_y, f"{wh_address.street} {wh_address.exterior_number}, {wh_address.neighborhood}")
     margin_y -= line_spacing
     p.drawString(margin_x, margin_y, f"{wh_address.city}, {wh_address.state}")
