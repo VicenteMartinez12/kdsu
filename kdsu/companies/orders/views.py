@@ -250,32 +250,33 @@ def export_pdf_django(request):
 
     for order in orders:
         page_number = 1
-        y_position = height - 160
-        footer_reserved_height = 80
-        row_height = 18
-
         draw_pdf_header(p, width, height, company, order, page_number)
 
-        headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos", "P. Unit", "Total"]
+        y_position = height - 160
+        headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "P. Unit", "Total", "Bultos"]
         col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
+
         cell_height = 22
         text_vertical_offset = 4
 
-        # Dibujar encabezado de tabla
+        # Encabezado de tabla con bordes
         p.setFont("Helvetica-Bold", 9)
         for idx, header in enumerate(headers):
             next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
             p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
             p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+
         y_position -= 35
         p.setFont("Helvetica", 8)
 
-        details = list(order.orderdetail_set.all())
-        total_details = len(details)
+        subtotal = 0
+        iva = 0
+        total = 0
 
+        details = order.orderdetail_set.all()
         for i, detail in enumerate(details):
             bultos = ""
-            if detail.product.master_package and detail.product.inner_package:
+            if detail.master_package and detail.inner_package:
                 if detail.quantity % (detail.master_package * detail.inner_package) == 0:
                     bultos = str(detail.quantity // (detail.master_package * detail.inner_package))
 
@@ -286,13 +287,36 @@ def export_pdf_django(request):
                 detail.product.description[:30],
                 detail.product.mpn,
                 f"{detail.master_package}/{detail.inner_package}",
-                bultos,
-                f"${detail.cost:.2f}" if order.is_prepaid else "",
-                f"${detail.subtotal:.2f}" if order.is_prepaid else ""
+                f"${detail.cost:.2f}",
+                f"${detail.subtotal:.2f}",
+                bultos
             ]
 
-            # Verificar si cabe la fila y el footer
-            if y_position - row_height < footer_reserved_height:
+            for idx, val in enumerate(detail_values):
+                p.drawString(col_x_positions[idx], y_position, val)
+
+            subtotal += detail.subtotal
+            iva += detail.tax_value
+            total += detail.total
+
+            y_position -= 18
+
+            # Verificar si hay espacio para el siguiente detalle más los totales
+            if i + 1 == len(details):  # último detalle
+                if y_position < 100:
+                    p.showPage()
+                    page_number += 1
+                    draw_pdf_header(p, width, height, company, order, page_number)
+
+                    y_position = height - 160
+                    p.setFont("Helvetica-Bold", 9)
+                    for idx, header in enumerate(headers):
+                        next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                        p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+                        p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+                    y_position -= 35
+                    p.setFont("Helvetica", 8)
+            elif y_position < 115:
                 p.showPage()
                 page_number += 1
                 draw_pdf_header(p, width, height, company, order, page_number)
@@ -306,17 +330,29 @@ def export_pdf_django(request):
                 y_position -= 35
                 p.setFont("Helvetica", 8)
 
-            # Dibujar la fila del detalle
-            for idx, val in enumerate(detail_values):
-                p.drawString(col_x_positions[idx], y_position, val)
-            y_position -= row_height
-
-        # Footer solo después de los detalles
-        draw_footer(p, width, company, order.orderdetail_set.first().warehouse)
+        # Totales
+        if y_position < 100:
+            p.showPage()
+            page_number += 1
+            draw_pdf_header(p, width, height, company, order, page_number)
+            y_position = height - 160
+        y_position +=5
+        p.setFont("Helvetica-Bold", 8)
+        p.line(450, y_position + 8, 510, y_position + 8)
+        p.drawRightString(450, y_position, "SUBTOTAL:")
+        p.drawString(460, y_position, f"${subtotal:,.2f}")
+        y_position -= 15
+        p.drawRightString(450, y_position, "IVA:")
+        p.drawString(460, y_position, f"${iva:,.2f}")
+        y_position -= 15
+        p.drawRightString(450, y_position, "TOTAL:")
+        p.drawString(460, y_position, f"${total:,.2f}")
+        draw_footer(p, width, company, details.first().warehouse)
         p.showPage()
 
     p.save()
     return response
+
 
 
 
