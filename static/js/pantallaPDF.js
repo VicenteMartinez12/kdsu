@@ -19,7 +19,9 @@ function initPdf() {
     }
 
     const ids = registros.map(r => r.id);
-    const companyId = 1;  // Ajusta este valor si es dinámico
+  const firstOrderId = registros[0].id;
+const firstRow = $(`#tablaPlantillaConsultas tr[data-id="${firstOrderId}"]`);
+const companyId = firstRow.data('company-id');
 
     const url = `/orders/export_pdf/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');

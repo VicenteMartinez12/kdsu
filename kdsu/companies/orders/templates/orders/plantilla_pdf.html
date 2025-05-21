@@ -30,7 +30,7 @@
 {% block contenido %}
 <tbody>
   {% for order in orders %}
-  <tr data-id="{{ order.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}" data-proveedor="{{ order.supplier.short_name }}">
+  <tr data-id="{{ order.id }}" data-company-id="{{ order.company.id }}" data-fecha="{{ order.date_ordered|date:'Y-m-d' }}" data-proveedor="{{ order.supplier.short_name }}">
     <td><input type="checkbox"></td>
     <td><i class="plus icon" style="cursor: pointer;"></i></td>
     <td>{{ order.order_id }}</td>
