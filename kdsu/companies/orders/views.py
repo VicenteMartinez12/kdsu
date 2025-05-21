@@ -308,7 +308,31 @@ def export_pdf_django(request):
                 ]
 
             for idx, val in enumerate(detail_values):
-                p.drawString(col_x_positions[idx], y_position, val)
+                x = col_x_positions[idx]
+                next_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                center_x = (x + next_x) / 2
+                align = 'left'
+
+                if order.is_prepaid:
+                    # Índices para PDF con precios
+                    if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
+                        align = 'center'
+                    elif idx in [1,5, 6, 7, 8]:  # Empaque, P. Unit, Total, Bultos
+                        align = 'right'
+                else:
+                    # Índices para PDF sin precios
+                    if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
+                        align = 'center'
+                    elif idx in [1,5, 6]:  # Empaque, Bultos
+                        align = 'right'
+
+                if align == 'center':
+                    p.drawCentredString(center_x, y_position, val)
+                elif align == 'right':
+                    p.drawRightString(next_x - 2, y_position, val)
+                else:
+                    p.drawString(x, y_position, val)
+
 
             subtotal += detail.subtotal
             iva += detail.tax_value
