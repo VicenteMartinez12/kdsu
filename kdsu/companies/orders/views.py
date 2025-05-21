@@ -377,15 +377,15 @@ def export_pdf_django(request):
 
             y_position += 5
             p.setFont("Helvetica-Bold", 8)
-            p.line(450, y_position + 8, 510, y_position + 8)
-            p.drawRightString(450, y_position, "SUBTOTAL:")
-            p.drawString(460, y_position, f"${subtotal:,.2f}")
+            p.line(480, y_position + 8, 540, y_position + 8)
+            p.drawRightString(480, y_position, "SUBTOTAL:")
+            p.drawString(490, y_position, f"${subtotal:,.2f}")
             y_position -= 15
-            p.drawRightString(450, y_position, "IVA:")
-            p.drawString(460, y_position, f"${iva:,.2f}")
+            p.drawRightString(480, y_position, "IVA:")
+            p.drawString(490, y_position, f"${iva:,.2f}")
             y_position -= 15
-            p.drawRightString(450, y_position, "TOTAL:")
-            p.drawString(460, y_position, f"${total:,.2f}")
+            p.drawRightString(480, y_position, "TOTAL:")
+            p.drawString(490, y_position, f"${total:,.2f}")
 
         # Footer seguro
         first_detail = details.first()
