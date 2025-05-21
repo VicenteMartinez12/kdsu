@@ -17,15 +17,26 @@ function initPdf() {
       alert('Selecciona al menos una orden.');
       return;
     }
-
+  
+    const companyIds = registros.map(r => r.company_id);
+    const uniqueCompanyIds = [...new Set(companyIds)];
+  
+    if (uniqueCompanyIds.length > 1) {
+      alert('Todas las órdenes seleccionadas deben pertenecer a la misma compañía.');
+      return;
+    }
+  
+    const companyId = uniqueCompanyIds[0];
+    if (!companyId) {
+      alert('No se encontró el company_id en una o más órdenes.');
+      return;
+    }
+  
     const ids = registros.map(r => r.id);
-  const firstOrderId = registros[0].id;
-const firstRow = $(`#tablaPlantillaConsultas tr[data-id="${firstOrderId}"]`);
-const companyId = firstRow.data('company-id');
-
     const url = `/orders/export_pdf/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');
   });
+  
 
   $('#tablaPlantillaConsultas').off('click', '.plus.icon').on('click', '.plus.icon', function () {
     const orderId = $(this).closest('tr').data('id');

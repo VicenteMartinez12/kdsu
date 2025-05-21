@@ -102,16 +102,25 @@ window.getCatalogoRegistros = function (modo = 'all') {
 
     if (modo === 'checked' && !checkbox.is(':checked')) return;
 
-    const item = { id: $(row).data('id') };
+    const $row = $(row);
+
+    const item = {
+      id: $row.data('id'),
+      company_id: $row.data('company-id') || null 
+    };
+
     campos.forEach((campo, i) => {
-      item[campo] = $(row).find(`td:eq(${i + 1})`).text().trim(); // +1 porque el td[0] es el checkbox
+      item[campo] = $row.find(`td:eq(${i + 1})`).text().trim(); 
     });
+
     console.log('✅ Registro agregado:', item);
     data.push(item);
   });
+
   console.log(`Total de registros devueltos (${modo}):`, data.length);
   return data;
 };
+
 
 
 
