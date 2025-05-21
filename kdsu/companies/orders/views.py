@@ -120,9 +120,9 @@ def draw_pdf_header(p, width, height, company, order, page_num):
         p.drawImage(logo_path, margin_left, height - 100, width=100, height=50, mask='auto')
 
     # Títulos centrales
-    p.setFont("Helvetica-Bold", 12)
-    p.drawCentredString(width / 2, height - 50, company.name)
-    p.drawCentredString(width / 2, height - 75, "ORDEN DE MERCANCÍA")
+    p.setFont("Helvetica-Bold", 10)
+    p.drawCentredString(width / 2, height - 60, company.name)
+    p.drawCentredString(width / 2, height - 80, "ORDEN DE MERCANCÍA")
     warehouse = order.orderdetail_set.first().warehouse if order.orderdetail_set.exists() else None
     if warehouse:
         sucursal_text = f"{warehouse.company_warehouse_id} - {warehouse.name}"
@@ -154,15 +154,15 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     p.drawString(rect_x + 65, rect_y + rect_height - 48, f"{page_num}")
 
     # Proveedor y Razón Social
-    p.setFont("Helvetica", 10)
-    p.drawString(margin_left, height - 150, "CV.PROVEEDOR:")
-    p.setFont("Helvetica-Bold", 10)
-    p.drawString(margin_left + 90, height - 150, f"{order.supplier.company_supplier_id}")
+    p.setFont("Helvetica", 8)
+    p.drawString(margin_left, height - 150, "CVE.PROVEEDOR:")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(margin_left + 75, height - 150, f"{order.supplier.company_supplier_id}")
 
-    p.setFont("Helvetica", 10)
+    p.setFont("Helvetica", 8)
     p.drawString(margin_left + 220, height - 150, "RAZÓN SOCIAL:")
-    p.setFont("Helvetica-Bold", 10)
-    p.drawString(margin_left + 300, height - 150, f"{order.supplier.name}")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(margin_left + 285, height - 150, f"{order.supplier.name}")
     
     
     
@@ -176,20 +176,24 @@ def draw_pdf_header(p, width, height, company, order, page_num):
 def draw_footer(p, width, company, warehouse):
     start_y = 20
     box_height = 60
-    box1_width = width * 0.39
-    box2_width = width * 0.39
-    box3_width = width - box1_width - box2_width - 20
+
+    margin_sides = 20  # mismo margen que la tabla
+    usable_width = width - 2 * margin_sides
+
+    box1_width = usable_width * 0.39
+    box2_width = usable_width * 0.39
+    box3_width = usable_width - box1_width - box2_width  # Ajuste dinámico
 
     # Caja 1 - Factura A
-    p.rect(10, start_y, box1_width, box_height)
-    margin_x = 15
+    p.rect(margin_sides, start_y, box1_width, box_height)
+    margin_x = margin_sides + 5
     margin_y = start_y + box_height - 12
-    line_spacing = 10  # Espacio entre líneas
+    line_spacing = 10
 
-    p.setFont("Helvetica", 8)
+    p.setFont("Helvetica", 7)
     p.drawString(margin_x, margin_y, "FACTURAR A:")
     margin_y -= line_spacing
-    p.setFont("Helvetica-Bold", 9)
+    p.setFont("Helvetica-Bold", 7)
     p.drawString(margin_x, margin_y, f"{company.name}")
     margin_y -= line_spacing
     address = company.address
@@ -197,22 +201,23 @@ def draw_footer(p, width, company, warehouse):
     margin_y -= line_spacing
     p.drawString(margin_x, margin_y, f"CP {address.postcode} {address.city}, {address.state}")
 
-    # Línea divisoria horizontal para "POR TRANSPORTES:"
-    p.line(10, start_y + 12, 10 + box1_width, start_y + 12)
-    p.setFont("Helvetica", 8)
-    p.drawString(15, start_y + 2, "POR TRANSPORTES:")
-    p.setFont("Helvetica-Bold", 9)
-    p.drawString(100, start_y + 2, "PROVEEDOR")
+    # Línea divisoria horizontal
+    p.line(margin_sides, start_y + 12, margin_sides + box1_width, start_y + 12)
+    p.setFont("Helvetica", 7)
+    p.drawString(margin_x, start_y + 2, "POR TRANSPORTES:")
+    p.setFont("Helvetica-Bold", 7)
+    p.drawString(margin_x + 75, start_y + 2, "PROVEEDOR")
 
     # Caja 2 - Consignar a
-    p.rect(10 + box1_width, start_y, box2_width, box_height)
-    margin_x = 15 + box1_width
+    box2_x = margin_sides + box1_width
+    p.rect(box2_x, start_y, box2_width, box_height)
+    margin_x = box2_x + 5
     margin_y = start_y + box_height - 12
 
-    p.setFont("Helvetica", 8)
+    p.setFont("Helvetica", 7)
     p.drawString(margin_x, margin_y, "CONSIGNAR A:")
     margin_y -= line_spacing
-    p.setFont("Helvetica-Bold", 9)
+    p.setFont("Helvetica-Bold", 7)
     p.drawString(margin_x, margin_y, f"{warehouse.company_warehouse_id}  {warehouse.name}")
     margin_y -= line_spacing
     wh_address = warehouse.address
@@ -221,7 +226,9 @@ def draw_footer(p, width, company, warehouse):
     p.drawString(margin_x, margin_y, f"{wh_address.city}, {wh_address.state}")
 
     # Caja 3 - Vacía
-    p.rect(10 + box1_width + box2_width, start_y, box3_width, box_height)
+    box3_x = box2_x + box2_width
+    p.rect(box3_x, start_y, box3_width, box_height)
+
 
 
 
@@ -257,7 +264,7 @@ def export_pdf_django(request):
             col_x_positions = [20, 80, 130, 160, 320, 370, 420, 470, 520]
         else:
             headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos"]
-            col_x_positions = [20, 80, 150, 200, 420, 470, 530]
+            col_x_positions = [20, 80, 125, 175, 420, 470, 530]
 
         cell_height = 22
         text_vertical_offset = 4
@@ -317,13 +324,13 @@ def export_pdf_django(request):
                     # Índices para PDF con precios
                     if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
                         align = 'center'
-                    elif idx in [1,5, 6, 7, 8]:  # Empaque, P. Unit, Total, Bultos
+                    elif idx in [1,5, 6, 7, 8]:  #Cantidad,  Empaque, P. Unit, Total, Bultos
                         align = 'right'
                 else:
                     # Índices para PDF sin precios
                     if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
                         align = 'center'
-                    elif idx in [1,5, 6]:  # Empaque, Bultos
+                    elif idx in [1,5, 6]:  # cantidad, Empaque, Bultos
                         align = 'right'
 
                 if align == 'center':
@@ -348,9 +355,11 @@ def export_pdf_django(request):
                     y_position = height - 160
                     p.setFont("Helvetica-Bold", 9)
                     for idx, header in enumerate(headers):
-                        next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
-                        p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-                        p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+                       next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                       p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+                       cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
+                       p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
+
                     y_position -= 35
                     p.setFont("Helvetica", 8)
 
@@ -361,9 +370,11 @@ def export_pdf_django(request):
                 y_position = height - 160
                 p.setFont("Helvetica-Bold", 9)
                 for idx, header in enumerate(headers):
-                    next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
-                    p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-                    p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+                 next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                 p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+                 cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
+                 p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
+
                 y_position -= 35
                 p.setFont("Helvetica", 8)
 
@@ -377,15 +388,15 @@ def export_pdf_django(request):
 
             y_position += 5
             p.setFont("Helvetica-Bold", 8)
-            p.line(480, y_position + 8, 540, y_position + 8)
-            p.drawRightString(480, y_position, "SUBTOTAL:")
-            p.drawString(490, y_position, f"${subtotal:,.2f}")
+            p.line(475, y_position + 8, 530, y_position + 8)
+            p.drawRightString(460, y_position, "SUBTOTAL:")
+            p.drawString(482.5, y_position, f"${subtotal:,.2f}")
             y_position -= 15
-            p.drawRightString(480, y_position, "IVA:")
-            p.drawString(490, y_position, f"${iva:,.2f}")
+            p.drawRightString(460, y_position, "IVA:")
+            p.drawString(482.5, y_position, f"${iva:,.2f}")
             y_position -= 15
-            p.drawRightString(480, y_position, "TOTAL:")
-            p.drawString(490, y_position, f"${total:,.2f}")
+            p.drawRightString(460, y_position, "TOTAL:")
+            p.drawString(482.5, y_position, f"${total:,.2f}")
 
         # Footer seguro
         first_detail = details.first()
