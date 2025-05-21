@@ -251,8 +251,13 @@ def export_pdf_django(request):
         draw_pdf_header(p, width, height, company, order, page_number)
 
         y_position = height - 160
-        headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "P. Unit", "Total", "Bultos"]
-        col_x_positions = [20, 80, 130, 160, 300, 350, 420, 470, 520]
+
+        if order.is_prepaid:
+            headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "P. Unit", "Total", "Bultos"]
+            col_x_positions = [20, 80, 130, 160, 320, 370, 420, 470, 520]
+        else:
+            headers = ["SKU", "Cantidad", "U/M", "Descripción", "No. Art.", "Empaque", "Bultos"]
+            col_x_positions = [20, 80, 150, 200, 420, 470, 530]
 
         cell_height = 22
         text_vertical_offset = 4
@@ -261,7 +266,9 @@ def export_pdf_django(request):
         for idx, header in enumerate(headers):
             next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
             p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-            p.drawString(col_x_positions[idx] + 2, y_position - cell_height + text_vertical_offset + 4, header)
+            cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
+            p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
+
 
         y_position -= 35
         p.setFont("Helvetica", 8)
@@ -277,17 +284,28 @@ def export_pdf_django(request):
                 if detail.quantity % (detail.master_package * detail.inner_package) == 0:
                     bultos = str(detail.quantity // (detail.master_package * detail.inner_package))
 
-            detail_values = [
-                detail.product.sku,
-                str(detail.quantity),
-                detail.product.packing_unit,
-                detail.product.description[:30],
-                detail.product.mpn,
-                f"{detail.master_package}/{detail.inner_package}",
-                f"${detail.cost:.2f}",
-                f"${detail.subtotal:.2f}",
-                bultos
-            ]
+            if order.is_prepaid:
+                detail_values = [
+                    detail.product.sku,
+                    str(detail.quantity),
+                    detail.product.packing_unit,
+                    detail.product.description[:30],
+                    detail.product.mpn,
+                    f"{detail.master_package}/{detail.inner_package}",
+                    f"${detail.cost:.2f}",
+                    f"${detail.subtotal:.2f}",
+                    bultos
+                ]
+            else:
+                detail_values = [
+                    detail.product.sku,
+                    str(detail.quantity),
+                    detail.product.packing_unit,
+                    detail.product.description[:30],
+                    detail.product.mpn,
+                    f"{detail.master_package}/{detail.inner_package}",
+                    bultos
+                ]
 
             for idx, val in enumerate(detail_values):
                 p.drawString(col_x_positions[idx], y_position, val)
@@ -298,13 +316,11 @@ def export_pdf_django(request):
 
             y_position -= 18
 
-            # Verifica espacio si es el último o uno más
             if i + 1 == len(details):
                 if y_position < 100:
                     p.showPage()
                     page_number += 1
                     draw_pdf_header(p, width, height, company, order, page_number)
-
                     y_position = height - 160
                     p.setFont("Helvetica-Bold", 9)
                     for idx, header in enumerate(headers):
@@ -318,7 +334,6 @@ def export_pdf_django(request):
                 p.showPage()
                 page_number += 1
                 draw_pdf_header(p, width, height, company, order, page_number)
-
                 y_position = height - 160
                 p.setFont("Helvetica-Bold", 9)
                 for idx, header in enumerate(headers):
@@ -328,31 +343,31 @@ def export_pdf_django(request):
                 y_position -= 35
                 p.setFont("Helvetica", 8)
 
-        # Totales
-        if y_position < 100:
-            p.showPage()
-            page_number += 1
-            draw_pdf_header(p, width, height, company, order, page_number)
-            y_position = height - 160
+        # Mostrar totales solo si es prepago
+        if order.is_prepaid:
+            if y_position < 100:
+                p.showPage()
+                page_number += 1
+                draw_pdf_header(p, width, height, company, order, page_number)
+                y_position = height - 160
 
-        y_position += 5
-        p.setFont("Helvetica-Bold", 8)
-        p.line(450, y_position + 8, 510, y_position + 8)
-        p.drawRightString(450, y_position, "SUBTOTAL:")
-        p.drawString(460, y_position, f"${subtotal:,.2f}")
-        y_position -= 15
-        p.drawRightString(450, y_position, "IVA:")
-        p.drawString(460, y_position, f"${iva:,.2f}")
-        y_position -= 15
-        p.drawRightString(450, y_position, "TOTAL:")
-        p.drawString(460, y_position, f"${total:,.2f}")
+            y_position += 5
+            p.setFont("Helvetica-Bold", 8)
+            p.line(450, y_position + 8, 510, y_position + 8)
+            p.drawRightString(450, y_position, "SUBTOTAL:")
+            p.drawString(460, y_position, f"${subtotal:,.2f}")
+            y_position -= 15
+            p.drawRightString(450, y_position, "IVA:")
+            p.drawString(460, y_position, f"${iva:,.2f}")
+            y_position -= 15
+            p.drawRightString(450, y_position, "TOTAL:")
+            p.drawString(460, y_position, f"${total:,.2f}")
 
-        # Footer con validación de existencia
+        # Footer seguro
         first_detail = details.first()
         if first_detail and first_detail.warehouse:
             draw_footer(p, width, company, first_detail.warehouse)
         else:
-            print(f" Orden {order.id} no tiene detalles o el warehouse no está definido.")
             draw_footer(
                 p,
                 width,
