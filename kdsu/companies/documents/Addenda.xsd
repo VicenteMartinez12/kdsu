@@ -1,0 +1,101 @@
+<?xml version="1.0" standalone="yes"?>
+<xs:schema id="NewDataSet" targetNamespace="http://www.sat.gob.mx/cfd/3" xmlns:mstns="http://www.sat.gob.mx/cfd/3" xmlns="http://www.sat.gob.mx/cfd/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" attributeFormDefault="qualified" elementFormDefault="qualified" xmlns:app1="http://www.sat.gob.mx/TimbreFiscalDigital" xmlns:app2="http://kontender.mx/namespace/boveda">
+  <xs:import namespace="http://www.sat.gob.mx/TimbreFiscalDigital" schemaLocation="cfdi_app1.xsd" />
+  <xs:import namespace="http://kontender.mx/namespace/boveda" schemaLocation="cfdi_app2.xsd" />
+        <xs:element name="Addenda" msdata:Prefix="cfdi">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="BOVEDAFISCAL" msdata:Prefix="bovadd">
+						<xs:complexType>
+						  <xs:sequence>					
+							<xs:element name="Pedido" msdata:Prefix="bovadd" maxOccurs="unbounded" >
+								<xs:annotation>
+									<xs:documentation>
+										Nodo requerido para incluir el folio del pedido requerido solicitado por Tony Tiendas S.A. de C.V.
+									</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:attribute name="Folio" form="unqualified" type="xs:integer" use="required" >
+										<xs:annotation>
+											<xs:documentation>
+												Atributo requerido que corresponde al folio del pedido
+											</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>	
+							<xs:element name="Factura" msdata:Prefix="bovadd" maxOccurs="unbounded" >
+								<xs:annotation>
+									<xs:documentation>
+										Nodo requerido para incluir datos de la factura
+									</xs:documentation>
+								</xs:annotation> 
+							  <xs:complexType>
+								<xs:attribute name="Peso" form="unqualified" type="xs:integer" use="required" >
+									<xs:annotation>
+										<xs:documentation>
+											Atributo requerido que corresponde al peso aproximado de la mercancia de la factura en Kilogramos, se obtiene de la suma de pesos de cada producto (multiplicar la cantidad de piezas por el peso de cada producto).
+										</xs:documentation>
+									</xs:annotation>            
+								</xs:attribute>
+							  </xs:complexType>
+							</xs:element>	
+							<xs:element name="TotalBultos" msdata:Prefix="bovadd" maxOccurs="unbounded" >
+								<xs:annotation>
+									<xs:documentation>
+										Nodo requerido indicar los empaques finales que son utilizados para mover la mercancia a Centra o a las sucursales
+									</xs:documentation>
+								</xs:annotation> 
+							  <xs:complexType>
+								<xs:attribute name="Cantidad" form="unqualified" type="xs:integer" use="required" >
+									<xs:annotation>
+										<xs:documentation>
+											Atributo requerido que corresponde la cantidad de empaques finales que van a ser entregados en Centra o en Sucursales
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							  </xs:complexType>
+							</xs:element>
+							<xs:element name="ConceptosKDSU" msdata:Prefix="bovadd" maxOccurs="unbounded" >
+								<xs:annotation>
+									<xs:documentation>
+										Nodo requerido indicar el desglose de conceptos para alimentar el sistema KDSU y surtir los pedidos con lss cantidades facturadas utilizando la misma unidad controlada por producto en el pedido
+									</xs:documentation>
+								</xs:annotation> 
+							  <xs:complexType>
+								<xs:sequence>
+								  <xs:element name="ConceptoKDSU" msdata:Prefix="bovadd" maxOccurs="unbounded" >
+									<xs:complexType>
+										<xs:attribute name="cantPzas" form="unqualified" type="xs:integer" use="required">
+											<xs:annotation>
+												<xs:documentation>
+													Cantidad de piezas que surten del pedido, utilizar la misma unidad manejada en el pedido. Utilizar la informacion de master e inners de los productos tony para hacer la conversion.
+												</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+										<xs:attribute name="codigoTony" form="unqualified" type="xs:string" use="required">
+											<xs:annotation>
+												<xs:documentation>
+													Atributo requerido que corresponde al codigo de producto utilizado por Tony
+												</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+										<xs:attribute name="codigoProveedor" form="unqualified" type="xs:string" use="required">
+											<xs:annotation>
+												<xs:documentation>
+													Atributo requerido que corresponde al codigo de producto utilizado por el Proveedor
+												</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:complexType>
+								  </xs:element>
+								</xs:sequence>
+							  </xs:complexType>
+							</xs:element>
+						  </xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+</xs:schema>

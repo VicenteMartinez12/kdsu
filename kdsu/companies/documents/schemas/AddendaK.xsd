@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:bovadd="http://kontender.mx/namespace/boveda" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://kontender.mx/namespace/boveda" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xs:element name="BOVEDAFISCAL">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Pedido">
+					<xs:complexType>
+						<xs:attribute name="Folio" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Factura">
+					<xs:complexType>
+						<xs:attribute name="Peso" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TotalBultos">
+					<xs:complexType>
+						<xs:attribute name="Cantidad" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ConceptosKDSU">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ConceptoKDSU" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="cantPzas" type="xs:string"/>
+									<xs:attribute name="codigoTony" type="xs:string"/>
+									<xs:attribute name="codigoProveedor" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,253 @@
+﻿<cfdi:Comprobante xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="59404" Fecha="2025-01-15T15:34:25" Sello="XqQsnyaPpBg3pNEjTpf0KGyjgUbB3i77QgK+ynNI4gahd79ESq61+WbCnDYKd9bhxIHSUfMcKSGmS2hEVZarqWA1ma/RZEJTZWdm6mTVTRPMey+b1Ug1m0Wrx7uPPyOLEO2U1bYmWEOnVNoEwtxg/LhpUGuImx5tSa2lirJcAt7kyOE7MMTLzL9/v4YyWBHRnK1hMqCry4BMj1pIti8urJMY/Dldj2z2uikQ2Sv8futAmGXS3AiN3/e8bDwb9au0H8Cy1WygY2LNoYpfsrlFfDyqnIj1ldvezbMDayvTt7jU3h7Xr//JwotWoq94dTBIxkC7WsbgKppcFtPLY+N/EQ==" FormaPago="99" NoCertificado="00001000000704177740" Certificado="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" CondicionesDePago="15" SubTotal="8860.57" Descuento="0.00" Moneda="MXN" TipoCambio="1" Total="10278.26" TipoDeComprobante="I" Exportacion="01" MetodoPago="PPD" LugarExpedicion="66422" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd">
+  <cfdi:Emisor Rfc="GRA8509244X0" Nombre="GRANMARK" RegimenFiscal="601" />
+  <cfdi:Receptor Rfc="TTI961202IM1" Nombre="TONY TIENDAS" DomicilioFiscalReceptor="94299" RegimenFiscalReceptor="601" UsoCFDI="G01" />
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="847-SMC" Cantidad="4" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG CHI LIC PQ/6 SPIDERMANCLASICO" ValorUnitario="50.02" Importe="200.08" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="200.08" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="32.01" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="847-UNIC" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG CHI PQ/6 UNICORNIO" ValorUnitario="32.71" Importe="196.26" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="196.26" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="31.40" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="845-DRB" Cantidad="2" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG GDE LIC PQ/6 DRAGONBALL" ValorUnitario="89.79" Importe="179.58" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="179.58" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="28.73" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="845-BEBE" Cantidad="15" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG GDE PQ/6 BEBES" ValorUnitario="55.81" Importe="837.15" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="837.15" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="133.95" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="845-PADR" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG GDE PQ/6 CABALLERO" ValorUnitario="55.81" Importe="334.86" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="334.86" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="53.58" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="844-BEBE" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG JUM PQ/6 BEBE" ValorUnitario="127.76" Importe="766.56" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="766.56" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="122.65" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-SMC" Cantidad="4" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED LIC PQ/6 SPIDERMANCLASICO" ValorUnitario="65.49" Importe="261.96" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="261.96" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="41.91" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-BEBE" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED PQ/6 BEBES" ValorUnitario="39.91" Importe="239.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="239.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="38.31" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-MADR" Cantidad="12" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED PQ/6 FLORES" ValorUnitario="39.91" Importe="478.92" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="478.92" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="76.63" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-PADR" Cantidad="8" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED PQ/6 CABALLERO" ValorUnitario="39.91" Importe="319.28" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="319.28" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="51.09" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="896-GENE" Cantidad="16" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED KRAFT PQ/6 LISA" ValorUnitario="44.19" Importe="707.04" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="707.04" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="113.13" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="505/14" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA CHICA ARMADA PQ/24 ORO" ValorUnitario="76.33" Importe="76.33" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="76.33" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="12.21" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="507/14" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA GRANDE ARMADA PQ/24 ORO" ValorUnitario="104.46" Importe="104.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="104.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.71" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="506/14" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA MEDIANA ARMADA PQ/24 ORO" ValorUnitario="89.99" Importe="89.99" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="89.99" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="14.40" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="930-BODA" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="PAPEL ENV PQ/25 BODA" ValorUnitario="51.06" Importe="51.06" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="51.06" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="8.17" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="847-JUVE" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG CHI PQ/6 JUVENIL" ValorUnitario="32.71" Importe="196.26" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="196.26" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="31.40" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-UNIC" Cantidad="6" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED PQ/6 UNICORNIO" ValorUnitario="39.91" Importe="239.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="239.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="38.31" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="847-MV4" Cantidad="4" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG CHI LIC PQ/6 MIVILLANOFAVORITO4" ValorUnitario="50.02" Importe="200.08" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="200.08" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="32.01" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="846-MV4" Cantidad="4" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG MED LIC PQ/6 MIVILLANOFAVORITO4" ValorUnitario="65.49" Importe="261.96" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="261.96" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="41.91" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="930-BEBE" Cantidad="10" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="PAPEL ENV PQ/25 BEBES" ValorUnitario="51.06" Importe="510.60" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="510.60" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="81.70" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="60111002" NoIdentificacion="1304-1" Cantidad="3" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="POSTER ALFABETO PQ/6 ALFABETO" ValorUnitario="134.39" Importe="403.17" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="403.17" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="64.51" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="60111002" NoIdentificacion="1312-1" Cantidad="2" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="POSTER MULTIPLICAR PQ/6 TABLMULTIPLICAR" ValorUnitario="134.39" Importe="268.78" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="268.78" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="43.01" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="152-0467" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLOCK STICKERS PQ/12 NARUTO" ValorUnitario="166.33" Importe="166.33" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="166.33" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="26.61" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="125-0182" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLISTER CALCOMANIA PQ/12 AVENGERSASSEMBLE" ValorUnitario="66.69" Importe="66.69" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="66.69" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="10.67" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="125-0348" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLISTER CALCOMANIA PQ/12 JURASSICWORLD2" ValorUnitario="66.69" Importe="66.69" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="66.69" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="10.67" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="125-0263" Cantidad="2" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLISTER CALCOMANIA PQ/12 PAWPATROL" ValorUnitario="66.69" Importe="133.38" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="133.38" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="21.34" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="14111601" NoIdentificacion="845-SMC" Cantidad="4" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BOLSA REG GDE LIC PQ/6 SPIDERMANCLASICO" ValorUnitario="89.79" Importe="359.16" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="359.16" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="57.47" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="507/7" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA GRANDE ARMADA PQ/24 ROSA" ValorUnitario="104.46" Importe="104.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="104.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.71" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="152-0420" Cantidad="2" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLOCK STICKERS PQ/12 SONIC" ValorUnitario="166.33" Importe="332.66" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="332.66" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="53.23" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55121607" NoIdentificacion="152-TO" Cantidad="2" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="BLOCK STICKERS PQ/12 GRANMARKTODAOCASION" ValorUnitario="166.33" Importe="332.66" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="332.66" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="53.23" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="507/8" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA GRANDE ARMADA PQ/24 VERDEBANDERA" ValorUnitario="104.46" Importe="104.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="104.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.71" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="505/13" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA CHICA ARMADA PQ/24 PLATA" ValorUnitario="76.33" Importe="76.33" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="76.33" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="12.21" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="506/2" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA MEDIANA ARMADA PQ/24 ROJO" ValorUnitario="89.99" Importe="89.99" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="89.99" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="14.40" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="52151506" NoIdentificacion="507/2" Cantidad="1" ClaveUnidad="XPK" Unidad="PAQ" Descripcion="CAJA GRANDE ARMADA PQ/24 ROJO" ValorUnitario="104.46" Importe="104.46" Descuento="0.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="104.46" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.71" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="1417.69">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="8860.57" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="1417.69" />
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" Version="1.1" UUID="FCDD6020-C0E3-452D-931E-440C7FB44F68" FechaTimbrado="2025-01-15T15:34:39" RfcProvCertif="INT020124V62" SelloCFD="XqQsnyaPpBg3pNEjTpf0KGyjgUbB3i77QgK+ynNI4gahd79ESq61+WbCnDYKd9bhxIHSUfMcKSGmS2hEVZarqWA1ma/RZEJTZWdm6mTVTRPMey+b1Ug1m0Wrx7uPPyOLEO2U1bYmWEOnVNoEwtxg/LhpUGuImx5tSa2lirJcAt7kyOE7MMTLzL9/v4YyWBHRnK1hMqCry4BMj1pIti8urJMY/Dldj2z2uikQ2Sv8futAmGXS3AiN3/e8bDwb9au0H8Cy1WygY2LNoYpfsrlFfDyqnIj1ldvezbMDayvTt7jU3h7Xr//JwotWoq94dTBIxkC7WsbgKppcFtPLY+N/EQ==" NoCertificadoSAT="00001000000708361008" SelloSAT="NyLoJZijcRUaV4sRTBHHcB7o2SHWzGLwobE9MzXqIlzhXX/oS2Kf31kP4tawnGghrWquWuQ39jI5eyTez+G1CMH4UnYNeORKa5Xl8D/MYxx2BQoo71Y6pRi9nxgm5icBlu8GCZ38VYCpU6468pKXrUT5CnJ4Z/3/wi7HieN4G33EUohCgbzC9QShmnsNhYA1Op6t/kvube+m2R/WBJVpCvPnRcxZCOJ3xvgwHcVh1oILJL483V65tJSUK5cgR7FHSo7EzyfMlsGcLq1XsL3czKgr9DPZnmwxkQu8oCjnNDpRyHo0y3DIyFPLIK2rvh11nr8nW9Eaj10OyjTkaBn2TQ==" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" />
+  </cfdi:Complemento>
+
+</cfdi:Comprobante>

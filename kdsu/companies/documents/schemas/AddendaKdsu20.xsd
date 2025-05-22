@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:kdsu="http://kdsu.tony.mx/namespace/addenda" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://kdsu.tony.mx/namespace/addenda" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xs:element name="KDSU">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Entrega">
+					<xs:complexType>
+						<xs:attribute name="TotalPesoKg" type="xs:string"/>
+						<xs:attribute name="TotalBultos" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ConceptosKDSU">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ConceptoKDSU" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="Bulto" type="xs:string"/>
+									<xs:attribute name="Orden" type="xs:string"/>
+									<xs:attribute name="CodigoFactura" type="xs:string"/>
+									<xs:attribute name="CodigoOrden" type="xs:string"/>
+									<xs:attribute name="CantidadFactura" type="xs:string"/>
+									<xs:attribute name="CantidadOrden" type="xs:string"/>
+									<xs:attribute name="PesoUnidadFacturaGr" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="Version" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'kdsu.companies.catalogs',
     'kdsu.companies.orders',
     'kdsu.companies.utils',
+    'kdsu.companies.documents',
     'corsheaders',
     
 ]

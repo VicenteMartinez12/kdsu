@@ -9,6 +9,7 @@ urlpatterns = [
     path("companies/", include("kdsu.companies.catalogs.urls")),
     path("", include("kdsu.companies.utils.urls")),
     path('api/', include('kdsu.companies.api_urls')),
+    path('cfdi/', include('kdsu.companies.documents.urls')),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

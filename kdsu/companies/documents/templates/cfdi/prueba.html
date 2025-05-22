@@ -1,0 +1,29 @@
+<h2>Validar XML</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <h1>Listado de Facturas</h1>
+    <ul>
+        {% for factura in facturas %}
+            <li>{{ factura.serie }} - {{ factura.folio }} - {{ factura.uuid }}</li>
+        {% empty %}
+            <li>No hay facturas registradas.</li>
+        {% endfor %}
+    </ul>
+
+    <p>
+        {{ form.xml_file.label_tag }}<br>
+        {{ form.xml_file }}
+    </p>
+    <p><strong>O</strong></p>
+    <p>
+        {{ form.ruta_directa.label_tag }}<br>
+        {{ form.ruta_directa }}
+    </p>
+    <button type="submit">Validar</button>
+
+    {% if load_result %}
+        <h2>Resultado de la Validación</h2>
+        <pre>{{ load_result|safe }}</pre>
+    {% endif %}
+</form>
