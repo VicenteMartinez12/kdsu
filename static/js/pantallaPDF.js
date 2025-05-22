@@ -65,7 +65,7 @@ function initPdf() {
     }
   
     const ids = registros.map(r => r.id);
-    const url = `/orders/export_xml/?company_id=${companyId}&` + ids.map(id => `order_ids[]=${id}`).join('&');
+    const url = `/orders/export_xml/?` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');
   });
   

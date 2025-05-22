@@ -428,21 +428,22 @@ def export_pdf(request):
 
 @require_GET
 def export_xml(request):
-    company_id = request.GET.get('company_id')
     order_ids = request.GET.getlist('order_ids[]')
 
-    if not company_id or not order_ids:
+    if not order_ids:
         return HttpResponse("Parámetros faltantes", status=400)
 
-    company = get_object_or_404(Company, pk=company_id)
     orders = Order.objects.filter(id__in=order_ids).select_related('supplier')
 
     if not orders.exists():
         return HttpResponse("No se encontraron órdenes", status=404)
 
+    # Tomar compañía desde la primera orden
+    company = orders[0].company
+
     root = Element("OrdenesCompras")
 
-    # Agrega el XSD completo como subelemento
+    # Embebido: esquema XSD completo
     schema_text = '''
     <xs:schema id="OrdenesCompras" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
       <xs:element name="OrdenesCompras" msdata:IsDataSet="true" msdata:Locale="en-US">
@@ -543,4 +544,3 @@ def export_xml(request):
     tree = ElementTree(root)
     tree.write(response, encoding='utf-8', xml_declaration=True)
     return response
-
