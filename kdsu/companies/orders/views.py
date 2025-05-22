@@ -19,6 +19,8 @@ from django.http import FileResponse
 from io import BytesIO
 import os
 from reportlab.lib.utils import ImageReader
+from django.views.decorators.http import require_GET
+from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 
 
@@ -107,7 +109,7 @@ def obtener_detalles_orden(request, order_id):
     })
     
     
-def draw_pdf_header(p, width, height, company, order, page_num):
+def pdf_header(p, width, height, company, order, page_num):
     logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'tony.png')
     margin_left = 20
     rect_x = width - 150
@@ -173,7 +175,7 @@ def draw_pdf_header(p, width, height, company, order, page_num):
     
     
     
-def draw_footer(p, width, company, warehouse):
+def pdf_footer(p, width, company, warehouse):
     start_y = 20
     box_height = 60
 
@@ -235,7 +237,7 @@ def draw_footer(p, width, company, warehouse):
 
 
     
-def export_pdf_django(request):
+def export_pdf(request):
     company_id = request.GET.get('company_id')
     order_ids = request.GET.getlist('order_ids[]')
 
@@ -255,7 +257,7 @@ def export_pdf_django(request):
 
     for order in orders:
         page_number = 1
-        draw_pdf_header(p, width, height, company, order, page_number)
+        pdf_header(p, width, height, company, order, page_number)
 
         y_position = height - 160
 
@@ -351,7 +353,7 @@ def export_pdf_django(request):
                 if y_position < 100:
                     p.showPage()
                     page_number += 1
-                    draw_pdf_header(p, width, height, company, order, page_number)
+                    pdf_header(p, width, height, company, order, page_number)
                     y_position = height - 160
                     p.setFont("Helvetica-Bold", 9)
                     for idx, header in enumerate(headers):
@@ -366,7 +368,7 @@ def export_pdf_django(request):
             elif y_position < 115:
                 p.showPage()
                 page_number += 1
-                draw_pdf_header(p, width, height, company, order, page_number)
+                pdf_header(p, width, height, company, order, page_number)
                 y_position = height - 160
                 p.setFont("Helvetica-Bold", 9)
                 for idx, header in enumerate(headers):
@@ -383,7 +385,7 @@ def export_pdf_django(request):
             if y_position < 100:
                 p.showPage()
                 page_number += 1
-                draw_pdf_header(p, width, height, company, order, page_number)
+                pdf_header(p, width, height, company, order, page_number)
                 y_position = height - 160
 
             y_position += 5
@@ -401,9 +403,9 @@ def export_pdf_django(request):
         # Footer seguro
         first_detail = details.first()
         if first_detail and first_detail.warehouse:
-            draw_footer(p, width, company, first_detail.warehouse)
+            pdf_footer(p, width, company, first_detail.warehouse)
         else:
-            draw_footer(
+            pdf_footer(
                 p,
                 width,
                 company,
@@ -424,5 +426,82 @@ def export_pdf_django(request):
 
 
 
+@require_GET
+def export_xml(request):
+    company_id = request.GET.get('company_id')
+    order_ids = request.GET.getlist('order_ids[]')
 
+    if not company_id or not order_ids:
+        return HttpResponse("Parámetros faltantes", status=400)
+
+    company = get_object_or_404(Company, pk=company_id)
+    orders = Order.objects.filter(id__in=order_ids).select_related('supplier')
+
+    if not orders.exists():
+        return HttpResponse("No se encontraron órdenes", status=404)
+
+    root = Element("OrdenesCompras")
+
+    # Embebido: esquema XSD dentro del XML
+    schema = SubElement(root, "xs:schema", {
+        "id": "OrdenesCompras",
+        "xmlns": "",
+        "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+        "xmlns:msdata": "urn:schemas-microsoft-com:xml-msdata"
+    })
+
+    main_element = SubElement(schema, "xs:element", {
+        "name": "OrdenesCompras",
+        "msdata:IsDataSet": "true",
+        "msdata:Locale": "en-US"
+    })
+
+    # Esquema interno omitido por simplicidad en este ejemplo (puedes copiar tu XSD completo aquí)
+
+    for order in orders:
+        orden_el = SubElement(root, "OrdenCompra", {
+            "Pedido": order.order_id,
+            "Fecha": order.date_ordered.isoformat(),
+            "Temporada": "S" if order.is_season else "",
+            "B_PagoAnt": "S" if order.is_prepaid else "N"
+        })
+
+        detalle = order.orderdetail_set.first()
+        wh = detalle.warehouse if detalle else None
+        wh_address = wh.address if wh else None
+
+        if wh and wh_address:
+            SubElement(orden_el, "Consignar", {
+                "Sucursal": wh.company_warehouse_id,
+                "Nombre": wh.name,
+                "Calle": wh_address.street,
+                "Nointerior": wh_address.interior_number,
+                "Noexterior": wh_address.exterior_number,
+                "Colonia": wh_address.neighborhood,
+                "CodigoPostal": wh_address.postcode,
+                "Ciudad": wh_address.city,
+                "Estado": wh_address.state,
+                "Entregar": "CENTRA"
+            })
+
+        detalles_el = SubElement(orden_el, "Detalles")
+
+        for d in order.orderdetail_set.all():
+            SubElement(detalles_el, "DetalleCompra", {
+                "Producto": d.product.sku,
+                "NoArt": d.product.mpn,
+                "Descripcion": d.description,
+                "Cantidad": str(d.quantity),
+                "Unidad": d.packing_unit,
+                "Empaque": str(d.master_package),
+                "Subempaque": str(d.inner_package),
+                "Cargo": "N" if d.no_charge else "S"
+            })
+
+    response = HttpResponse(content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename="ordenes_export.xml"'
+
+    tree = ElementTree(root)
+    tree.write(response, encoding='utf-8', xml_declaration=True)
+    return response
 

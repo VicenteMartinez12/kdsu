@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import OrderTestView,plantilla_consultas_view,index2,obtener_detalles_orden,plantilla_pdf_view,export_pdf_django
+from .views import OrderTestView,plantilla_consultas_view,index2,obtener_detalles_orden,plantilla_pdf_view,export_pdf,export_xml
 
 urlpatterns = [
  
@@ -8,7 +8,8 @@ urlpatterns = [
     path('',index2, name='index2'),
     path('detalle_orden/<int:order_id>/', obtener_detalles_orden, name='detalle_orden'),
      path('plantilla_pdf/',plantilla_pdf_view, name='plantilla_pdf'),
-   path('export_pdf/', export_pdf_django, name='export_pdf_django')
+   path('export_pdf/', export_pdf, name='export_pdf'),
+   path('export_xml/', export_xml, name='export_xml'),
 
 
 ]
