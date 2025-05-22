@@ -118,8 +118,3 @@ class Product(models.Model):
 
 
 
-
-
-
-
-
