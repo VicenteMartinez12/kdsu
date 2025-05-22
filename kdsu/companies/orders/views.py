@@ -20,7 +20,7 @@ from io import BytesIO
 import os
 from reportlab.lib.utils import ImageReader
 from django.views.decorators.http import require_GET
-from xml.etree.ElementTree import Element, SubElement, ElementTree
+from xml.etree.ElementTree import Element, SubElement, ElementTree,fromstring
 
 
 
@@ -442,21 +442,61 @@ def export_xml(request):
 
     root = Element("OrdenesCompras")
 
-    # Embebido: esquema XSD dentro del XML
-    schema = SubElement(root, "xs:schema", {
-        "id": "OrdenesCompras",
-        "xmlns": "",
-        "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
-        "xmlns:msdata": "urn:schemas-microsoft-com:xml-msdata"
-    })
-
-    main_element = SubElement(schema, "xs:element", {
-        "name": "OrdenesCompras",
-        "msdata:IsDataSet": "true",
-        "msdata:Locale": "en-US"
-    })
-
-    # Esquema interno omitido por simplicidad en este ejemplo (puedes copiar tu XSD completo aquí)
+    # Agrega el XSD completo como subelemento
+    schema_text = '''
+    <xs:schema id="OrdenesCompras" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+      <xs:element name="OrdenesCompras" msdata:IsDataSet="true" msdata:Locale="en-US">
+        <xs:complexType>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="OrdenCompra">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Consignar" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                      <xs:attribute name="Sucursal" type="xs:string" />
+                      <xs:attribute name="Nombre" type="xs:string" />
+                      <xs:attribute name="Calle" type="xs:string" />
+                      <xs:attribute name="Nointerior" type="xs:string" />
+                      <xs:attribute name="Noexterior" type="xs:string" />
+                      <xs:attribute name="Colonia" type="xs:string" />
+                      <xs:attribute name="CodigoPostal" type="xs:string" />
+                      <xs:attribute name="Ciudad" type="xs:string" />
+                      <xs:attribute name="Estado" type="xs:string" />
+                      <xs:attribute name="Entregar" type="xs:string" />
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="Detalles" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:element name="DetalleCompra" minOccurs="0" maxOccurs="unbounded">
+                          <xs:complexType>
+                            <xs:attribute name="Producto" type="xs:string" />
+                            <xs:attribute name="NoArt" type="xs:string" />
+                            <xs:attribute name="Descripcion" type="xs:string" />
+                            <xs:attribute name="Cantidad" type="xs:string" />
+                            <xs:attribute name="Unidad" type="xs:string" />
+                            <xs:attribute name="Empaque" type="xs:string" />
+                            <xs:attribute name="Subempaque" type="xs:string" />
+                            <xs:attribute name="Cargo" type="xs:string" />
+                          </xs:complexType>
+                        </xs:element>
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+                <xs:attribute name="Pedido" type="xs:string" />
+                <xs:attribute name="Fecha" type="xs:string" />
+                <xs:attribute name="Temporada" type="xs:string" />
+                <xs:attribute name="B_PagoAnt" type="xs:string" />
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+    '''
+    schema_element = ElementTree(fromstring(schema_text)).getroot()
+    root.append(schema_element)
 
     for order in orders:
         orden_el = SubElement(root, "OrdenCompra", {
@@ -500,7 +540,6 @@ def export_xml(request):
 
     response = HttpResponse(content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="ordenes_export.xml"'
-
     tree = ElementTree(root)
     tree.write(response, encoding='utf-8', xml_declaration=True)
     return response
