@@ -237,18 +237,23 @@ def pdf_footer(p, width, company, warehouse):
 
 
     
+@require_GET
 def export_pdf(request):
-    company_id = request.GET.get('company_id')
     order_ids = request.GET.getlist('order_ids[]')
 
-    if not company_id or not order_ids:
+    if not order_ids:
         return HttpResponse("Parámetros faltantes", status=400)
 
-    company = get_object_or_404(Company, id=company_id)
-    orders = Order.objects.filter(id__in=order_ids)
+    orders = Order.objects.filter(id__in=order_ids).select_related('company')
 
     if not orders.exists():
         return HttpResponse("No se encontraron órdenes", status=404)
+
+    first_company = orders[0].company
+    if not all(order.company_id == first_company.id for order in orders):
+        return HttpResponse("Todas las órdenes deben pertenecer a la misma compañía.", status=400)
+
+    company = first_company
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ordenes.pdf"'
@@ -275,9 +280,8 @@ def export_pdf(request):
         for idx, header in enumerate(headers):
             next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
             p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-            cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
+            cell_center_x = (col_x_positions[idx] + next_col_x) / 2
             p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
-
 
         y_position -= 35
         p.setFont("Helvetica", 8)
@@ -323,16 +327,14 @@ def export_pdf(request):
                 align = 'left'
 
                 if order.is_prepaid:
-                    # Índices para PDF con precios
-                    if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
+                    if idx in [0, 2, 4]:
                         align = 'center'
-                    elif idx in [1,5, 6, 7, 8]:  #Cantidad,  Empaque, P. Unit, Total, Bultos
+                    elif idx in [1, 5, 6, 7, 8]:
                         align = 'right'
                 else:
-                    # Índices para PDF sin precios
-                    if idx in [0, 2, 4]:  # SKU, U/M, No. Art.
+                    if idx in [0, 2, 4]:
                         align = 'center'
-                    elif idx in [1,5, 6]:  # cantidad, Empaque, Bultos
+                    elif idx in [1, 5, 6]:
                         align = 'right'
 
                 if align == 'center':
@@ -341,7 +343,6 @@ def export_pdf(request):
                     p.drawRightString(next_x - 2, y_position, val)
                 else:
                     p.drawString(x, y_position, val)
-
 
             subtotal += detail.subtotal
             iva += detail.tax_value
@@ -357,11 +358,10 @@ def export_pdf(request):
                     y_position = height - 160
                     p.setFont("Helvetica-Bold", 9)
                     for idx, header in enumerate(headers):
-                       next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
-                       p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-                       cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
-                       p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
-
+                        next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                        p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+                        cell_center_x = (col_x_positions[idx] + next_col_x) / 2
+                        p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
                     y_position -= 35
                     p.setFont("Helvetica", 8)
 
@@ -372,15 +372,13 @@ def export_pdf(request):
                 y_position = height - 160
                 p.setFont("Helvetica-Bold", 9)
                 for idx, header in enumerate(headers):
-                 next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
-                 p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
-                 cell_center_x = (col_x_positions[idx] + (col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570)) / 2
-                 p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
-
+                    next_col_x = col_x_positions[idx + 1] if idx + 1 < len(col_x_positions) else 570
+                    p.rect(col_x_positions[idx], y_position - cell_height, next_col_x - col_x_positions[idx], cell_height)
+                    cell_center_x = (col_x_positions[idx] + next_col_x) / 2
+                    p.drawCentredString(cell_center_x, y_position - cell_height + text_vertical_offset + 4, header)
                 y_position -= 35
                 p.setFont("Helvetica", 8)
 
-        # Mostrar totales solo si es prepago
         if order.is_prepaid:
             if y_position < 100:
                 p.showPage()
@@ -400,7 +398,6 @@ def export_pdf(request):
             p.drawRightString(460, y_position, "TOTAL:")
             p.drawString(482.5, y_position, f"${total:,.2f}")
 
-        # Footer seguro
         first_detail = details.first()
         if first_detail and first_detail.warehouse:
             pdf_footer(p, width, company, first_detail.warehouse)
