@@ -487,5 +487,66 @@ def export_xml(request):
     response = HttpResponse(content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="ordenes_export.xml"'
     tree = ElementTree(root)
-    tree.write(response, encoding='utf-8', xml_declaration=True)
+    tree.write(response, encoding='utf-8', xml_declaration=False)
+    return response
+
+
+@require_GET
+def export_xml_excel(request):
+    order_ids = request.GET.getlist('order_ids[]')
+
+    if not order_ids:
+        return HttpResponse("Parámetros faltantes", status=400)
+
+    orders = Order.objects.filter(id__in=order_ids).select_related('supplier')
+
+    if not orders.exists():
+        return HttpResponse("No se encontraron órdenes", status=404)
+
+    root = Element("OrdenesCompras")
+
+    for order in orders:
+        orden_el = SubElement(root, "OrdenCompra", {
+            "Pedido": order.order_id,
+            "Fecha": order.date_ordered.isoformat(),
+            "Temporada": "S" if order.is_season else "",
+            "B_PagoAnt": "S" if order.is_prepaid else "N"
+        })
+
+        detalle = order.orderdetail_set.first()
+        wh = detalle.warehouse if detalle else None
+        wh_address = wh.address if wh else None
+
+        if wh and wh_address:
+            SubElement(orden_el, "Consignar", {
+                "Sucursal": wh.company_warehouse_id,
+                "Nombre": wh.name,
+                "Calle": wh_address.street,
+                "Nointerior": wh_address.interior_number,
+                "Noexterior": wh_address.exterior_number,
+                "Colonia": wh_address.neighborhood,
+                "CodigoPostal": wh_address.postcode,
+                "Ciudad": wh_address.city,
+                "Estado": wh_address.state,
+                "Entregar": "CENTRA"
+            })
+
+        detalles_el = SubElement(orden_el, "Detalles")
+
+        for d in order.orderdetail_set.all():
+            SubElement(detalles_el, "DetalleCompra", {
+                "Producto": d.product.sku,
+                "NoArt": d.product.mpn,
+                "Descripcion": d.description,
+                "Cantidad": str(d.quantity),
+                "Unidad": d.packing_unit,
+                "Empaque": str(d.master_package),
+                "Subempaque": str(d.inner_package),
+                "Cargo": "N" if d.no_charge else "S"
+            })
+
+    response = HttpResponse(content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename="ordenes_excel.xml"'
+    tree = ElementTree(root)
+    tree.write(response, encoding='utf-8', xml_declaration=False)
     return response

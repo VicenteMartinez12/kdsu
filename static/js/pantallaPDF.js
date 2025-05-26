@@ -68,6 +68,28 @@ function initPdf() {
     const url = `/orders/export_xml/?` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');
   });
+
+
+  $('#exportarExcel').on('click', function () {
+    const registros = window.getCatalogoRegistros('checked');
+    if (registros.length === 0) {
+      alert('Selecciona al menos una orden.');
+      return;
+    }
+  
+    const companyIds = registros.map(r => r.company_id);
+    const uniqueCompanyIds = [...new Set(companyIds)];
+  
+    if (uniqueCompanyIds.length > 1) {
+      alert('Todas las órdenes deben ser de la misma compañía.');
+      return;
+    }
+  
+    const ids = registros.map(r => r.id);
+    const url = `/orders/export_xml_excel/?` + ids.map(id => `order_ids[]=${id}`).join('&');
+    window.open(url, '_blank');
+  });
+  
   
   
 
