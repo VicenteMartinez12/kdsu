@@ -174,6 +174,59 @@ $('.ui.modal').modal('hide').remove();
       });
     });
   });
+
+
+  $(document).ready(function () {
+    const catalogoBtn = $('#descargaPedidos');
+    const contentDiv = $('#mainContent');
+  
+    if (catalogoBtn.length === 0) {
+      console.error("No se encontró el botón #descargaPedidos");
+      return;
+    }
+  
+    catalogoBtn.on('click', function (e) {
+      e.preventDefault();
+  
+      $.ajax({
+        url: '/orders/descarga_pedidos/',
+        type: 'GET',
+        success: function (data) {
+          const overlay = $('#globalWaitOverlay');
+          if (overlay.length) {
+            $('body').append(overlay.detach()); 
+          }
+
+
+   // Limpia correctamente los dimmers y modals antes de cargar el nuevo contenido
+$('.ui.dimmer.modals').removeClass('active').removeAttr('style');
+$('.ui.modal').modal('hide').remove();
+
+          
+          contentDiv.html(data); 
+          
+   
+          
+            // pantallaEspera("Cargando plantilla nueva", false);
+    
+           initDescargaPedidos();
+         
+        },
+        
+        error: function (xhr, status, error) {
+          console.error("Error al cargar el catálogo:", status, error);
+          contentDiv.html(`
+            <div class="ui negative message">
+              <div class="header">Error al cargar el contenido</div>
+              <p>${xhr.status} - ${xhr.statusText}</p>
+            </div>
+          `);
+       
+        }
+      });
+    });
+  });
+  
   
   
   

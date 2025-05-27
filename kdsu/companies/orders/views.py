@@ -58,6 +58,10 @@ def index2(request):
     return render(request, 'orders/index.html')
 
 
+def descarga_pedidos(request):
+    return render(request, 'orders/descargaPedidos.html')
+
+
 
 
 
