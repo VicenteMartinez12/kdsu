@@ -550,3 +550,44 @@ def export_xml_excel(request):
     tree = ElementTree(root)
     tree.write(response, encoding='utf-8', xml_declaration=False)
     return response
+
+
+@require_GET
+def export_json(request):
+    order_ids = request.GET.getlist('order_ids[]')
+
+    if not order_ids:
+        return JsonResponse({"error": "Parámetros faltantes"}, status=400)
+
+    orders = Order.objects.filter(id__in=order_ids)
+
+    if not orders.exists():
+        return JsonResponse({"error": "No se encontraron órdenes"}, status=404)
+
+    data = []
+
+    for order in orders:
+        order_data = {
+            "Pedido": order.order_id,
+            "Fecha": order.date_ordered.strftime('%Y-%m-%d'),
+            "Temporada": "S" if order.is_season else "",
+            "B_PagoAnt": "S" if order.is_prepaid else "N",
+            "Detalles": []
+        }
+
+        for d in order.orderdetail_set.all():
+            detail = {
+                "Producto": d.product.sku,
+                "NoArt": d.product.mpn,
+                "Descripcion": d.description,
+                "Cantidad": d.quantity,
+                "Unidad": d.packing_unit,
+                "Empaque": d.master_package,
+                "Subempaque": d.inner_package,
+                "Cargo": "N" if d.no_charge else "S"
+            }
+            order_data["Detalles"].append(detail)
+
+        data.append(order_data)
+
+    return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False, "indent": 2})

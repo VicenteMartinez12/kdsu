@@ -89,6 +89,21 @@ function initPdf() {
     const url = `/orders/export_xml_excel/?` + ids.map(id => `order_ids[]=${id}`).join('&');
     window.open(url, '_blank');
   });
+
+
+
+  $('#exportarJson').on('click', function () {
+    const registros = window.getCatalogoRegistros('checked');
+    if (registros.length === 0) {
+      alert('Selecciona al menos una orden.');
+      return;
+    }
+  
+    const ids = registros.map(r => r.id);
+    const url = '/orders/export_json/?' + ids.map(id => `order_ids[]=${id}`).join('&');
+    window.open(url, '_blank');
+  });
+  
   
   
   
