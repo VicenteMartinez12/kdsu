@@ -568,13 +568,32 @@ def export_json(request):
     data = []
 
     for order in orders:
+        detalle = order.orderdetail_set.first()
+        wh = detalle.warehouse if detalle else None
+        wh_address = wh.address if wh else None
+
         order_data = {
             "Pedido": order.order_id,
             "Fecha": order.date_ordered.strftime('%Y-%m-%d'),
             "Temporada": "S" if order.is_season else "",
             "B_PagoAnt": "S" if order.is_prepaid else "N",
+            "Consignar": {},
             "Detalles": []
         }
+
+        if wh and wh_address:
+            order_data["Consignar"] = {
+                "Sucursal": wh.company_warehouse_id,
+                "Nombre": wh.name,
+                "Calle": wh_address.street,
+                "Nointerior": wh_address.interior_number,
+                "Noexterior": wh_address.exterior_number,
+                "Colonia": wh_address.neighborhood,
+                "CodigoPostal": wh_address.postcode,
+                "Ciudad": wh_address.city,
+                "Estado": wh_address.state,
+                "Entregar": "CENTRA"
+            }
 
         for d in order.orderdetail_set.all():
             detail = {
