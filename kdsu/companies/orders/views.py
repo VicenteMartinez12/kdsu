@@ -17,6 +17,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from django.http import FileResponse
 from io import BytesIO
+import json
 import os
 from reportlab.lib.utils import ImageReader
 from django.views.decorators.http import require_GET
@@ -557,12 +558,12 @@ def export_json(request):
     order_ids = request.GET.getlist('order_ids[]')
 
     if not order_ids:
-        return JsonResponse({"error": "Parámetros faltantes"}, status=400)
+        return HttpResponse("Parámetros faltantes", status=400)
 
     orders = Order.objects.filter(id__in=order_ids)
 
     if not orders.exists():
-        return JsonResponse({"error": "No se encontraron órdenes"}, status=404)
+        return HttpResponse("No se encontraron órdenes", status=404)
 
     data = []
 
@@ -590,4 +591,7 @@ def export_json(request):
 
         data.append(order_data)
 
-    return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False, "indent": 2})
+    json_data = json.dumps(data, ensure_ascii=False, indent=2)
+    response = HttpResponse(json_data, content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename="ordenes.json"'
+    return response
