@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'kdsu.companies.orders',
     'kdsu.companies.utils',
     'kdsu.companies.documents',
+    'kdsu.companies.appointments',
     'corsheaders',
-    
 ]
 
 MIDDLEWARE = [
