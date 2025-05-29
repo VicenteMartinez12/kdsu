@@ -9,13 +9,14 @@ from decimal import Decimal
 
 # Importing models from the catalogs app
 from kdsu.companies.catalogs.models import Company, Supplier, Warehouse, Product
-from kdsu.companies.orders.models import OrderDetail
+from kdsu.companies.orders.models import Order, OrderDetail
 import xmlschema
 
 
 class Documento(models.Model):
     compania = models.ForeignKey(Company, on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    ordenes = models.ManyToManyField(Order)
     folio = models.CharField(max_length=200)
     fecha = models.DateTimeField(auto_now_add=True)
     totalPeso = models.IntegerField()
@@ -78,10 +79,10 @@ class Factura(models.Model):
                     # Verificar que no exista otra “factura” ya registrada con el mismo “uuid”
                 billExists = Factura.objects.filter(
                     uuid=uuid).exists()
-                if billExists:
-                    resp['cfdi']['validaciones'].append(
-                        {'documento': "Ya existe un documento registrado con esa serie y folio"})
-                    resp['cfdi']['valido'] = False
+                # if billExists:
+                #     resp['cfdi']['validaciones'].append(
+                #         {'documento': "Ya existe un documento registrado con esa serie y folio"})
+                #     resp['cfdi']['valido'] = False
                 # Verificar que no exista un “documento” de la misma compañía (obtenida por el RFC receptor),
                 docName = sd['@TipoDeComprobante'] + sd['@Serie']
                 cia = Company.objects.filter(rfc__exact=receptor)
@@ -92,10 +93,10 @@ class Factura(models.Model):
                 docExists = Factura.objects.filter(documento__in=docs).annotate(doc_name=Concat(
                     'serie', Value(''), 'folio')).filter(folio__exact=docName).exists()
                 # proveedor (obtenido por el RFC emisor), y folio (concatenando serie + folio del elemento Comprobante del cfdi)
-                if docExists:
-                    resp['cfdi']['validaciones'].append(
-                        {'uuid': "Ya existe una factura registrada con el mismo UUID"})
-                    resp['cfdi']['valido'] = False
+                # if docExists:
+                #     resp['cfdi']['validaciones'].append(
+                #         {'uuid': "Ya existe una factura registrada con el mismo UUID"})
+                #     resp['cfdi']['valido'] = False
                 
                 # Si pasa las validaciones, lo agrega al resultado
                 resp['cfdi']['resultado'] = sd
@@ -149,20 +150,23 @@ class Factura(models.Model):
         # listado con un diccionario de desglose por cada conceptokdsu
         desglose_conceptos = []
         info_entrega = []
+        trae_addenda = False
         if 'cfdi:Addenda' in xml_dic and xml_dic['cfdi:Addenda']:
             addenda = xml_dic['cfdi:Addenda']
             if 'kdsu:KDSU' in addenda:
                 kdsu_data = addenda['kdsu:KDSU'][0]
                 if 'kdsu:ConceptosKDSU' in kdsu_data:
+                    trae_addenda = True
                     conceptos_kdsu = kdsu_data['kdsu:ConceptosKDSU']
                     info_entrega = kdsu_data.get('kdsu:Entrega', [])
                     conceptos = conceptos_kdsu.get('kdsu:ConceptoKDSU', [])
                     folio = None
                     info_entrega['serie'] = xml_dic.get('@Serie') or ''
                     info_entrega['folio'] = xml_dic.get('@Folio') or ''
+                    
                     # Ambos Serie y Folio existen y tienen valor
                     if '@Serie' in xml_dic and xml_dic['@Serie'] and '@Folio' in xml_dic and xml_dic['@Folio']:
-                        folio = xml_dic['@Serie'] + xml_dic['@Folio']                        
+                        folio = xml_dic['@Serie'] + xml_dic['@Folio']
                     # Solo Serie existe y tiene valor, Folio no existe o está vacío
                     elif '@Serie' in xml_dic and xml_dic['@Serie'] and (('@Folio' not in xml_dic) or not xml_dic.get('@Folio')):
                         folio = xml_dic['@Serie']
@@ -184,7 +188,6 @@ class Factura(models.Model):
                         resp['cfdi']['validaciones'].append({'folio': "El CFDI no contiene un valor para folio válido (Serie, Folio o UUID)"})
                         return resp
                     
-                    
                     for concepto in conceptos:
                         # Fabricas un nuevo diccionario manualmente
                         nuevo_concepto = {}                        
@@ -199,7 +202,8 @@ class Factura(models.Model):
                             nuevo_concepto['codigoOrden'] = concepto['@CodigoOrden']
                         if '@CodigoFactura' in concepto: # EL CÓDIGO FACTURA ES LO MISMO EL QUE EL SKU
                             nuevo_concepto['sku'] = concepto['@CodigoFactura']
-                            
+                        if '@PesoUnidadFacturaGr' in concepto:
+                            nuevo_concepto['peso'] = concepto['@PesoUnidadFacturaGr']
                         nuevo_concepto['folio'] = folio
                         
                         # Agregas el nuevo objeto al arreglo final
@@ -213,14 +217,14 @@ class Factura(models.Model):
                 impuestos += float(xml_dic['cfdi:Impuestos']['@TotalImpuestosRetenidos'])
             info_entrega['impuestos'] = impuestos;
         
-        validacion_desgloce = Desglose.validar_desglose(desglose_conceptos)
-        for val_desg in validacion_desgloce:
+        validacion_desglose = Desglose.validar_desglose(desglose_conceptos, True) # CAMBIAR FALSE BRO
+        return validacion_desglose
+        for val_desg in validacion_desglose:
             if not val_desg['desglose']['valido']:
                 resp['cfdi']['valido'] = False
-                            
+
         if not resp['cfdi']['valido']:
-            return validacion_desgloce
-        
+            return validacion_desglose
         from decimal import Decimal
         from django.db import transaction
         try:
@@ -242,8 +246,12 @@ class Factura(models.Model):
                     total=Decimal(xml_dic['@Total']),
                     uuid=xml_dic['cfdi:Complemento']['tfd:TimbreFiscalDigital'][0]['@UUID']
                 )
+                
+                resp['cfdi']['resultado']['documento'] = documento;
+                resp['cfdi']['resultado']['factura'] = factura;
+                factura_detalles = []
                 for x in xml_dic['cfdi:Conceptos']['cfdi:Concepto']:
-                    detalle = Factura_detalle.objects.create(
+                    factura_detalle = Factura_detalle.objects.create(
                         factura=factura,
                         sku=x['@NoIdentificacion'],
                         claveProductoSat=x['@ClaveProdServ'],
@@ -253,6 +261,7 @@ class Factura(models.Model):
                         descuento=x.get('@Descuento') or 0,
                         importe=x['@Importe']
                     )
+                    factura_detalles.append(factura_detalle)
                 from pathlib import Path
                 ruta = Path(xml_route)
                 # Directorio (sin el nombre del archivo)
@@ -267,6 +276,22 @@ class Factura(models.Model):
                     tipo='XML',
                     ruta=directorio
                 )
+                desgloses = []
+                if trae_addenda:
+                    for desglose in desglose_conceptos:
+                        order_detail = OrderDetail.objects.get(order__order_id=desglose['orden'], product__sku=desglose['codigoOrden'])
+                        
+                        desglose = Desglose.objects.create(
+                            documento=documento,
+                            factura=factura,
+                            bulto=desglose['bulto'],
+                            order_detail=order_detail,
+                            cantidad_orden=order_detail.quantity,
+                            factura_detalle=next((detalle for detalle in factura_detalles if detalle.sku == desglose['sku']), None),
+                            cantidad_factura=desglose['cantidad'],
+                            peso_unitario_factura=desglose['peso'],
+                        )
+                        desgloses.append(desglose)
         except Exception as e:
             print(e)
             resp['cfdi']['valido'] = False
@@ -315,10 +340,73 @@ class Desglose(models.Model):
     peso_unitario_factura = models.DecimalField(
         max_digits=8, decimal_places=2, default=Decimal('0.0000'))
     
+    
+    #VALIDAR FACTURA SE USA CUANDO:
+    #Se sube el desglose por separado
+    #NO SE USA CUANDO
+    #Se carga el CFDI con Addenda
     @staticmethod
-    def validar_desglose(lista_desgloses):
+    def validar_desglose(lista_desgloses, validar_factura):
         resultados = []
         from django.db.models import Sum
+        #extraer folios únicos de la lista de desgloses
+        folios = list(set(desg["folio"] for desg in lista_desgloses))
+        
+        if validar_factura:
+            for folio in folios:
+                validaciones = {}
+                resultado = {
+                    "desglose": {
+                        "folio": folio,
+                        "valido": True,
+                        "validaciones": {}
+                    }
+                }
+                # BUSCA QUE EL FOLIO EXISTA EN LA TABLA DE FACTURA
+                try:
+                    factura = Factura.objects.annotate(serie_folio=Concat('serie', Value(''), 'folio')).get(serie_folio=folio)
+                except Factura.DoesNotExist:
+                    valido = False
+                    validaciones["sin_factura"] = "La factura no se ha cargado en el sistema"
+                    resultado["desglose"]["valido"] = valido
+                    resultado["desglose"]["validaciones"] = validaciones
+                    resultados.append(resultado)
+                    continue  # Saltar al siguiente elemento
+
+                # SI LA FACTURA EXISTE, SE TOMA SU DOCUMENTO Y SE VALIDA QUE TODAVÍA NO TENGA INFORMACIÓN DE DESGLOSE CARGADA, SE BUSCA POR DOCUMENTO Y FACTURA
+                try:
+                    documento = Documento.objects.get(folio=folio)
+                except Documento.DoesNotExist:
+                    documento = None
+                if documento:
+                    desgloses = Desglose.objects.filter(documento=documento, factura=factura)
+                    if desgloses.exists():
+                        valido = False
+                        validaciones["desglose_cargado"] = "Ya se cargó un desglose para este folio y serie"
+                        resultado["desglose"]["valido"] = valido
+                        resultado["desglose"]["validaciones"] = validaciones
+                        resultados.append(resultado)
+                        continue  # Saltar al siguiente elemento
+                    
+                    bultos = [int(desg['bulto']) for desg in lista_desgloses if desg['folio'] == folio]
+                    bultos_documento = documento.totalBultos
+                    faltantes = [i for i in range(1, bultos_documento + 1) if i not in bultos]
+                    if faltantes:
+                        valido = False
+                        validaciones["bulto_faltante"] = "Los bultos " + ", ".join(str(f) for f in faltantes) + " no se encuentran en el desglose."
+                        resultado["desglose"]["valido"] = valido
+                        resultado["desglose"]["validaciones"] = validaciones
+                        resultados.append(resultado)
+                        continue  # Saltar al siguiente elemento
+                    
+                    sobrantes = [b for b in bultos if b not in set(range(1, bultos_documento + 1))]
+                    if sobrantes:
+                        valido = False
+                        validaciones["bulto_extra"] = "La factura solo debe contener "+ str(bultos_documento) +" bultos. Bultos sobrantes: " + ", ".join(str(s) for s in sobrantes) + "."
+                        resultado["desglose"]["valido"] = valido
+                        resultado["desglose"]["validaciones"] = validaciones
+                        resultados.append(resultado)
+                        continue  # Saltar al siguiente elemento
 
         for elemento in lista_desgloses:
             resultado = {
@@ -330,7 +418,8 @@ class Desglose(models.Model):
             orden = elemento.get("orden")
             codigoOrden = elemento.get("codigoOrden")
             cantidad = elemento.get("cantidad")
-
+            folio = elemento.get("folio")
+            
             # Buscar el detalle de la orden
             try:
                 order_detail = OrderDetail.objects.get(order__order_id=orden, product__sku=codigoOrden)
