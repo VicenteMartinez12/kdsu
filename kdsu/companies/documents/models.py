@@ -217,8 +217,9 @@ class Factura(models.Model):
                 impuestos += float(xml_dic['cfdi:Impuestos']['@TotalImpuestosRetenidos'])
             info_entrega['impuestos'] = impuestos;
         
-        validacion_desglose = Desglose.validar_desglose(desglose_conceptos, True) # CAMBIAR FALSE BRO
-        return validacion_desglose
+        # validacion_desglose = Desglose.validar_desglose(desglose_conceptos, True)
+        validacion_desglose = Desglose.validar_desglose(desglose_conceptos, False)
+        # return validacion_desglose
         for val_desg in validacion_desglose:
             if not val_desg['desglose']['valido']:
                 resp['cfdi']['valido'] = False
