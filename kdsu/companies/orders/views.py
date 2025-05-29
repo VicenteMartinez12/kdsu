@@ -63,9 +63,15 @@ def descarga_pedidos_view(request):
                           .prefetch_related('orderdetail_set__warehouse__address') \
                           .all()
 
+    companias = orders.values_list('company__id', 'company__name').distinct()
+    estatuses = orders.values_list('status', flat=True).distinct()
+
     return render(request, 'orders/descargaPedidos.html', {
-        'orders': orders
+        'orders': orders,
+        'companias': companias,
+        'estatuses': estatuses,
     })
+
 
 
 
