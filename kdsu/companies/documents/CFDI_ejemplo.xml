@@ -1,0 +1,129 @@
+﻿<!-- Bultos mezclados -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Serie="FAB" Folio="82784" Fecha="2025-02-11T12:23:58" FormaPago="99" NoCertificado="00001000000703391219" Certificado="MIIGDTCCA/WgAwIBAgIUMDAwMDEwMDAwMDA3MDMzOTEyMTkwDQYJKoZIhvcNAQELBQAwggGVMTUwMwYDVQQDDCxBQyBERUwgU0VSVklDSU8gREUgQURNSU5JU1RSQUNJT04gVFJJQlVUQVJJQTEuMCwGA1UECgwlU0VSVklDSU8gREUgQURNSU5JU1RSQUNJT04gVFJJQlVUQVJJQTEaMBgGA1UECwwRU0FULUlFUyBBdXRob3JpdHkxMjAwBgkqhkiG9w0BCQEWI3NlcnZpY2lvc2FsY29udHJpYnV5ZW50ZUBzYXQuZ29iLm14MSYwJAYDVQQJDB1Bdi4gSGlkYWxnbyA3NywgQ29sLiBHdWVycmVybzEOMAwGA1UEEQwFMDYzMDAxCzAJBgNVBAYTAk1YMQ0wCwYDVQQIDARDRE1YMRMwEQYDVQQHDApDVUFVSFRFTU9DMRUwEwYDVQQtEwxTQVQ5NzA3MDFOTjMxXDBaBgkqhkiG9w0BCQITTXJlc3BvbnNhYmxlOiBBRE1JTklTVFJBQ0lPTiBDRU5UUkFMIERFIFNFUlZJQ0lPUyBUUklCVVRBUklPUyBBTCBDT05UUklCVVlFTlRFMB4XDTIzMTExMDE1MzgxOFoXDTI3MTExMDE1MzgxOFowgcoxIjAgBgNVBAMTGVBBUEVMRVMgQkVMVU1PU0EgU0EgREUgQ1YxIjAgBgNVBCkTGVBBUEVMRVMgQkVMVU1PU0EgU0EgREUgQ1YxIjAgBgNVBAoTGVBBUEVMRVMgQkVMVU1PU0EgU0EgREUgQ1YxJTAjBgNVBC0THFBCRTgzMDkyM1VCMSAvIExPQkM0ODAxMDVRVTYxHjAcBgNVBAUTFSAvIExPQkM0ODAxMDVIREZQUlMwOTEVMBMGA1UECxMMUEJFODMwOTIzVUIxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm7lin4G8xOj9rV5xNnIA+BRtkjXvt/PdKW4i949sEdf+D4t73cTzrm5f4ONjZWptcrr+QoU1HFTHaAA2M9uuvNRuwY/kQn16wnxtOFVVg/uAohasNVj1Pa7sSM08IBW5eMJ4h6tYWeXH+boqrmDlfKZp4VJxfpBbdBxrRWXhc13ognmFNjmHW29JODVZtcvnBz9H7JZIhZZez7yEfyFkvgJNjuc8fa+riU7UF2cTT1BBFDheTwL7g8tLdXG93lDML8dRjSyRBKyqczfhjPbI4aPv1cA7ZUXjRL8roqs/8oXakDu0zcRcfKFL2if/jdEFSFhtcatpElExT3sO+hlUuQIDAQABox0wGzAMBgNVHRMBAf8EAjAAMAsGA1UdDwQEAwIGwDANBgkqhkiG9w0BAQsFAAOCAgEABABXVq7GDvtO6eI154KEvYjDx4DqhTNTlHchh4smM3UF0ux4vWb4wT8iIx4lDjq2ruhIx+1DgsEcayfKjZLIV4EFL6eVDkG2FZFnGCwSXf9at0tGbOqGn0svU4cOCHvkeZUwtCu7A65vT6bA+LkOASD4r+8JGc5YVBBOSlkBD/clbvAtc3gyUS9FI7Xa2B5ONYSvE/6CvHkHbLrRtmarr1EIfjOdZq2XFU9F1DKuMqvgqsWOg+w+NdOR22f/+bFN/ga2G6owpcqArs90trxiSh/qPIyy/B1iIDD3C7sO6e5X0GUBx/7inLhmMIlVBVRE9Oq/D99a91DMWMcTHMs9T+BGpRUtxIxyUVhLCDlzDFiu4VBIkYBJsZh6pHBYkn4fl2a6jteR3EFCPHbWrkDgqq3jAHNxVfSpCkk+40/J5O7x6pDIEr6gKLDTMlwNRPPrhJoQXnL4aUTeyVoEOWgpjxA7smpNSVFQgKGpPFI40k5+ic3lPSWZb2ibBoLAnR13c1+cf0LdamBRinMjiRr7K1xU+bPJ3qAFdsXmSDYD/MDNvbIgCt0dNCLvN4Uj43iRMpfycHMPhJAzpeX5SemGr9H6Q70uolhlMPVpNeP+4UK5x9kTFL5s3ZHSPpYB/iy+L4tl9VdWGkmr6ptg3xZFsUSpyqfl76FuRuomlGPTMkY=" CondicionesDePago="90 DIAS" SubTotal="8664.00" Moneda="MXN" Exportacion="01" Total="10050.24" TipoDeComprobante="I" MetodoPago="PPD" LugarExpedicion="07700" Sello="B3/ozbX+lGkT1dZzxlgh3HgOgABqg1u1aI9O0SYQn1kZXiba6b9ahBWXPBVMs61foWJzZAJvL0Onsnv4w49jTHbbcg96iJnNd3MJkOTkGumbsAGPGrLA8yNbmpHEAeyIX1JKzyLYGDN5ccTZnMxATF/C5fohJBuA+K1hjCnSQLIxT4V8oj+JMvk3IVGCOhmglsy2Xc/7jLoJImYsFmwLq5eVeZAtsWlc79KtfacbVGIhK1xvXMtKb8V/PgQI2sCU/Q3Rw5TJw6RvHm/3Gui4asJ8fjCNZVwa//x9uoySPa/m3U0S7H73QP9Z3+kZ6BDhz+riRLAvBMaOiEUUZJXepw==">
+  <cfdi:Emisor Rfc="PBE830923UB1" Nombre="PAPELES BELUMOSA" RegimenFiscal="601" />
+  <cfdi:Receptor Rfc="TTI961202IM1" Nombre="TONY TIENDAS" DomicilioFiscalReceptor="94299" RegimenFiscalReceptor="601" UsoCFDI="G01" />
+  <cfdi:Conceptos>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-01" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA BLANCO BOLSA C/100 HOJAS" ValorUnitario="0.67177" Importe="671.77">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="671.77" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="107.4832" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-14" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA AZUL TURQUESA BOLSA C/100 HOJAS" ValorUnitario="0.75823" Importe="758.23">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="758.23" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="121.3168" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-06" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA ROSA PALIDO BOLSA C/100 HOJAS" ValorUnitario="0.75823" Importe="758.23">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="758.23" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="121.3168" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-08" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA SOLFERINO BOLSA C/100 HOJAS" ValorUnitario="0.75823" Importe="758.23">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="758.23" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="121.3168" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-19" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA VERDE BANDERA BOLSA C/100 HOJAS" ValorUnitario="0.75823" Importe="758.23">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="758.23" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="121.3168" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-18" Cantidad="1000" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA VERDE LIMON BOLSA C/100 HOJAS" ValorUnitario="0.75823" Importe="758.23">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="758.23" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="121.3168" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="135-57" Cantidad="500" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA PLATA BOLSA C/100 HOJAS" ValorUnitario="1.55193" Importe="775.965">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="775.965" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="124.1544" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="143-08" Cantidad="300" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA CORAZONES BOLSA C/100 HOJAS" ValorUnitario="1.33023" Importe="399.069">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="399.069" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="63.85104" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121117" NoIdentificacion="143-05" Cantidad="200" ClaveUnidad="LEF" Unidad="HOJAS" Descripcion="P.CHINA FILIGRANA ORO BOLSA C/100 HOJAS" ValorUnitario="1.33023" Importe="266.046">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="266.046" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="42.56736" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121116" NoIdentificacion="100-01" Cantidad="2" ClaveUnidad="H87" Unidad="PZA." Descripcion="P.CREPE PINGÜINO BLANCO CPTA" ValorUnitario="920.00" Importe="1840.00">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="1840.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="294.40" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ObjetoImp="02" ClaveProdServ="60121116" NoIdentificacion="100-05" Cantidad="1" ClaveUnidad="H87" Unidad="PZA." Descripcion="P.CREPE PINGÜINO ROJO CPTA" ValorUnitario="920.00" Importe="920.00">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="920.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="147.20" />
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="1386.24">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="8664.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="1386.24" />
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SelloSAT="THWalAzi8s6iCXOBNNDmp8opZNNRWGhmJhfjhFyiEVRjUBYqUv1ueZ3Lq9O2VoOc64IavWJXnnv2XnGcopSMPQy6NFP+dwCsCu8DPwOghfHMzNPxHjC3xZEcgnEWcg0HUts6KlFIIuvFHJSyhdWvMaB3WlFjzD4kQrN8GQvPtJr6yaxIwHPqoR3s0Szm9NT7Zc65tUaBSiJhkUNcc9yLBk/kOcQHvvUcKJco98bEes7AlGG67bdSxR8ofnnIy66i0JKNI+Zx9/H/omLuM6GWHx+cIoqK84VZctLxYn8vxoE4sl2xwGwmexfzfCawHHK+6onnoCIs9VZQNGiPGn2eDQ==" NoCertificadoSAT="00001000000702693654" SelloCFD="B3/ozbX+lGkT1dZzxlgh3HgOgABqg1u1aI9O0SYQn1kZXiba6b9ahBWXPBVMs61foWJzZAJvL0Onsnv4w49jTHbbcg96iJnNd3MJkOTkGumbsAGPGrLA8yNbmpHEAeyIX1JKzyLYGDN5ccTZnMxATF/C5fohJBuA+K1hjCnSQLIxT4V8oj+JMvk3IVGCOhmglsy2Xc/7jLoJImYsFmwLq5eVeZAtsWlc79KtfacbVGIhK1xvXMtKb8V/PgQI2sCU/Q3Rw5TJw6RvHm/3Gui4asJ8fjCNZVwa//x9uoySPa/m3U0S7H73QP9Z3+kZ6BDhz+riRLAvBMaOiEUUZJXepw==" FechaTimbrado="2025-02-11T12:23:36" UUID="7DAE601C-968C-413F-945C-25D36A0A095B" Version="1.1" RfcProvCertif="TSP080724QW6" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" />
+  </cfdi:Complemento>
+  <cfdi:Addenda>
+    <kdsu:KDSU xmlns:kdsu="http://kdsu.tony.mx/namespace/addenda" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://kdsu.tony.mx/namespace/addenda http://kdsu.tony.mx/namespace/addenda/AddendaKdsu.xsd" Version="2.0">
+		<kdsu:Entrega TotalPesoKg="69.25" TotalBultos="10" />
+		<kdsu:ConceptosKDSU>
+			<kdsu:ConceptoKDSU Bulto="1"  Orden="782004" CodigoFactura="135-01" CodigoOrden="02130001" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="2"  Orden="782004" CodigoFactura="135-14" CodigoOrden="02130004" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="3"  Orden="782004" CodigoFactura="135-06" CodigoOrden="02130015" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="4"  Orden="782004" CodigoFactura="135-08" CodigoOrden="02130016" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="5"  Orden="782004" CodigoFactura="135-19" CodigoOrden="02130017" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="6"  Orden="782004" CodigoFactura="135-18" CodigoOrden="02130018" CantidadFactura="1000" CantidadOrden="1000" PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="7"  Orden="782004" CodigoFactura="135-57" CodigoOrden="02130069" CantidadFactura="500"  CantidadOrden="500"  PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="7"  Orden="782004" CodigoFactura="143-08" CodigoOrden="02130121" CantidadFactura="300"  CantidadOrden="300"  PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="7"  Orden="782004" CodigoFactura="143-05" CodigoOrden="02130120" CantidadFactura="200"  CantidadOrden="200"  PesoUnidadFacturaGr="7" />
+			<kdsu:ConceptoKDSU Bulto="8"  Orden="782004" CodigoFactura="100-01" CodigoOrden="02130022" CantidadFactura="1"    CantidadOrden="1"    PesoUnidadFacturaGr="6750" />
+			<kdsu:ConceptoKDSU Bulto="9"  Orden="782004" CodigoFactura="100-01" CodigoOrden="02130022" CantidadFactura="1"    CantidadOrden="1"    PesoUnidadFacturaGr="6750" />
+			<kdsu:ConceptoKDSU Bulto="10" Orden="782004" CodigoFactura="100-05" CodigoOrden="02130031" CantidadFactura="1"    CantidadOrden="1"    PesoUnidadFacturaGr="6750" />
+		</kdsu:ConceptosKDSU>
+	</kdsu:KDSU>
+    <bovadd:BOVEDAFISCAL xmlns:bovadd="http://kontender.mx/namespace/boveda" xmlns:kon="http://kontender.mx/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://kontender.mx/namespace/boveda http://kontender.mx/namespace/boveda/BOVEDAFISCAL.xsd http://kontender.mx/namespace http://kontender.mx/namespace/AddendaK.xsd">
+      <bovadd:Pedido Folio="782004" />
+      <bovadd:Factura Peso="69.25" />
+      <bovadd:TotalBultos Cantidad="10" />
+      <bovadd:ConceptosKDSU>
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130001" codigoProveedor="135-01" />
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130004" codigoProveedor="135-14" />
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130015" codigoProveedor="135-06" />
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130016" codigoProveedor="135-08" />
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130017" codigoProveedor="135-19" />
+        <bovadd:ConceptoKDSU cantPzas="1000" codigoTony="02130018" codigoProveedor="135-18" />
+        <bovadd:ConceptoKDSU cantPzas="500" codigoTony="02130069" codigoProveedor="135-57" />
+        <bovadd:ConceptoKDSU cantPzas="300" codigoTony="02130121" codigoProveedor="143-08" />
+        <bovadd:ConceptoKDSU cantPzas="200" codigoTony="02130120" codigoProveedor="143-05" />
+        <bovadd:ConceptoKDSU cantPzas="2" codigoTony="02130022" codigoProveedor="100-01" />
+        <bovadd:ConceptoKDSU cantPzas="1" codigoTony="02130031" codigoProveedor="100-05" />
+      </bovadd:ConceptosKDSU>
+    </bovadd:BOVEDAFISCAL>
+  </cfdi:Addenda>
+</cfdi:Comprobante>
