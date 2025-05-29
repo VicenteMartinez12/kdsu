@@ -10,7 +10,13 @@ function initPlantilla() {
   console.log(totalColumnas);
   // Ahora sí, creamos la nueva instancia
   tablaConsultas = $('#tablaPlantillaConsultas').DataTable({
-    dom: 'lrtip',
+    layout: {
+      topStart: null,
+      topEnd: null,
+      bottomStart: null,
+      bottomEnd: null,
+      bottom1: ['pageLength', 'info', 'paging']
+    },
     language: {
       lengthMenu: "Mostrar _MENU_ registros",
       zeroRecords: "No se encontraron resultados",

@@ -1,15 +1,70 @@
-{% extends "orders/plantilla_consultas.html" %}
-{% load static %}
+{% extends "orders/plantilla_consultas.html" %} {% load static %} 
+
+
+{% block filtros %}
+
+<div class="field">
+    <label>Compañia</label>
+  <select class="ui selection dropdown">
+    
+  </select>
+</div>
+
+<div class="field">
+    <label>Estatus</label>
+  <select class="ui selection dropdown">
+    
+  </select>
+</div>
+
+{% endblock filtros %} 
+
 
 
 {% block columnas %}
 <tr>
-  <th  class="no-sort"><input type="checkbox" id="checkAll"></th>
+  <th class="no-sort"><input type="checkbox" id="checkAll" /></th>
   <th></th>
-  <th>Clave</th>
-  <th>Nombre</th>
+  <th>Cia.</th>
+  <th>Suc.</th>
+  <th>Nombre sucursal</th>
+  <th>Pedido</th>
   <th>Fecha</th>
-  <th>Estatus</th>
+  <th>Entrega</th>
   <th></th>
 </tr>
-{% endblock columnas %}
+{% endblock columnas %} 
+
+
+{% block contenido %}
+<tbody>
+  {% for order in orders %}
+    {% with first_detail=order.orderdetail_set.first %}
+    <tr
+      data-id="{{ order.id }}"
+      data-company-id="{{ order.company.id }}"
+      data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"
+      data-proveedor="{{ order.supplier.short_name }}"
+    >
+      <td><input type="checkbox" /></td>
+      <td><i class="plus icon" style="cursor: pointer"></i></td>
+      <td>{{ order.company.short_name }}</td>
+      <td>{{ first_detail.warehouse.company_warehouse_id }}</td>
+      <td>{{ first_detail.warehouse.name }}</td>
+      <td>{{ order.order_id }}</td>
+      <td>{{ order.date_ordered|date:"j/n/Y" }}</td>
+      <td>{{ first_detail.warehouse.address.city }}</td>
+      <td>
+        <button class="ui icon button activar" title="Activar">
+          <i class="power icon"></i>
+        </button>
+        <button class="ui icon button eliminar" title="Eliminar">
+          <i class="trash icon"></i>
+        </button>
+      </td>
+    </tr>
+    {% endwith %}
+  {% endfor %}
+</tbody>
+
+{% endblock contenido %}

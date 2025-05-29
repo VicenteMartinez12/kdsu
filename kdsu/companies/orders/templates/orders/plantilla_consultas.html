@@ -55,9 +55,13 @@
         </div>
       </div>
   
+
+
  <!-- Panel de Filtros -->
 <div class="ui form filtros" style="margin-top: 1rem;">
     <div class="fields">
+
+      {% block filtros %}
       <div class="field">
         <label>Filtro de texto</label>
         <input type="text" id="filtroTexto" placeholder="Buscar...">
@@ -73,6 +77,7 @@
         </select>
         
       </div>
+      {% endblock filtros %}
       <div class="field">
         <label>Fecha inicio</label>
         <div class="ui calendar" id="rangestart">

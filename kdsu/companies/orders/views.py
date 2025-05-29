@@ -58,8 +58,15 @@ def index2(request):
     return render(request, 'orders/index.html')
 
 
-def descarga_pedidos(request):
-    return render(request, 'orders/descargaPedidos.html')
+def descarga_pedidos_view(request):
+    orders = Order.objects.select_related('company', 'supplier') \
+                          .prefetch_related('orderdetail_set__warehouse__address') \
+                          .all()
+
+    return render(request, 'orders/descargaPedidos.html', {
+        'orders': orders
+    })
+
 
 
 
