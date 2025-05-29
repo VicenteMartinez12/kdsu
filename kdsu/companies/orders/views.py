@@ -99,6 +99,10 @@ class OrderTestView(View):
             return JsonResponse({'message': 'Detalle creado y calculado', 'order_detail_id': order_detail.id})
 
         return JsonResponse({'error': 'Invalid data'}, status=400)
+    
+    
+    
+    # modales de pantallas
 
 
 def obtener_detalles_orden(request, order_id):
@@ -125,6 +129,35 @@ def obtener_detalles_orden(request, order_id):
         'costos': costos,
         'order_id': order.order_id
     })
+    
+    
+    
+    
+
+def obtener_detalle_descarga_pedidos(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    
+    detalles = []
+    for detalle in order.orderdetail_set.select_related('product'):
+        detalles.append({
+            'sku': detalle.product.sku,
+            'descripcion': detalle.description,
+            'sin_cargo': 'Sí' if detalle.no_charge else 'No',
+            'cantidad': detalle.quantity,
+            'empaque': detalle.master_package,
+            'subempaque': detalle.inner_package,
+        })
+
+    return JsonResponse({
+        'descargaPedidos': detalles,
+        'order_id': order.order_id
+    })
+    
+    
+    
+    
+    
+    ################ Creacion del pdf
     
     
 def pdf_header(p, width, height, company, order, page_num):
@@ -433,10 +466,12 @@ def export_pdf(request):
     return response
 
 
+###Fin de la creacion del pdf
 
 
 
 
+#Exportacion del xml
 
 @require_GET
 def export_xml(request):
@@ -570,6 +605,16 @@ def export_xml_excel(request):
     return response
 
 
+
+
+
+#Aqui termina la exportacion de los xml
+
+
+
+
+#Exportacion del JSON 
+
 @require_GET
 def export_json(request):
     order_ids = request.GET.getlist('order_ids[]')
@@ -631,3 +676,6 @@ def export_json(request):
     response = HttpResponse(json_data, content_type='application/json')
     response['Content-Disposition'] = 'attachment; filename="ordenes.json"'
     return response
+
+
+### Aqui termina la exportacion del Json
