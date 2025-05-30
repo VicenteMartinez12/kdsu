@@ -3,6 +3,18 @@
 {% block procesar %}{% endblock procesar %}
 
 
+{% block exportar %}
+  <div class="ui dropdown button">
+    Exportar <i class="dropdown icon"></i>
+    <div class="menu">
+      <div id="exportarPdf" class="item">PDF</div>
+      <div id="exportarXml" class="item">XML</div>
+      <div id="exportarExcel" class="item">XML para excel</div>
+    </div>
+  </div>
+{% endblock exportar %}
+
+
 {% block titulo %}
 Descarga de pedidos
 {% endblock titulo %}
@@ -12,7 +24,7 @@ Descarga de pedidos
 <div class="field">
   <label>Compañía</label>
   <select class="ui selection dropdown" id="filtroCompania" style="width: 240px !important;">
-      <option value="">Todas</option>
+    
       {% for id, nombre in companias %}
       <option value="{{ id }}">{{ nombre }}</option>
       {% endfor %}
@@ -22,7 +34,7 @@ Descarga de pedidos
 <div class="field">
   <label>Estatus</label>
   <select class="ui selection dropdown" id="filtroEstatus" style="width: 240px !important;">
-      <option value="">Todos</option>
+     
       {% for estatus in estatuses %}
       <option value="{{ estatus }}">{{ estatus }}</option>
       {% endfor %}

@@ -24,8 +24,8 @@ function initPlantilla() {
       infoEmpty: "Mostrando 0 a 0 de 0 registros",
       infoFiltered: "",
       paginate: {
-        first: "Primero",
-        last: "Último",
+        first: "Inicio",
+        last: "Fin",
         next: "Siguiente",
         previous: "Anterior"
       }
@@ -298,7 +298,13 @@ function inicializarYMostrarDatos(selectorTabla, datos) {
   console.log(`Inicializando ${selectorTabla} con ${totalColumnas} columnas`);
 
   const dt = cleanTable.DataTable({
-    dom: 'lrtip',
+    layout: {
+      topStart: null,
+      topEnd: null,
+      bottomStart: null,
+      bottomEnd: null,
+      bottom1: ['pageLength', 'info', 'paging']
+    },
     language: {
       lengthMenu: "Mostrar _MENU_ registros",
       zeroRecords: "No se encontraron resultados",
@@ -306,8 +312,8 @@ function inicializarYMostrarDatos(selectorTabla, datos) {
       infoEmpty: "Mostrando 0 a 0 de 0 registros",
       infoFiltered: "",
       paginate: {
-        first: "Primero",
-        last: "Último",
+        first: "Inicio",
+        last: "Fin",
         next: "Siguiente",
         previous: "Anterior"
       }
