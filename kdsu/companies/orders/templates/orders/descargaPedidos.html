@@ -33,20 +33,18 @@ Descarga de pedidos
 <div class="field">
   <label>Compañía</label>
   <select class="ui selection dropdown" id="filtroCompania" style="width: 240px !important;">
-    
-      {% for id, nombre in companias %}
-      <option value="{{ id }}">{{ nombre }}</option>
-      {% endfor %}
+    {% for id, nombre in companias %}
+      <option value="{{ id }}" {% if id|stringformat:"s" == request.GET.company_id %}selected{% endif %}>{{ nombre }}</option>
+    {% endfor %}
   </select>
 </div>
 
 <div class="field">
   <label>Estatus</label>
   <select class="ui selection dropdown" id="filtroEstatus" style="width: 240px !important;">
-     
-      {% for estatus in estatuses %}
-      <option value="{{ estatus }}">{{ estatus }}</option>
-      {% endfor %}
+    {% for estatus in estatuses %}
+      <option value="{{ estatus }}" {% if estatus == request.GET.status %}selected{% endif %}>{{ estatus }}</option>
+    {% endfor %}
   </select>
 </div>
 

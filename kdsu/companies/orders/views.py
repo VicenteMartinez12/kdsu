@@ -62,23 +62,25 @@ def descarga_pedidos_view(request):
     company_id = request.GET.get('company_id')
     status = request.GET.get('status')
 
+    # 🔹 Cargar TODAS las compañías y estatus posibles
+    todas_companias = Company.objects.all().values_list('id', 'name')
+    todos_estatuses = Order.objects.values_list('status', flat=True).distinct()
+
+    # 🔹 Filtrar órdenes
     orders = Order.objects.select_related('company', 'supplier') \
-                          .prefetch_related('orderdetail_set__warehouse__address') \
-                          .all()
+                          .prefetch_related('orderdetail_set__warehouse__address')
 
     if company_id:
         orders = orders.filter(company__id=company_id)
     if status:
         orders = orders.filter(status=status)
 
-    companias = orders.values_list('company__id', 'company__name').distinct()
-    estatuses = orders.values_list('status', flat=True).distinct()
-
     return render(request, 'orders/descargaPedidos.html', {
         'orders': orders,
-        'companias': companias,
-        'estatuses': estatuses,
+        'companias': todas_companias,
+        'estatuses': todos_estatuses,
     })
+
 
 
 
