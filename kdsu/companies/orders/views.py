@@ -59,27 +59,33 @@ def index2(request):
 
 
 def descarga_pedidos_view(request):
-    company_id = request.GET.get('company_id')
-    status = request.GET.get('status')
+    orders_qs = Order.objects.select_related('company', 'supplier') \
+                             .prefetch_related('orderdetail_set__warehouse__address') \
+                             .all()
 
-    # 🔹 Cargar TODAS las compañías y estatus posibles
-    todas_companias = Company.objects.all().values_list('id', 'name')
-    todos_estatuses = Order.objects.values_list('status', flat=True).distinct()
+    companias = orders_qs.values_list('company__id', 'company__name').distinct()
+    estatuses = orders_qs.values_list('status', flat=True).distinct()
 
-    # 🔹 Filtrar órdenes
-    orders = Order.objects.select_related('company', 'supplier') \
-                          .prefetch_related('orderdetail_set__warehouse__address')
+    # Valores por defecto
+    default_company_id = companias[0][0] if companias else None
+    selected_company_id = request.GET.get('company_id', str(default_company_id))
+    selected_status = request.GET.get('status', 'Nuevo')
 
-    if company_id:
-        orders = orders.filter(company__id=company_id)
-    if status:
-        orders = orders.filter(status=status)
+    # Aplicar filtros
+    if selected_company_id:
+        orders_qs = orders_qs.filter(company_id=selected_company_id)
+    if selected_status:
+        orders_qs = orders_qs.filter(status=selected_status)
 
     return render(request, 'orders/descargaPedidos.html', {
-        'orders': orders,
-        'companias': todas_companias,
-        'estatuses': todos_estatuses,
+        'orders': orders_qs,
+        'companias': companias,
+        'estatuses': estatuses,
+        'selected_company_id': str(selected_company_id),
+        'selected_status': selected_status
     })
+
+
 
 
 
