@@ -109,7 +109,7 @@
   
 
   <div class="tabla-contenedor">
-    <table id="tablaPlantillaConsultas" class="ui celled striped table" style="display:none;">
+    <table id="tablaPlantillaConsultas" class="ui celled striped table" style="display:none;" {% block tabla_contexto %}{% endblock tabla_contexto %}>
       <thead>
         {% block columnas %}
         <tr>

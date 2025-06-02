@@ -7,7 +7,23 @@ function initPlantilla() {
     $('#tablaPlantillaConsultas').DataTable().destroy();
   }
   const totalColumnas = $('#tablaPlantillaConsultas thead th').length;
-  console.log(totalColumnas);
+  const contexto = $('#tablaPlantillaConsultas').data('contexto');
+  console.log('Contexto detectado:', contexto);
+  console.log('Total columnas:', totalColumnas);
+
+  let columnDefs = [];
+
+  if (contexto === 'descargaPedidos') {
+    // Solo la primera y segunda columna no ordenables
+    columnDefs = [
+      { orderable: false, targets: [0, 1] }
+    ];
+  } else {
+    // Por defecto: primera y última no ordenables
+    columnDefs = [
+      { orderable: false, targets: [0, totalColumnas - 1] }
+    ];
+  }
   // Ahora sí, creamos la nueva instancia
   tablaConsultas = $('#tablaPlantillaConsultas').DataTable({
     layout: {
@@ -30,9 +46,7 @@ function initPlantilla() {
         previous: "Anterior"
       }
     },
-    columnDefs: [
-      { orderable: false, targets: [0, totalColumnas - 1] }
-    ],
+    columnDefs: columnDefs,
     order: [],
     initComplete: function () {
       

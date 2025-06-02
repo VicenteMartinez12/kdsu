@@ -179,7 +179,12 @@ function initDescargaPedidos(){
 
 
 
-
+  if (contexto === 'descargaPedidos') {
+    columnDefs = [
+      { orderable: false, targets: [0, 1] }
+      ];
+    }
+      
 
 
 
