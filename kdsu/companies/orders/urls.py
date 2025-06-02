@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import OrderTestView,plantilla_consultas_view,index2,obtener_detalles_orden,plantilla_pdf_view,export_pdf,export_xml,export_xml_excel,export_json,descarga_pedidos_view,obtener_detalle_descarga_pedidos
+from .views import OrderTestView,plantilla_consultas_view,index2,obtener_detalles_orden,plantilla_pdf_view,export_pdf,export_xml,export_xml_excel,export_json,descarga_pedidos_view,obtener_detalle_descarga_pedidos,obtener_tabla_descarga_pedidos
 
 urlpatterns = [
  
@@ -14,6 +14,8 @@ urlpatterns = [
   path('export_json/', export_json, name='export_json'),
     path('descarga_pedidos/', descarga_pedidos_view, name='descarga_pedidos'),
     path('detalle_descarga_pedidos/<int:order_id>/', obtener_detalle_descarga_pedidos, name='detalle_descarga_pedidos'),
+    path('tabla_descarga_pedidos/', obtener_tabla_descarga_pedidos, name='tabla_descarga_pedidos'),
+
 
 
 

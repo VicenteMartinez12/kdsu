@@ -19,6 +19,15 @@
 Descarga de pedidos
 {% endblock titulo %}
 
+
+
+{% block refrescar %}
+       
+<button class="ui blue button" id="btnRefrescarDescargaPedidos">
+  <i class=""></i> Refrescar
+</button>
+{% endblock refrescar %}
+
 {% block filtros %}
 
 <div class="field">
@@ -91,6 +100,7 @@ Descarga de pedidos
     {% endwith %}
   {% endfor %}
 </tbody>
+
 
 {% endblock contenido %}
 

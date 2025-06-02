@@ -59,9 +59,17 @@ def index2(request):
 
 
 def descarga_pedidos_view(request):
+    company_id = request.GET.get('company_id')
+    status = request.GET.get('status')
+
     orders = Order.objects.select_related('company', 'supplier') \
                           .prefetch_related('orderdetail_set__warehouse__address') \
                           .all()
+
+    if company_id:
+        orders = orders.filter(company__id=company_id)
+    if status:
+        orders = orders.filter(status=status)
 
     companias = orders.values_list('company__id', 'company__name').distinct()
     estatuses = orders.values_list('status', flat=True).distinct()
@@ -74,6 +82,24 @@ def descarga_pedidos_view(request):
 
 
 
+def obtener_tabla_descarga_pedidos(request):
+    company_id = request.GET.get('compania_id')
+    status = request.GET.get('estatus')
+
+    orders = Order.objects.select_related('company', 'supplier') \
+                          .prefetch_related('orderdetail_set__warehouse__address') \
+                          .all()
+
+    if company_id:
+        orders = orders.filter(company_id=company_id)
+    if status:
+        orders = orders.filter(status=status)
+
+    tbody_html = render_to_string('orders/partials/tabla_descarga_pedidos.html', {
+        'orders': orders
+    })
+
+    return JsonResponse({'tbody': tbody_html})
 
 
 

@@ -93,4 +93,42 @@ function initDescargaPedidos(){
           fetchUrl: `/orders/detalle_descarga_pedidos/${orderId}/`
         });
       });
+
+      $('#btnRefrescarDescargaPedidos').on('click', function () {
+        const companyId = $('#filtroCompania').val();
+        const status = $('#filtroEstatus').val();
+      
+        $.ajax({
+          url: '/orders/descarga_pedidos/',
+          type: 'GET',
+          data: {
+            company_id: companyId,
+            status: status
+          },
+          success: function (data) {
+            const overlay = $('#globalWaitOverlay');
+            if (overlay.length) {
+              $('body').append(overlay.detach());
+            }
+      
+            $('.ui.dimmer.modals').removeClass('active').removeAttr('style');
+            $('.ui.modal').modal('hide').remove();
+      
+            $('#mainContent').html(data);
+            initDescargaPedidos();  // <-- esto vuelve a activar todo
+          },
+          error: function (xhr, status, error) {
+            console.error("Error al refrescar:", status, error);
+            $('#mainContent').html(`
+              <div class="ui negative message">
+                <div class="header">Error al cargar el contenido</div>
+                <p>${xhr.status} - ${xhr.statusText}</p>
+              </div>
+            `);
+          }
+        });
+      });
+      
+      
+    
 }
