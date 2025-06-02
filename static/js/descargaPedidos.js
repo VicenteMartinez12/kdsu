@@ -129,6 +129,63 @@ function initDescargaPedidos(){
         });
       });
       
+
+
+    function configurarVisibilidadFechasPorEstatus() {
+      const $estatus = $('#filtroEstatus');
+      const $fecha1 = $('#fecha1');
+      const $fecha2 = $('#fecha2');
+      
+      function toggleFechas() {
+        const valor = $estatus.val();
+        if (valor === 'Pendiente') {
+          $fecha1.show();
+          $fecha2.show();
+        } else {
+          $fecha1.hide();
+          $fecha2.hide();
+        }
+      }
+    
+      $estatus.on('change', toggleFechas);
+      toggleFechas(); // Ejecuta al cargar
+    }
+      
+      
+    configurarVisibilidadFechasPorEstatus();
+
+
+      // Función para mostrar/ocultar columna F.Descarga
+      function actualizarColumnaFechaDescarga() {
+        const estatus = $('#filtroEstatus').val();
+    
+        if (estatus === 'Pendiente') {
+          $('.fecha-descarga').show();
+        } else {
+          $('.fecha-descarga').hide();
+        }
+      }
+    
+      // Ejecutar al cargar la página
+      actualizarColumnaFechaDescarga();
+    
+      // Ejecutar cuando se cambia el estatus
+      $('#filtroEstatus').on('change', function () {
+        actualizarColumnaFechaDescarga();
+      });
+  
+
+
+
+
+
+
+
+
+
+
+
+
       
     
 }

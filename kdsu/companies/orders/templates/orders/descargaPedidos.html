@@ -20,6 +20,30 @@ Descarga de pedidos
 {% endblock titulo %}
 
 
+{% block fechas %}
+      
+     
+<div class="field" id="fecha1">
+  <label>Fecha inicio</label>
+  <div class="ui calendar" id="rangestart">
+    <div class="ui input left icon">
+      <i class="calendar icon"></i>
+      <input type="text" id="fechaInicio" placeholder="Inicio" readonly  onkeydown="return false" style="cursor: pointer;" >
+    </div>
+  </div>
+</div>
+<div class="field" id="fecha2">
+  <label>Fecha fin</label>
+  <div class="ui calendar" id="rangeend">
+    <div class="ui input left icon" >
+      <i class="calendar icon"></i>
+      <input type="text" id="fechaFin" placeholder="Fin" readonly   onkeydown="return false" style="cursor: pointer;" >
+    </div>
+  </div>
+</div>
+{% endblock fechas %}
+
+
 
 {% block refrescar %}
        
@@ -66,8 +90,8 @@ Descarga de pedidos
   <th>Nombre sucursal</th>
   <th>Pedido</th>
   <th>Fecha</th>
+  <th class="fecha-descarga">F.Descarga</th>
   <th>Entrega</th>
-  <th></th>
 </tr>
 {% endblock columnas %} 
 
@@ -89,15 +113,8 @@ Descarga de pedidos
       <td>{{ first_detail.warehouse.name }}</td>
       <td>{{ order.order_id }}</td>
       <td>{{ order.date_ordered|date:"j/n/Y" }}</td>
+      <td class="fecha-descarga"></td>
       <td>{{ first_detail.warehouse.address.city }}</td>
-      <td>
-        <button class="ui icon button activar" title="Activar">
-          <i class="power icon"></i>
-        </button>
-        <button class="ui icon button eliminar" title="Eliminar">
-          <i class="trash icon"></i>
-        </button>
-      </td>
     </tr>
     {% endwith %}
   {% endfor %}
