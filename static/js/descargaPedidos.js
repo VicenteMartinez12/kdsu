@@ -159,10 +159,20 @@ function initDescargaPedidos(){
       function actualizarColumnaFechaDescarga() {
         const estatus = $('#filtroEstatus').val();
     
-        if (estatus === 'Pendiente') {
-          $('.fecha-descarga').show();
-        } else {
-          $('.fecha-descarga').hide();
+        // Obtener índice real de la columna con clase .fecha-descarga
+        const $columna = $('#tablaPlantillaConsultas thead th.fecha-descarga');
+        const index = $columna.index();
+    
+        if (index !== -1) {
+          const table = $('#tablaPlantillaConsultas').DataTable();
+    
+          if (estatus === 'Pendiente') {
+            table.column(index).visible(true);
+            $('.fecha-descarga').show();  // También en body
+          } else {
+            table.column(index).visible(false);
+            $('.fecha-descarga').hide();  // También en body
+          }
         }
       }
     
@@ -170,20 +180,15 @@ function initDescargaPedidos(){
       actualizarColumnaFechaDescarga();
     
       // Ejecutar cuando se cambia el estatus
-      $('#filtroEstatus').on('change', function () {
-        actualizarColumnaFechaDescarga();
+      $('#filtroEstatus').off('change.actualiza').on('change.actualiza', function () {
+        actualizarColumnaFechaDescarga(); // opcional, si quieres que actualice visual antes
+        $('#btnRefrescarDescargaPedidos').trigger('click');
       });
-  
+      
 
 
 
 
-
-  if (contexto === 'descargaPedidos') {
-    columnDefs = [
-      { orderable: false, targets: [0, 1] }
-      ];
-    }
       
 
 
