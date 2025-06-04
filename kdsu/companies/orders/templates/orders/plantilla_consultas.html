@@ -55,9 +55,13 @@
         </div>
       </div>
   
+
+
  <!-- Panel de Filtros -->
 <div class="ui form filtros" style="margin-top: 1rem;">
     <div class="fields">
+
+      {% block filtros %}
       <div class="field">
         <label>Filtro de texto</label>
         <input type="text" id="filtroTexto" placeholder="Buscar...">
@@ -73,6 +77,13 @@
         </select>
         
       </div>
+      {% endblock filtros %}
+
+
+      {% block fechas %}
+      
+      
+     
       <div class="field">
         <label>Fecha inicio</label>
         <div class="ui calendar" id="rangestart">
@@ -91,12 +102,14 @@
           </div>
         </div>
       </div>
+      {% endblock fechas %}
+
     </div>
   </div>
   
 
   <div class="tabla-contenedor">
-    <table id="tablaPlantillaConsultas" class="ui celled striped table" style="display:none;">
+    <table id="tablaPlantillaConsultas" class="ui celled striped table" style="display:none;" {% block tabla_contexto %}{% endblock tabla_contexto %}>
       <thead>
         {% block columnas %}
         <tr>

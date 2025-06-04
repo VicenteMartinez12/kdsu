@@ -1,15 +1,164 @@
-{% extends "orders/plantilla_consultas.html" %}
-{% load static %}
+{% extends "orders/plantilla_consultas.html" %} {% load static %} 
+
+{% block procesar %}{% endblock procesar %}
+
+
+{% block tabla_contexto %}data-contexto="descargaPedidos"{% endblock tabla_contexto %}
+
+
+
+
+{% block exportar %}
+  <div class="ui dropdown button">
+    Exportar <i class="dropdown icon"></i>
+    <div class="menu">
+      <div id="exportarPdf" class="item">PDF</div>
+      <div id="exportarXml" class="item">XML</div>
+      <div id="exportarExcel" class="item">XML para excel</div>
+    </div>
+  </div>
+{% endblock exportar %}
+
+
+{% block titulo %}
+Descarga de pedidos
+{% endblock titulo %}
+
+
+{% block fechas %}
+      
+     
+<div class="field" id="fecha1">
+  <label>Fecha inicio</label>
+  <div class="ui calendar" id="rangestart">
+    <div class="ui input left icon">
+      <i class="calendar icon"></i>
+      <input type="text" id="fechaInicio" placeholder="Inicio" readonly  onkeydown="return false" style="cursor: pointer;" >
+    </div>
+  </div>
+</div>
+<div class="field" id="fecha2">
+  <label>Fecha fin</label>
+  <div class="ui calendar" id="rangeend">
+    <div class="ui input left icon" >
+      <i class="calendar icon"></i>
+      <input type="text" id="fechaFin" placeholder="Fin" readonly   onkeydown="return false" style="cursor: pointer;" >
+    </div>
+  </div>
+</div>
+{% endblock fechas %}
+
+
+
+{% block refrescar %}
+       
+<button class="ui blue button" id="btnRefrescarDescargaPedidos">
+  <i class=""></i> Refrescar
+</button>
+{% endblock refrescar %}
+
+{% block filtros %}
+
+<div class="field">
+  <label>Compañía</label>
+  <select class="ui selection dropdown" id="filtroCompania" style="width: 240px !important;">
+    {% for id, nombre in companias %}
+      <option value="{{ id }}" {% if id|stringformat:"s" == selected_company_id %}selected{% endif %}>{{ nombre }}</option>
+    {% endfor %}
+  </select>
+  
+  
+</div>
+
+<div class="field">
+  <label>Estatus</label>
+  <select class="ui selection dropdown" id="filtroEstatus" style="width: 240px !important;">
+    {% for estatus in estatuses %}
+      <option value="{{ estatus }}" {% if estatus == selected_status %}selected{% endif %}>{{ estatus }}</option>
+    {% endfor %}
+  </select>
+  
+  
+</div>
+
+
+{% endblock filtros %} 
+
 
 
 {% block columnas %}
 <tr>
-  <th  class="no-sort"><input type="checkbox" id="checkAll"></th>
+  <th class="no-sort"><input type="checkbox" id="checkAll" /></th>
   <th></th>
-  <th>Clave</th>
-  <th>Nombre</th>
+  <th>Cia.</th>
+  <th>Suc.</th>
+  <th>Nombre sucursal</th>
+  <th>Pedido</th>
   <th>Fecha</th>
-  <th>Estatus</th>
-  <th></th>
+  <th class="fecha-descarga">F.Descarga</th>
+  <th>Entrega</th>
 </tr>
-{% endblock columnas %}
+{% endblock columnas %} 
+
+
+{% block contenido %}
+<tbody>
+  {% for order in orders %}
+    {% with first_detail=order.orderdetail_set.first %}
+    <tr
+      data-id="{{ order.id }}"
+      data-company-id="{{ order.company.id }}"
+      data-fecha="{{ order.date_ordered|date:'Y-m-d' }}"
+      data-proveedor="{{ order.supplier.short_name }}"
+    >
+      <td><input type="checkbox" /></td>
+      <td><i class="plus icon" style="cursor: pointer"></i></td>
+      <td>{{ order.company.short_name }}</td>
+      <td>{{ first_detail.warehouse.company_warehouse_id }}</td>
+      <td>{{ first_detail.warehouse.name }}</td>
+      <td>{{ order.order_id }}</td>
+      <td>{{ order.date_ordered|date:"j/n/Y" }}</td>
+      <td class="fecha-descarga"></td>
+      <td>{{ first_detail.warehouse.address.city }}</td>
+    </tr>
+    {% endwith %}
+  {% endfor %}
+</tbody>
+
+
+{% endblock contenido %}
+
+
+
+{% block menuModal %}
+<div class="ui modal scrolling" id="detalleDescargaPedidos" style="max-height: 80vh; overflow-y: auto;">
+  <div class="header">Detalle de la Orden</div>
+  <div class="content">
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="descargaPedidos">Detalles</a>
+   
+    </div>
+
+    <div class="ui bottom attached active tab segment" data-tab="descargaPedidos">
+      <table class="ui celled table" id="tablaDescargaPedidos">
+        <thead>
+          <tr>
+            <th>Núm. Art</th>
+            <th>Descripción</th>
+            <th>Mercancia sin cargo</th>
+            <th>Cantidad</th>
+            <th>Empaque</th>
+            <th>SubEmpaque</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+
+  </div>
+  <div class="actions">
+    <button class="ui button deny">Cerrar</button>
+  </div>
+</div>
+{% endblock menuModal %}

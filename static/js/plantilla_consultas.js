@@ -7,10 +7,32 @@ function initPlantilla() {
     $('#tablaPlantillaConsultas').DataTable().destroy();
   }
   const totalColumnas = $('#tablaPlantillaConsultas thead th').length;
-  console.log(totalColumnas);
+  const contexto = $('#tablaPlantillaConsultas').data('contexto');
+  console.log('Contexto detectado:', contexto);
+  console.log('Total columnas:', totalColumnas);
+
+  let columnDefs = [];
+
+  if (contexto === 'descargaPedidos') {
+    // Solo la primera y segunda columna no ordenables
+    columnDefs = [
+      { orderable: false, targets: [0, 1] }
+    ];
+  } else {
+    // Por defecto: primera y última no ordenables
+    columnDefs = [
+      { orderable: false, targets: [0, totalColumnas - 1] }
+    ];
+  }
   // Ahora sí, creamos la nueva instancia
   tablaConsultas = $('#tablaPlantillaConsultas').DataTable({
-    dom: 'lrtip',
+    layout: {
+      topStart: null,
+      topEnd: null,
+      bottomStart: null,
+      bottomEnd: null,
+      bottom1: ['pageLength', 'info', 'paging']
+    },
     language: {
       lengthMenu: "Mostrar _MENU_ registros",
       zeroRecords: "No se encontraron resultados",
@@ -18,15 +40,13 @@ function initPlantilla() {
       infoEmpty: "Mostrando 0 a 0 de 0 registros",
       infoFiltered: "",
       paginate: {
-        first: "Primero",
-        last: "Último",
+        first: "Inicio",
+        last: "Fin",
         next: "Siguiente",
         previous: "Anterior"
       }
     },
-    columnDefs: [
-      { orderable: false, targets: [0, totalColumnas - 1] }
-    ],
+    columnDefs: columnDefs,
     order: [],
     initComplete: function () {
       
@@ -50,7 +70,7 @@ function initPlantilla() {
   });
 
   $('.ui.dropdown').dropdown();
-  configurarFiltradoFechas();
+  // configurarFiltradoFechas();
 
 //  Checkbox global que selecciona todas las filas de todas las páginas
 $('#tablaPlantillaConsultas thead').on('change', '#checkAll', function () {
@@ -204,23 +224,23 @@ $('#rangeend').calendar({
 });
 
 
-function configurarFiltradoFechas() {
-  $.fn.dataTable.ext.search = [];
-  $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-    if (!tablaConsultas) return true;
-    const row = tablaConsultas.row(dataIndex).node();
-    const fechaRow = row.getAttribute('data-fecha');
-    const fechaInicio = $('#fechaInicio').val();
-    const fechaFin = $('#fechaFin').val();
-    if (!fechaInicio || !fechaFin) return true;
-    const parseFecha = str => str.split('/').reverse().join('-');
-    return fechaRow >= parseFecha(fechaInicio) && fechaRow <= parseFecha(fechaFin);
-  });
+// function configurarFiltradoFechas() {
+//   $.fn.dataTable.ext.search = [];
+//   $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+//     if (!tablaConsultas) return true;
+//     const row = tablaConsultas.row(dataIndex).node();
+//     const fechaRow = row.getAttribute('data-fecha');
+//     const fechaInicio = $('#fechaInicio').val();
+//     const fechaFin = $('#fechaFin').val();
+//     if (!fechaInicio || !fechaFin) return true;
+//     const parseFecha = str => str.split('/').reverse().join('-');
+//     return fechaRow >= parseFecha(fechaInicio) && fechaRow <= parseFecha(fechaFin);
+//   });
 
-  $('#btnRefrescar').off('click').on('click', function () {
-    if (tablaConsultas) tablaConsultas.draw();
-  });
-}
+//   $('#btnRefrescar').off('click').on('click', function () {
+//     if (tablaConsultas) tablaConsultas.draw();
+//   });
+// }
 
 
 
@@ -292,7 +312,13 @@ function inicializarYMostrarDatos(selectorTabla, datos) {
   console.log(`Inicializando ${selectorTabla} con ${totalColumnas} columnas`);
 
   const dt = cleanTable.DataTable({
-    dom: 'lrtip',
+    layout: {
+      topStart: null,
+      topEnd: null,
+      bottomStart: null,
+      bottomEnd: null,
+      bottom1: ['pageLength', 'info', 'paging']
+    },
     language: {
       lengthMenu: "Mostrar _MENU_ registros",
       zeroRecords: "No se encontraron resultados",
@@ -300,8 +326,8 @@ function inicializarYMostrarDatos(selectorTabla, datos) {
       infoEmpty: "Mostrando 0 a 0 de 0 registros",
       infoFiltered: "",
       paginate: {
-        first: "Primero",
-        last: "Último",
+        first: "Inicio",
+        last: "Fin",
         next: "Siguiente",
         previous: "Anterior"
       }

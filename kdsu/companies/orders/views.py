@@ -22,8 +22,8 @@ import os
 from reportlab.lib.utils import ImageReader
 from django.views.decorators.http import require_GET
 from xml.etree.ElementTree import Element, SubElement, ElementTree,fromstring,parse
-
-
+from .ftp_cliente import FTPSClient
+from .sftp_cliente import SFTPClient
 
 
 
@@ -58,9 +58,78 @@ def index2(request):
     return render(request, 'orders/index.html')
 
 
-def descarga_pedidos(request):
-    return render(request, 'orders/descargaPedidos.html')
+def descarga_pedidos_view(request):
+    orders_qs = Order.objects.select_related('company', 'supplier') \
+                             .prefetch_related('orderdetail_set__warehouse__address') \
+                             .all()
 
+    companias = orders_qs.values_list('company__id', 'company__name').distinct()
+    estatuses = orders_qs.values_list('status', flat=True).distinct()
+
+    # Valores por defecto
+    default_company_id = companias[0][0] if companias else None
+    selected_company_id = request.GET.get('company_id', str(default_company_id))
+    selected_status = request.GET.get('status', 'Nuevo')
+
+    # Aplicar filtros
+    if selected_company_id:
+        orders_qs = orders_qs.filter(company_id=selected_company_id)
+    if selected_status:
+        orders_qs = orders_qs.filter(status=selected_status)
+
+    return render(request, 'orders/descargaPedidos.html', {
+        'orders': orders_qs,
+        'companias': companias,
+        'estatuses': estatuses,
+        'selected_company_id': str(selected_company_id),
+        'selected_status': selected_status
+    })
+
+
+
+
+def pruebaConexion(request):
+    print('anTES DE ')
+    try:
+        cliente = FTPSClient('10.105.17.49', 'fsoftware', 'An@lisis20120203')
+        print('Hola ')
+        files = cliente.list_files()
+        print('Hola 3')
+        cliente.disconnect()
+        print('Hola 3')
+        return JsonResponse({'status': 'success', 'files': files})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)})
+    
+
+def pruebaConexionSFTP(request):
+    try:
+        cliente = SFTPClient('10.105.17.49', 22, 'fsoftware', 'An@lisis20120203')
+        files = cliente.list_files()
+        cliente.disconnect()
+        return JsonResponse({'status': 'success', 'files': files})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)})
+
+
+def obtener_tabla_descarga_pedidos(request):
+    company_id = request.GET.get('compania_id')
+    status = request.GET.get('estatus')
+
+    orders = Order.objects.select_related('company', 'supplier') \
+                          .prefetch_related('orderdetail_set__warehouse__address') \
+                          .all()
+
+    if company_id:
+        orders = orders.filter(company_id=company_id)
+    if status:
+        orders = orders.filter(status=status)
+
+    tbody_html = render_to_string('orders/partials/tabla_descarga_pedidos.html', {
+        'orders': orders
+    })
+
+    return JsonResponse({'tbody': tbody_html})
 
 
 
@@ -86,6 +155,10 @@ class OrderTestView(View):
             return JsonResponse({'message': 'Detalle creado y calculado', 'order_detail_id': order_detail.id})
 
         return JsonResponse({'error': 'Invalid data'}, status=400)
+    
+    
+    
+    # modales de pantallas
 
 
 def obtener_detalles_orden(request, order_id):
@@ -112,6 +185,35 @@ def obtener_detalles_orden(request, order_id):
         'costos': costos,
         'order_id': order.order_id
     })
+    
+    
+    
+    
+
+def obtener_detalle_descarga_pedidos(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    
+    detalles = []
+    for detalle in order.orderdetail_set.select_related('product'):
+        detalles.append({
+            'sku': detalle.product.sku,
+            'descripcion': detalle.description,
+            'sin_cargo': 'Sí' if detalle.no_charge else 'No',
+            'cantidad': detalle.quantity,
+            'empaque': detalle.master_package,
+            'subempaque': detalle.inner_package,
+        })
+
+    return JsonResponse({
+        'descargaPedidos': detalles,
+        'order_id': order.order_id
+    })
+    
+    
+    
+    
+    
+    ################ Creacion del pdf
     
     
 def pdf_header(p, width, height, company, order, page_num):
@@ -420,10 +522,12 @@ def export_pdf(request):
     return response
 
 
+###Fin de la creacion del pdf
 
 
 
 
+#Exportacion del xml
 
 @require_GET
 def export_xml(request):
@@ -557,6 +661,16 @@ def export_xml_excel(request):
     return response
 
 
+
+
+
+#Aqui termina la exportacion de los xml
+
+
+
+
+#Exportacion del JSON 
+
 @require_GET
 def export_json(request):
     order_ids = request.GET.getlist('order_ids[]')
@@ -618,3 +732,6 @@ def export_json(request):
     response = HttpResponse(json_data, content_type='application/json')
     response['Content-Disposition'] = 'attachment; filename="ordenes.json"'
     return response
+
+
+### Aqui termina la exportacion del Json
