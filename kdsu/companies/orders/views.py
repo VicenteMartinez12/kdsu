@@ -22,8 +22,8 @@ import os
 from reportlab.lib.utils import ImageReader
 from django.views.decorators.http import require_GET
 from xml.etree.ElementTree import Element, SubElement, ElementTree,fromstring,parse
-
-
+from .ftp_cliente import FTPSClient
+from .sftp_cliente import SFTPClient
 
 
 
@@ -88,6 +88,28 @@ def descarga_pedidos_view(request):
 
 
 
+def pruebaConexion(request):
+    print('anTES DE ')
+    try:
+        cliente = FTPSClient('10.105.17.49', 'fsoftware', 'An@lisis20120203')
+        print('Hola ')
+        files = cliente.list_files()
+        print('Hola 3')
+        cliente.disconnect()
+        print('Hola 3')
+        return JsonResponse({'status': 'success', 'files': files})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)})
+    
+
+def pruebaConexionSFTP(request):
+    try:
+        cliente = SFTPClient('10.105.17.49', 22, 'fsoftware', 'An@lisis20120203')
+        files = cliente.list_files()
+        cliente.disconnect()
+        return JsonResponse({'status': 'success', 'files': files})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)})
 
 
 def obtener_tabla_descarga_pedidos(request):
