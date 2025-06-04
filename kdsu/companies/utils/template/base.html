@@ -8,36 +8,38 @@
 
     <!-- jQuery (debe ir primero) -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    
+
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    
+
     <!-- Fomantic UI -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
-    
+
     <!-- Tus estilos -->
     <link rel="stylesheet" href="{% static 'css/menu.css' %}">
-   
+
 
     <!-- Tus scripts -->
-
+        <script src="{% static 'js/calendarioCitas.js' %}"></script>
     <script src="{% static 'js/menu.js' %}"></script>
     <script src="{% static 'js/exportador.js' %}"></script>
     <script src="{% static 'js/plantilla_consultas.js' %}"></script>
     <script src="{% static 'js/pantallaPDF.js' %}"></script>
     <script src="{% static 'js/descargaPedidos.js' %}"></script>
 
-   
-    
-    
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js"></script>
+
+      <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@5.9.0/locales-all.global.min.js"></script>
+
 
     <title>Menú fomantic</title>
 
 
     <link rel="stylesheet" href="{% static 'css/menu.css'%}" />
-  
+
   </head>
 
   <body >
@@ -48,9 +50,9 @@
   <div id="globalWaitOverlay" class="ui dimmer">
     <div id="globalWaitMessage" class="ui text loader">Hola</div>
   </div>
-  
-  
-  
+
+
+
 
     <header>
       <div class="ui top attached menu">
@@ -62,16 +64,16 @@
 
 
         {% block logo_nombre %}
-        
-        
+
+
         {% endblock logo_nombre %}
 
- 
-        
+
+
            {% block navegacion %}
 
 
-      
+
 
         {% endblock navegacion %}
 
@@ -105,11 +107,11 @@
           </div>
 
          {% block usuario %}
-         
-         
+
+
          {% endblock usuario %}
 
-          
+
         </div>
       </div>
     </header>
@@ -145,9 +147,9 @@
             <i class="dropdown icon"></i>
           </div>
           <div class="content">
-        
-     
-        
+
+
+
             <a class="item" id="catalogoProducto">Catálogo productos</a>
             <a class="item" id="catalogoProveedor">Catálogo proveedores</a>
             <a class="item" id="catalogoSucursal">Catálogo sucursales</a>
@@ -155,8 +157,9 @@
             <a class="item" id="plantillaConsultas">Plantilla de consultas</a>
             <a class="item" id="plantillaPdf">Plantilla con pdf</a>
             <a class="item" id="descargaPedidos">Descarga de pedidos</a>
-            
-       
+            <a class="item" id="calendarioCitas">Calendario de citas</a>
+
+
 
 
           </div>
@@ -218,15 +221,15 @@
 
       <!-- Contenedor con scroll -->
       <div class="main-content" id="mainContent">
-   
+
 
 
         {% block contenido %}
-        
-        
-        
+
+
+
         {% endblock contenido %}
-        
+
       </div>
     </div>
 
@@ -239,29 +242,29 @@
           closable: false,
           transition: 'push', // valor inicial
         });
-      
+
         // NUEVA variable para saber si se mostró con overlay o push
         let isOverlay = false;
-      
+
         // ============== BOTÓN #toggleSidebar ==============
         $('#toggleSidebar').on('click', function () {
           // Desactivar el botón mientras la animación se ejecuta
           $(this).addClass("disabled"); // Añade la clase para desactivar el botón
-      
+
           console.log("[toggleSidebar] clic - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
-      
+
           if (isSidebarVisible) {
             // SI ESTÁ VISIBLE => lo ocultamos con overlay
             console.log("-> Ocultando sidebar con overlay");
             $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
             $('.ui.sidebar').sidebar('hide');
             $('.main-content').css('width', '100%');
-      
+
             // CAMBIA el ícono en #toggleSidebar al ocultarse
             $('#toggleSidebar i')
               .removeClass('ellipsis vertical icon')
               .addClass('ellipsis horizontal icon');
-      
+
             isSidebarVisible = false;
             isOverlay = false; // Al quedar oculto, reseteamos
           } else {
@@ -270,66 +273,66 @@
             $('.ui.sidebar').sidebar('setting', 'transition', 'push');
             $('.ui.sidebar').sidebar('show');
             $('.main-content').css('width', 'calc(100% - 220px)');
-      
+
             $('#toggleSidebar i')
               .removeClass('ellipsis horizontal icon')
               .addClass('ellipsis vertical  icon');
-      
+
             isSidebarVisible = true;
             isOverlay = false; // Se mostró vía push
           }
-      
+
           // Después de la animación, reactivar el botón
           $('.ui.sidebar').one('transitionend', function () {
             // Rehabilitar el botón después de la animación (ajustar el tiempo si es necesario)
             $('#toggleSidebar').removeClass('disabled');
           });
         });
-      
+
         // ============== ACORDEÓN ==============
         $('.ui.accordion').accordion({
           exclusive: false,
           closeNested: false
         });
-      
+
         // ============== HOVER ZONE ==============
         // Al pasar el ratón, SOLO si está oculto (contenido expandido):
         // => lo mostramos con OVERLAY, sin restar ancho.
         $('#hoverZone').on('mouseenter', function () {
           console.log("[hoverZone] mouseenter - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
-      
+
           if (!isSidebarVisible) {
             console.log("-> Mostrando sidebar con overlay (por hover)");
             // Aseguramos la transición overlay
             $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
             // Mostramos sin cambiar el width => overlay no requiere restar ancho
             $('.ui.sidebar').sidebar('show');
-      
+
             // NO tocamos .main-content => sigue en width=100%
             isSidebarVisible = true;
             isOverlay = true; // Marcamos que se mostró vía overlay
           }
         });
-      
+
         // ============== MOUSELEAVE SIDEBAR ==============
         // Si el sidebar está visible y se mostró por overlay => ocúltalo
         // Si se mostró con push => no lo oculte.
         $('#mySidebar').on('mouseleave', function () {
           console.log("[mySidebar] mouseleave - isSidebarVisible? ", isSidebarVisible, "isOverlay?", isOverlay);
-      
+
           if (isSidebarVisible && isOverlay) {
             console.log("-> Ocultando sidebar overlay al mouseleave");
             $('.ui.sidebar').sidebar('setting', 'transition', 'overlay');
             $('.ui.sidebar').sidebar('hide');
             $('.main-content').css('width', '100%'); // Regresamos contenido expandido
-      
+
             isSidebarVisible = false;
             isOverlay = false;
           } else {
            // console.log("-> No se oculta, porque está con push o ya oculto");
           }
         });
-      
+
         // ============== NOTIFICACIONES ==============
         $('#notificaciones').on('click', function (event) {
           event.stopPropagation();
@@ -347,7 +350,7 @@
             $('#notificationContainer').addClass('hidden');
           }
         });
-      
+
         // ============== MENÚ FLOTANTE USUARIO ==============
         $('#usuario').on('click', function (event) {
           event.stopPropagation();
@@ -362,9 +365,9 @@
           }
         });
       });
-      
+
     </script>
-    
+
     <script src="{% static '/js/registerSw.js' %}"></script>
     <script src="{% static '/js/zw.js' %}"></script>
   </body>

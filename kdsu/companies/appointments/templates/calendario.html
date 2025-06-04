@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Calendario de Citas</title>
+  </head>
+  <body>
+
+        <style>
+      .confirmed {
+        background-color: rgb(35, 119, 35) !important;
+      }
+      .unavailable {
+        background-color: rgb(159, 62, 62) !important;
+      }
+      .requested {
+        background-color: rgb(35, 35, 139) !important;
+      }
+      .past {
+        background-color: rgb(129, 129, 129) !important;
+      }
+
+      .fc-day {
+        cursor: pointer;
+      }
+
+      #main-navbar  {
+        cursor: pointer;
+        background-color: #f3f3f388;
+
+      }
+
+      .text-muted{
+        color: #474444;
+        font-style: italic;
+        font-size: 80%;
+      }
+
+      .selected{
+        background-color: #73b2e5 !important;
+      }
+
+      .fc-highlight{
+        background-color: #73b2e5 !important;
+      }
+
+      td[role="gridcell"]:hover{
+        background-color: #73b2e5 !important;
+        border: 2px solid white;
+      }
+
+       .fc-daygrid-event-harness a{
+        border: 1px solid white;
+      }
+      td[role="gridcell"]{
+        height:100px;
+      }
+      tr[role="row"] a {
+        color:rgb(0, 0, 0) !important
+      }
+
+    </style>
+
+    <a class="item" id="csvLink" style="display: none"> </a>
+    <strong id="last-update"></strong>
+    <!-- Menu BAR -->
+   <div id="main-navbar" class="ui  menu">
+  <div class="header item" id="refCalendario" style="font-size: 0.9rem;">
+    Calendario de Citas
+  </div>
+
+  <div class="right menu">
+    <!-- Refrescar -->
+    <div id="lirefresh" class="item" style="display: block;">
+      <a id="refresh" onclick="window.location.reload()">Refrescar</a>
+    </div>
+
+    <!-- Solicitar Cita -->
+    <div id="linew" class="item" style="display: block;">
+      <a id="btnNew" onclick="create()">Solicitar cita</a>
+    </div>
+
+    <!-- Consultar -->
+    <div id="liview" class="item" style="display: block;">
+      <a id="btnView" onclick="view()">Consultar</a>
+    </div>
+
+    <!-- Modificar Cita -->
+    <div id="liupdate" class="item" style="display: block;">
+      <a id="btnModify" onclick="modify()">Modificar cita</a>
+    </div>
+
+    <!-- Cancelar Cita -->
+    <div id="licancel" class="item" style="display: block;">
+      <a id="btnCancel" onclick="cancel()">Cancelar cita</a>
+    </div>
+
+    <!-- Descargar -->
+    <div id="liDownload" class="item" style="display: block;">
+      <a onclick="downloadData()">Descargar</a>
+    </div>
+
+    <!--
+    <div id="liConfirm" class="item" style="display: none;">
+      <a onclick="confirmAppointment()">Confirmar</a>
+    </div>
+    -->
+  </div>
+</div>
+
+
+
+
+
+    <div id="calendar"></div>
+
+
+
+    <!-- MODALES -->
+    <div id="new-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header" id="title-appointment">Nueva Cita</div>
+      <div class="content">
+      <form id="frm-new" class="ui form">
+          <div class="ui top attached tabular menu">
+            <a class="active item" data-tab="detalles">Detalles</a>
+          </div>
+          <div class="ui bottom attached active tab segment" data-tab="detalles">
+            <div class="ui grid">
+              <div class="row">
+                <div class="four wide column">Entrega:</div>
+                <div class="twelve wide column">
+                  <div class="ui fluid selection dropdown">
+                    <input type="hidden" id="cmb-method" name="cmb-method">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">SEL. ENTREGA</div>
+                    <div class="menu">
+                      <div class="item" data-value="1">CENTRA</div>
+                      <div class="item" data-value="2">EMBARQUE A SUCURSAL</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="sixteen wide column">
+                  <table id="tbl-new-appointment" class="ui celled table" style="width: 100%">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Cia</th>
+                        <th>Zona</th>
+                        <th>Suc.</th>
+                        <th>Factura</th>
+                        <th>Blts.F</th>
+                        <th>Blts.S</th>
+                        <th>Kg.Falta</th>
+                        <th>Kg.Surtir</th>
+                        <th></th>
+                      </tr>
+                      <tr class="filters">
+                        <th></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Tipo de transporte:</label></div>
+                <div class="three wide column">
+                  <select id="cmb-transport" class="ui fluid dropdown">
+                    <option value="-1">SEL. TIPO TRANS</option>
+                     {% for cat in loadCats %}
+                      <option value="{{cat.id}}">{{cat.name}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="three wide column"><label>Tipo de carga:</label></div>
+                <div class="three wide column">
+                  <select id="cmb-load" class="ui fluid dropdown">
+                    <option value="-1">SEL. TIPO DE CARGA</option>
+                    {% for cat in transCats %}
+                      <option value="{{cat.id}}">{{cat.name}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Bultos:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-bulks" type="number" class="app-input" placeholder="BULTOS">
+                </div>
+                <div class="three wide column"><label>Total pallets:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-pallets" type="number" class="app-input" placeholder="PALLETS">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Peso:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-weight" type="number" class="app-input" placeholder="KG">
+                </div>
+                <div class="three wide column"><label>Volumen:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-volume" type="number" class="app-input" placeholder="M3">
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+        <div class="actions">
+          <div class="ui left floated text">
+            <p class="text-muted">
+              Por favor seleccione la relación de pedido-factura-bulto que va a entregar.<br>
+              Nota: Debe de ingresar el volumen aproximado de la entrega.
+            </p>
+          </div>
+          <div class="ui primary button" id="btnSaveNew">Guardar</div>
+          <div class="ui button close">Cerrar</div>
+        </div>
+      </form>
+    </div>
+
+
+
+    <div id="modify-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="modificar">Detalles de las citas</a>
+        </div>
+        <div class="ui bottom attached active tab segment" data-tab="modificar">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-modify-appointment" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui primary button" id="btnUpdate">Modificar</div>
+        <div class="ui button">Cerrar</div>
+      </div>
+    </div>
+
+    <div id="selected-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="seleccionado">Detalles de las citas</a>
+        </div>
+        <div class="ui bottom attached active tab segment" data-tab="seleccionado">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-selected-appointment" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui button">Cerrar</div>
+      </div>
+    </div>
+
+
+    <div id="download" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="descarga">Detalles de las citas - Descarga</a>
+        </div>
+
+        <div class="ui bottom attached active tab segment" data-tab="descarga">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-appointments" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+    <div id="complete" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas</div>
+
+      <form id="frmTransport" class="ui form">
+        <div class="content">
+          <div class="ui top attached tabular menu">
+            <a class="active item" data-tab="transportista">Datos del transportista de la cita</a>
+          </div>
+
+          <div class="ui bottom attached active tab segment" data-tab="transportista">
+            <div class="ui grid">
+              <div class="row">
+                <div class="four wide column right aligned">Cita:</div>
+                <div class="six wide column">
+                  <input name="ipt-appointment" type="text" readonly />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Transportista:</div>
+                <div class="six wide column">
+                  <input name="transport" type="text" maxlength="20" placeholder="NOMBRE" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Placas:</div>
+                <div class="six wide column">
+                  <input name="plates" type="text" maxlength="20" placeholder="NÚMERO" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Chofer:</div>
+                <div class="six wide column">
+                  <input name="driver" type="text" maxlength="20" placeholder="NOMBRE" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <p class="text-muted">
+            Para guardar y descargar la cita primero tiene que llenar los datos del transportista.
+          </p>
+
+          <button type="submit" class="ui primary button" id="btnComplete">Guardar</button>
+
+          <a
+            href="#"
+            class="ui primary button disabled"
+            id="btnAppointmentFormat"
+            onclick="receptionPDF()"
+          >
+            Descargar cita
+          </a>
+
+          <div class="ui dropdown primary button disabled" id="btn-download">
+            <span class="text">Seleccionar para descargar</span>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="item" onclick="bulks()">Carta</div>
+              <!-- <div class="item" onclick="pdf()">PDF</div> -->
+              <div class="item" id="lbl-print">Serial</div>
+            </div>
+          </div>
+
+          <div class="ui green button">Cerrar</div>
+        </div>
+      </form>
+    </div>
+
+    <a href="" id="lbl"></a>
+
+    <!-- Modal de Éxito -->
+    <div id="modal-success" class="ui small modal">
+      <div class="header">
+        <i class="check circle icon green"></i> <span id="successTitle">Smartnet Web</span>
+      </div>
+      <div class="content">
+        <div id="successBody" class="ui text"></div>
+      </div>
+      <div class="actions">
+        <div class="ui green approve button">OK</div>
+      </div>
+    </div>
+
+
+    <!-- Modal de Errores -->
+    <div id="modal-warning" class="ui small modal">
+      <div class="header">
+        <i class="exclamation triangle icon yellow"></i> <span id="warningTitle">Smartnet Web</span>
+      </div>
+      <div class="content">
+        <div id="warningBody" class="ui text"></div>
+      </div>
+      <div class="actions">
+        <div class="ui yellow approve button">Cerrar</div>
+      </div>
+    </div>
+
+<pre>{{ appointments_json }}</pre>
+  <script>
+    //global
+    const appointments = {{ appointments_json|safe }};
+    $('.ui.dropdown').dropdown();
+    $('.menu .item').tab();
+    //$('#new-appointment').modal('show');
+  </script>
+   <script>
+    let sessionUser = "";
+    let sessionManufacturer = "";
+    let bCancellation = false;
+    let bUpdate = false;
+    let selected = null;
+    let billSelected = [];
+    let rowSelected = [];
+    let rowSelectedDetail = [];
+    let rowSelecteHead = [];
+    //let rowSelectedDetailBills = [];
+    let rowToBeAddedSelectedDetail = [];
+    let currentIndex = [];
+    let modifydAppointmentTable = null;
+    let selectedAppointmentTable = null;
+    let tableAppointments = null;
+    showLoading(true);
+
+    const sumBulksAndWeight = () => {
+      let totalBulks = 0;
+      let totalWeight = 0;
+
+      if (/*billSelected.length > 0 ||*/ !bUpdate) {
+        totalBulks = billSelected
+          .map((e) => e.bulks)
+          .reduce((a, b) => Number(a) + Number(b), 0);
+        totalWeight = billSelected
+          .map((e) => e.weight)
+          .reduce((a, b) => Number(a) + Number(b), 0);
+      } else {
+        const chosen = table.rows({ selected: true, page: "all" }).data();
+        console.log(chosen);
+        totalBulks = chosen
+          .map((e) => e[6])
+          .reduce((a, b) => Number(a) + Number(b), 0);
+        totalWeight = chosen
+          .map((e) => e[8])
+          .reduce((a, b) => Number(a) + Number(b), 0);
+      }
+
+      console.log(totalBulks, totalWeight, "CALC");
+
+      document.querySelector("#ipt-bulks").value = totalBulks;
+      document.querySelector("#ipt-weight").value = totalWeight;
+    };
+
+    let table = new DataTable("#tbl-new-appointment", {
+      aaData: [],
+      layout: layoutOpt,
+      select: "multi",
+      language: esMX,
+      columnDefs: [
+        {
+          targets: 0,
+          data: null,
+          defaultContent: "",
+          render: function (data, type, row, meta) {
+            return `<input data-bill="${row[10]}"  data-bulks="${row[6]}" data-weight="${row[8]}" class="chk-new" type="checkbox" name=""  />`;
+          },
+          orderable: false,
+          searchable: true,
+          //className: 'select-checkbox'
+        },
+        {
+          targets: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          searchable: true,
+          orderable: false,
+        },
+        {
+          targets: 4,
+          class: "dt-string",
+        },
+        {
+          targets: 6,
+          class: "editable",
+        },
+        {
+          targets: 8,
+          class: "editable",
+        },
+        {
+          target: 9,
+          render: function (data, type, row, meta) {
+            return `<span class="btn-link row-edit" href="" />Editar<span>`;
+          },
+          createdCell: function (td, cellData, rowData, row, col) {
+            td.addEventListener("click", function (ev) {
+              const row = ev.currentTarget.parentElement;
+              const fields = row.querySelectorAll(
+                "td.dt-type-numeric.editable"
+              );
+              const rowEditLink = row.querySelector(".row-edit");
+              const isChecked = row.querySelector(
+                'input[type="checkbox"'
+              ).checked;
+              if (!row.classList.contains("opened")) {
+                row.classList.add("opened");
+                fields.forEach((i) => {
+                  i.style.display = "table-cell";
+                  const tmpInput = document.createElement("input");
+                  tmpInput.className = "form-control row-input input-number";
+                  tmpInput.type = "text";
+                  tmpInput.dataset.isDecimal = false;
+                  tmpInput.dataset.numberDecimals = 0;
+                  tmpInput.dataset.maxInteger = Infinity;
+                  tmpInput.value = "";
+                  tmpInput.onclick = function (x) {
+                    x.select();
+                  };
+                  tmpInput.oninput = function (x) {
+                    //console.log(x.target.value);
+                    x.target.value = pruneNothingButNumbers(x.target.value);
+                  };
+                  const tempText = i.textContent;
+                  i.textContent = "";
+                  i.appendChild(tmpInput);
+                  tmpInput.value = tempText;
+                });
+                rowEditLink.textContent = "Guardar";
+                row.querySelector("td:nth-of-type(6) input").focus();
+                row.querySelector("td:nth-of-type(6) input").select();
+              } else {
+                const newRowData = Array.from(
+                  row.querySelectorAll(".row-input")
+                ).map((i) => i.value);
+                //console.log(newRowData, "podkapodskpo");
+                row.classList.remove("opened");
+                fields.forEach((ipt) =>
+                  ipt.querySelectorAll("input").forEach((i) => i.remove())
+                );
+                rowEditLink.textContent = "Editar";
+                /*console.log(
+                  Array.from(row.querySelectorAll(".row-input")).map(
+                    (i) => i.value
+                  )
+                );*/
+                let hasError = false;
+                if (newRowData[0] > rowData[6]) {
+                  warningMsg(
+                    "Los bultos no pueden ser más de la cantidad original."
+                  );
+                  hasError = true;
+                }
+
+                if (newRowData[1] > rowData[8]) {
+                  warningMsg("El peso no puede ser mayor.");
+                  hasError = true;
+                }
+
+                if (newRowData[0] > rowData[11]) {
+                  warningMsg(
+                    "No puede ingresar una cantidad mayor que el restante de bultos de la factura. Por favor verifique la información."
+                  );
+                  hasError = true;
+                }
+
+                if (newRowData[1] > rowData[12]) {
+                  warningMsg(
+                    "No puede ingresar un peso mayor al restante de la factura. Por favor verifique la información."
+                  );
+                  hasError = true;
+                }
+
+                if (
+                  newRowData[1] == rowData[13] &&
+                  newRowData[0] < rowData[14]
+                ) {
+                  warningMsg(
+                    "El peso no puede ser igual al peso total de la factura si faltan bultos por agendar."
+                  );
+                  hasError = true;
+                }
+
+                if (
+                  newRowData[1] == rowData[12] &&
+                  newRowData[0] < rowData[11]
+                ) {
+                  warningMsg(
+                    "El peso no puede ser igual al peso restante de la factura si faltan bultos por agendar."
+                  );
+                  hasError = true;
+                }
+
+                if (
+                  newRowData[1] < rowData[13] &&
+                  newRowData[0] == rowData[14]
+                ) {
+                  warningMsg(
+                    "Los bultos no pueden ser igual al total de bultos de la factura si falta peso por asignar."
+                  );
+                  hasError = true;
+                }
+
+                if (
+                  newRowData[1] == rowData[12] &&
+                  newRowData[0] == rowData[11]
+                ) {
+                  warningMsg(
+                    "Los bultos no pueden ser igual al restante de bultos de la factura si falta peso por asignar."
+                  );
+                  hasError = true;
+                }
+
+                if (hasError) {
+                  row.classList.add("error-row");
+                  newRowData[0] = rowData[6];
+                  newRowData[1] = rowData[8];
+                } else {
+                  row.classList.remove("error-row");
+                }
+
+                //console.log(table.row(currentIndex));
+                table
+                  .row(currentIndex)
+                  .data([
+                    true,
+                    rowData[1],
+                    rowData[2],
+                    rowData[3],
+                    rowData[4],
+                    rowData[5],
+                    newRowData[0],
+                    rowData[7],
+                    newRowData[1],
+                    rowData[9],
+                    rowData[10],
+                    rowData[11],
+                  ])
+                  .draw();
+                //console.log("hi");
+                billSelected = Array.from(
+                  table.rows({ selected: true }).data()
+                ).map((e) => {
+                  return {
+                    bill: e[10],
+                    bulks: e[6],
+                    weight: e[8],
+                  };
+                });
+                setTimeout(() => {
+                  sumBulksAndWeight();
+                }, 0);
+
+                row.querySelector('input[type="checkbox"').checked = isChecked;
+                //table.row(currentIndex).deselect();
+              }
+            });
+          },
+        },
+      ],
+      createdRow: function (row, data, dataIndex) {
+        if (data[0]) {
+          row.querySelector(".chk-new").checked = true;
+        } else {
+          row.querySelector(".chk-new").checked = false;
+        }
+        //handleRowSelect(row.querySelector(".chk-new"));
+      },
+      drawCallback: function (settings) {
+        setTimeout(() => {
+          sumBulksAndWeight();
+        }, 0);
+      },
+      initComplete: function () {
+        const api = this.api();
+        api.columns().every(function () {
+          let column = this;
+          let title = column.header().textContent;
+          if (column.index() == 0) {
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "form-control";
+            checkbox.style.height = "15px";
+            column.header().replaceChildren(checkbox);
+            const dtInstance = this;
+            checkbox.addEventListener("click", function () {
+              if (checkbox.checked) {
+                table.rows().select();
+                Array.from(table.rows({ selected: true, page: "all" })).forEach(
+                  (idx) => {
+                    console.log(
+                      Array.from(table.rows(idx).nodes()),
+                      "soy un idx"
+                    );
+                    Array.from(table.rows(idx).nodes()).forEach((r) => {
+                      r.querySelector('input[type="checkbox"]').checked = true;
+                    });
+                  }
+                );
+
+                table.draw();
+              } else {
+                Array.from(table.rows({ selected: true, page: "all" })).forEach(
+                  (idx) => {
+                    console.log(
+                      Array.from(table.rows(idx).nodes()),
+                      "soy un idx"
+                    );
+                    Array.from(table.rows(idx).nodes()).forEach((r) => {
+                      r.querySelector('input[type="checkbox"]').checked = false;
+                    });
+                  }
+                );
+
+                table.rows().deselect();
+                table.draw();
+              }
+            });
+          }
+          if (column.index() != 0 && column.index() != 9) {
+            // Create input element
+            let input = document.createElement("input");
+            input.placeholder = title;
+            input.className = "ui input form-control";
+            input.placeholder = "";
+            column.header().replaceChildren(input);
+
+            // Event listener for user input
+            input.addEventListener("keyup", () => {
+              if (column.search() !== this.value) {
+                column.search(input.value).draw();
+              }
+            });
+          }
+        });
+      },
+    });
+
+    function isSelected() {
+      return selected != null;
+    }
+
+    function alreadyHasApppointments() {
+      return [...selected.parentElement.querySelectorAll("td a.fc-event")].some((e) =>
+        e.classList.contains("confirmed")
+      );
+    }
+
+    //new
+    async function create() {
+      console.log('new')
+      showLoading(true);
+      if (!isSelected()) {
+        warningMsg("Debes seleccionar un día.");
+        return;
+      }
+
+      if ([...selected.parentElement.querySelectorAll("td a.fc-event")].some((e) => e.classList.contains("past"))
+      || [...selected.parentElement.querySelectorAll("td a.fc-event")].some((e) =>  e.classList.contains("unavailable"))) {
+        warningMsg("El dia seleccionado no tiene disponbilidad");
+        showLoading(false);
+        return;
+      }
+
+      if (
+        pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL /*EstadoDia*/
+      ) {
+        if (
+          (
+          [...selected.parentElement.querySelectorAll("td")].some((e) =>
+            e.classList.contains("past")
+          )) ||
+          [...selected.parentElement.querySelectorAll("td")].some((e) =>
+          e.classList.contains("unavailable")
+        )
+        ) {
+          warningMsg("El dia seleccionado no tiene disponbilidad");
+          showLoading(false);
+          return;
+        }
+      }
+
+      if (pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL) {
+        document.querySelector("#cmb-method").value = 1;
+        document.querySelector("#cmb-transport").value = -1;
+        document.querySelector("#cmb-load").value = -1;
+        document.querySelector("#ipt-pallets").value = 0;
+        document.querySelector("#ipt-pallets").setAttribute("readonly", true);
+      } else if (pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.MENSAJERIA) {
+        document.querySelector("#cmb-transport").setAttribute("readonly", true);
+        document.querySelector("#cmb-load").setAttribute("readonly", true);
+        document.querySelector("#cmb-transport").value = "10";
+        document.querySelector("#cmb-load").value = "2";
+        document.querySelector("#ipt-pallets").setAttribute("readonly", true);
+        document.querySelector("#ipt-pallets").value = "0";
+        document.querySelector("#ipt-volume").value = "1";
+        document.querySelector("#ipt-volume").setAttribute("readonly", true);
+      } else {
+        document.querySelector("#cmb-transport").setAttribute("readonly", true);
+        document.querySelector("#cmb-load").setAttribute("readonly", true);
+        document.querySelector("#cmb-transport").value = "11";
+        document.querySelector("#cmb-load").value = "2";
+        document.querySelector("#ipt-pallets").setAttribute("readonly", true);
+        document.querySelector("#ipt-pallets").value = "0";
+        document.querySelector("#ipt-volume").value = "1";
+        document.querySelector("#ipt-volume").setAttribute("readonly", true);
+      }
+
+      //más pinches validaciones
+      if (pgCalendarioCitasTipoProveedor != SUPPLIER_TYPES.NORMAL) {
+        document.querySelector("#cmb-method").value = 2;
+        document.querySelector("#cmb-method").setAttribute("readonly", true);
+        document.querySelector("#cmb-transport").value = 10;
+        document.querySelector("#cmb-load").value = 2;
+        $("#cmb-method").trigger("change");
+        $("#cmb-transport").trigger("change");
+        $("#cmb-load").trigger("change");
+      }
+
+      if (bUpdate) {
+        document.querySelector("#cmb-transport").value =
+          rowSelectedHead.Id_Transporte;
+        document.querySelector("#cmb-load").value = rowSelectedHead.Id_Carga;
+        document.querySelector("#ipt-pallets").value = rowSelectedHead.Pallets;
+        $("#cmb-transport").trigger("change");
+        $("#cmb-load").trigger("change");
+      }
+
+      // else {
+
+      const currentAppointments = await getAppointmentsToBeAdded(
+        document.querySelector("#cmb-method").value
+      );
+      let finalMappedRows = [];
+      let mapped = currentAppointments.map((a) => [
+        false,
+        2,
+        a.Zona,
+        a.Sucursal,
+        a.Factura,
+        a.BultosFaltantes,
+        a.BultosxCita,
+        a.PesoFaltante,
+        a.PesoxCita,
+        "",
+        a.Id_Facturas,
+        a.BultosxCitaOrigen,
+        a.PesoxCitaOrigen,
+        a.Peso,
+        a.BultosxFactura,
+      ]);
+      if (mapped.length < 1) {
+        warningMsg("No hay citas que ver.");
+        return;
+      }
+
+      if (bUpdate) {
+        finalMappedRows = Array.from(
+          new Set(rowToBeAddedSelectedDetail.concat(mapped))
+        );
+        document.querySelector("#ipt-pallets").value = rowSelected[10];
+        document.querySelector("#ipt-volume").value = rowSelected[11];
+      } else {
+        finalMappedRows = mapped;
+      }
+
+      table.clear().rows.add(finalMappedRows).draw();
+      if (bUpdate) {
+        table
+          .rows((idx, data, node) => {
+            return data[0];
+          })
+          .select();
+      }
+      $("#new-appointment").modal({ backdrop: "static" });
+      $("#new-appointment").modal("show");
+      showLoading(false);
+      sumBulksAndWeight();
+      //}
+    }
+
+    $("#new-appointment").modal({
+      onHide: function(){
+          console.log('olaa')
+          document.querySelectorAll(".dt-container").forEach((c) => {
+            if (c.id.includes("dt-")) {
+              c.remove();
+            }
+            //rowSelected = [];
+          });
+          clearFields();
+          billSelected = [];
+          table.clear().draw();
+          document.querySelector("#title-appointment").textContent = "Nueva Cita";
+          bUpdate = false;
+          document.querySelector("#ipt-pallets").value = 0;
+          document.querySelector("#ipt-volume").value = 1;
+      }
+    })
+
+    table.on("select", function (e, dt, type, indexes) {
+      currentIndex = indexes[0];
+      if (!bUpdate) {
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (
+            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
+            table.row(indexes).selected()
+          ) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+            });
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = true;
+          } else {
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+          }
+        }
+      } else {
+        console.log("select update");
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (table.row(indexes).selected()) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+            });
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = true;
+          }
+        }
+      }
+      setTimeout(() => {
+        sumBulksAndWeight();
+      }, 0);
+    });
+
+    table.on("deselect", function (e, dt, type, indexes) {
+      currentIndex = indexes[0];
+      if (!bUpdate) {
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (
+            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
+            table.row(indexes).selected()
+          ) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+            });
+          } else {
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+          }
+        }
+      } else {
+        console.log("deselect update");
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (!table.row(indexes).selected()) {
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+          }
+        }
+      }
+      setTimeout(() => {
+        sumBulksAndWeight();
+      }, 0);
+    });
+
+    //window load
+    const main =
+    async function (e) {
+      loadUIVariables();
+
+      document
+        .querySelector("#lbl-print")
+        .addEventListener("click", async (ev) => {
+          getSerialPrintInstruction(rowSelected[1], sessionUser);
+        });
+      document
+        .querySelector("#frm-new")
+        .addEventListener("submit", async function (ev) {
+          ev.preventDefault();
+          const cmbMethod = document.querySelector("#cmb-method");
+          const cmbTransport = document.querySelector("#cmb-transport");
+          const cmbLoad = document.querySelector("#cmb-load");
+          const iptBulks = document.querySelector("#ipt-bulks");
+          const iptPallets = document.querySelector("#ipt-pallets");
+          const cmbWeight = document.querySelector("#ipt-weight");
+          const cmbVolume = document.querySelector("#ipt-volume");
+
+          let cmbMethodVal = "";
+          let cmbTransportVal = "";
+          let cmbLoadVal = "";
+          let iptBulksVal = "";
+          let iptPalletsVal = "";
+          let cmbWeightVal = "";
+          let cmbVolumeVal = "";
+
+          cmbMethodVal = cmbMethod.value;
+          cmbTransportVal = cmbTransport.value;
+          cmbLoadVal = cmbLoad.value;
+          iptBulksVal = iptBulks.value;
+          iptPalletsVal = iptPallets.value;
+          cmbWeightVal = cmbWeight.value;
+          cmbVolumeVal = cmbVolume.value;
+          let bills = [];
+
+          /////////////////////////////////////////////////
+          if (Number(iptBulksVal) <= 0) {
+            warningMsg(
+              "Debe de seleccionar un pedido. Por favor verifique la información."
+            );
+            return;
+          }
+
+          if (iptBulksVal != "") {
+            if (Number(iptBulksVal) <= 0) {
+              warningMsg(
+                "Debe de seleccionar un pedido. Por favor verifique la información."
+              );
+              return;
+            }
+          } else {
+            warningMsg(
+              "Debe de seleccionar un pedido. Por favor verifique la información."
+            );
+            return;
+          }
+
+          if (cmbTransport.selectedIndex < 0) {
+            warningMsg(
+              "Debe de seleccionar un tipo de transporte. Por favor verifique la información."
+            );
+            return;
+          }
+          if (cmbLoad.selectedIndex < 0) {
+            warningMsg(
+              "Debe de seleccionar un tipo de carga. Por favor verifique la información."
+            );
+            return;
+          }
+
+          const selectedLoadOption =
+            document.querySelector("#cmb-load").options[
+              document.querySelector("#cmb-load").selectedIndex
+            ];
+
+          if (
+            selectedLoadOption.textContent.toUpperCase() == "PALLET" ||
+            (selectedLoadOption.textContent.toUpperCase() == "MIXTO" &&
+              Number(iptPalletsVal) > 0)
+          ) {
+            if (iptPalletsVal != "") {
+              if (Number(iptPalletsVal) <= 0) {
+                warningMsg(
+                  "La cantidad de pallets debe tener un valor mayor o igual a 1. Por favor verifique la información."
+                );
+                errors += 1;
+                return;
+              }
+              if (Number(iptPalletsVal) > Number(iptBulksVal)) {
+                warningMsg(
+                  "La cantidad de pallets debe ser congruente con la cantidad de bultos. Por favor verifique la información."
+                );
+                errors += 1;
+                return;
+              }
+
+              if (Number(iptPalletsVal) > 9999) {
+                warningMsg(
+                  "La cantidad de pallets debe tener un valor menor o igual a 9,999. Por favor verifique la información."
+                );
+                errors += 1;
+                return;
+              }
+            } else {
+              warningMsg(
+                "Debe de ingresar la cantidad de pallets de la cita. Por favor verifique la información."
+              );
+              return;
+            }
+          }
+
+          if (cmbVolumeVal != "") {
+            cmbVolumeVal = cmbVolumeVal.trim();
+            if (Number(cmbVolumeVal) <= 0) {
+              warningMsg(
+                "El volúmen debe tener un valor mayor o igual a 1. Por favor verifique la información."
+              );
+              return;
+            }
+            if (Number(cmbVolumeVal) > 250) {
+              warningMsg(
+                "El volúmen debe tener un valor menor o igual a 250. Por favor verifique la información."
+              );
+              return;
+            }
+            if (
+              Number(iptPalletsVal > 0) &&
+              Number(cmbVolumeVal) < Number(iptPalletsVal)
+            ) {
+              warningMsg(
+                "El volúmen debe ser congruente con la cantidad de pallets. Por favor verifique la información."
+              );
+              return;
+            }
+          } else {
+            warningMsg(
+              "Debe de ingresar el volúmen total de la mercancía de la cita. Por favor verifique la información."
+            );
+            return;
+          }
+
+          if (cmbWeightVal != "") {
+            if (Number(cmbWeightVal) <= 0) {
+              warningMsg(
+                "El peso debe tener un valor mayor o igual a 1. Por favor verifique la información."
+              );
+              return;
+            }
+
+            if (Number(cmbVolumeVal) > 999999) {
+              warningMsg(
+                "El peso debe tener un valor menor o igual a 999,999. Por favor verifique la información."
+              );
+              return;
+            }
+          } else {
+            warningMsg(
+              "Debe de ingresar el peso total de la mercancia de la cita. Por favor verifique la información."
+            );
+            return;
+          }
+
+          if (
+            [
+              cmbTransportVal,
+              cmbLoadVal,
+              iptBulksVal,
+              iptPalletsVal,
+              cmbWeightVal,
+              cmbVolumeVal,
+            ].some((v) => v < 0 || v == "")
+          ) {
+            /////////////////////////////////////////////////
+            console.log([
+              cmbTransportVal,
+              cmbLoadVal,
+              iptBulksVal,
+              iptPalletsVal,
+              cmbWeightVal,
+              cmbVolumeVal,
+            ]);
+            warningMsg("Ingresa todos los campos");
+            return;
+            /////////////////////////////////////////////////
+          } else {
+            //validaciones
+            const hasZoneDupes = [
+              ...new Set(
+                Array.from(table.rows({ selected: true }).data()).map(
+                  (r) => r[2]
+                )
+              ),
+            ].length;
+            if (
+              pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL &&
+              hasZoneDupes > 0 &&
+              cmbMethodVal == SHIPMENT_TYPES.SUCURSAL
+            ) {
+              warningMsg(
+                "En las citas tipo EMBARQUE A SUCURSAL no se pueden incluir sucursales que pertenezcan a diferentes zonas. Por favor verifique esta información."
+              );
+              return;
+            }
+
+            /////////////////////////////////////
+            //const hasZeroBulksWarn = displayZeroWarning(table);
+            /////////////////////////////////////
+
+            //////////////
+            if (bUpdate) {
+              bills = Array.from(
+                table.rows({ selected: true, page: "all" }).data()
+              ).map((r) => {
+                return {
+                  ID_FACTURAS: r[10],
+                  BULTOSXCITA: r[6],
+                  PESOXCITA: r[8],
+                };
+              });
+            } else {
+              bills = billSelected.map((r) => {
+                return {
+                  PEDIDO: "0",
+                  ID_FACTURAS: r.bill,
+                  BULTOSXCITA: r.bulks,
+                  PESOXCITA: r.weight,
+                };
+              });
+            }
+
+            let selectedRow = [];
+            if (bUpdate) {
+              //ojito aqui
+              selectedRow = rowSelectedHead;
+            }
+            console.log(selectedRow);
+
+            const req = {
+              PROVCONSUMOINTERNO: "0",
+              ID_TIPOCITA: cmbMethodVal,
+              ID_TRANSPORTE: cmbTransportVal,
+              ID_CARGA: cmbLoadVal,
+              ID_ANDEN: bUpdate ? selectedRow.Id_Anden : "2",
+              COMPANIA: "2", //en teoria deberían ser igual para todos
+              FECHASOLICITADA: selected.dataset.date,
+              TIEMPOASIGNADO: !bUpdate ? 0 : selectedRow.TiempoAsignado, //en teoria deberían ser igual para todos
+              INDICADORTIEMPO: !bUpdate ? "H" : selectedRow.IndicadorTiempo, //en teoria deberían ser igual para todos
+              VOLUMEN: cmbVolumeVal,
+              PESO: cmbWeightVal,
+              PALLETS: iptPalletsVal,
+              BULTOS: iptBulksVal,
+              TRANSPORTISTA: bUpdate ? selectedRow.Transportista : "", //en teoria deberían ser igual para todos
+              PLACAS: bUpdate ? selectedRow.Placas : "", //en teoria deberían ser igual para todos
+              CHOFER: bUpdate ? selectedRow.Chofer : "", //en teoria deberían ser igual para todos
+              IMPRESO: bUpdate ? selectedRow.Impreso : "01/01/1900 00:00:00", //en teoria deberían ser igual para todos
+              B_ESTATUS: bUpdate ? selectedRow.B_Estatus : "A", //en teoria deberían ser igual para todos
+              USUARIO: sessionUser,
+              FACTURAS: bills,
+            };
+
+            if (bUpdate) {
+              req.CITA = rowSelected[1];
+            }
+            console.log(req, "odkpo");
+            showLoading(true);
+            if (bUpdate) {
+              updateAppointment(req)
+                .then((res) => {
+                  if (res[0].Resultado) {
+                    selected.classList.remove("requested");
+                    selected.classList.add("selected");
+                    selected.dataset.requested = true;
+                    $("#new-appointment").modal("hide");
+                    selected = null;
+                    if (new Date().getDay() == 6) {
+                      successMsg("Cita Actualizada.", [
+                        "La solicitud de cita se guardó con éxito.",
+                        "Citas modificadas en sábado o domingo serán confirmadas el siguiente día hábil.",
+                        "-Llevar personal de maniobra (con identificación oficial).",
+                        "-Equipo de seguridad (chaleco y zapatos industriales).",
+                      ]);
+                      clearFields();
+                    } else {
+                      successMsg("Cita Actualizada.", [
+                        "La solicitud de cita se guardó con éxito.",
+                        "Espere la confirmación de su cita en un máximo de 24 horas días hábiles.",
+                        "-Llevar personal de maniobra (con identificación oficial).",
+                        "-Equipo de seguridad (chaleco y zapatos industriales).",
+                      ]);
+                      clearFields();
+                    }
+                  } else {
+                    warningMsg("Error.");
+                  }
+                })
+                .catch((e) => {
+                  console.log(e);
+                })
+                .finally(() => {
+                  showLoading(false);
+                });
+            } else {
+              createAppointment(req)
+                .then((res) => {
+                  if (res[0].Resultado) {
+                    selected.classList.remove("requested");
+                    selected.classList.add("selected");
+                    selected.dataset.requested = true;
+                    $("#new-appointment").modal("hide");
+                    selected = null;
+                    if (
+                      pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL
+                    ) {
+                      if (new Date().getDay() == 6) {
+                        successMsg(
+                          "La solicitud de cita se guardó con éxito.",
+                          [
+                            "Citas solicitadas en sábado o domingo serán confirmadas el siguiente día hábil.",
+                            "-Llevar personal de maniobra (con identificación oficial).",
+                            "-Equipo de seguridad (chaleco y zapatos industriales).",
+                          ]
+                        );
+                        clearFields();
+                      } else {
+                        successMsg(
+                          "La solicitud de cita se guardó con éxito.",
+                          [
+                            "Espere la confirmación de su cita en un máximo de 24 horas días hábiles.",
+                            "-Llevar personal de maniobra (con identificación oficial).",
+                            "-Equipo de seguridad (chaleco y zapatos industriales).",
+                          ]
+                        );
+                      }
+                    } else {
+                      successMsg("La solicitud de cita se guardó con éxito.", [
+                        "Por favor imprima el archivo descargado de la cita que se enviará junto con la mercancía.",
+                      ]);
+                      clearFields();
+                    }
+                  } else {
+                    warningMsg("Error.");
+                  }
+                })
+                .catch((e) => {
+                  console.log(e);
+                })
+                .finally(() => {
+                  showLoading(false);
+                });
+            }
+          }
+        });
+      lang = await getDataTableLanguage();
+      //populate global appointments
+      let DateTime = luxon.DateTime;
+
+      fillCombos();
+      showLoading(false);
+
+      //modify
+      modifydAppointmentTable = new DataTable(
+        "#tbl-modify-appointment",
+        defaultDTConfig("modify")
+      );
+
+      modifydAppointmentTable.on("click", "td.dt-control", async function (e) {
+        showLoading(true);
+        setTimeout(() => {
+          console.log("aspdksapodskapo");
+          let tr = e.target.closest("tr");
+          let row = modifydAppointmentTable.row(tr);
+          const rowData = row.data();
+
+          const t = new returnTable(
+            [
+              "Cia",
+              "Suc.",
+              "Prov.",
+              "Pedido",
+              "Factura",
+              "Bultos",
+              "F.Factura",
+            ],
+            "dt-" + rowData[1]
+          );
+
+          if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+          } else {
+            console.log("test2", rowSelectedDetail, "ROW", row);
+            // Open this row
+
+            row.child(t).show();
+            let tmpDt = new DataTable("#dt-" + rowData[1], {
+              aaData: rowSelectedDetail,
+              layout: layoutOpt,
+              language: esMX,
+              bDestroy: true,
+              columnDefs: [
+                {
+                  targets: [0, 1, 2, 3, 4, 5, 6],
+                  searchable: true,
+                  orderable: false,
+                },
+              ],
+              initComplete: function () {
+                const api = this.api();
+                api.columns().every(function () {
+                  let column = this;
+                  let title = column.header().textContent;
+                  // Create input element
+                  let input = document.createElement("input");
+                  input.placeholder = title;
+                  input.className = "ui input form-control";
+                  input.placeholder = "";
+                  column.header().replaceChildren(input);
+
+                  // Event listener for user input
+                  input.addEventListener("keyup", () => {
+                    if (column.search() !== this.value) {
+                      column.search(input.value).draw();
+                    }
+                  });
+                });
+              },
+            });
+            showLoading(false);
+          }
+        }, 500);
+      });
+
+      modifydAppointmentTable.on(
+        "select",
+        async function (e, dt, type, indexes) {
+          if (type === "row") {
+            //console.log(modifydAppointmentTable.row(indexes).data())
+            //console.log(modifydAppointmentTable.rows( { selected: true } ).data())
+            rowSelected = Array.from(
+              modifydAppointmentTable.rows({ selected: true }).data()
+            )[0];
+            const resp = await getAppointmentsDetail(rowSelected[1]);
+            rowSelectedHead = resp.cabecera[0];
+            console.log("RESPUESTA", rowSelectedHead);
+            const detail = resp.detalle.map((d) => {
+              return [
+                d.Compania,
+                d.Sucursal,
+                d.Proveedor,
+                d.Pedido,
+                d.Factura,
+                d.BultosxCita,
+                d.FechaFactura,
+                d.Id_Facturas,
+                d.ZONA,
+                rowSelectedHead.Id_Anden,
+                rowSelectedHead.TiempoAsignado,
+                rowSelectedHead.IndicadorTiempo,
+                rowSelectedHead.Tranportista,
+                rowSelectedHead.Placas,
+                rowSelectedHead.Chofer,
+                rowSelectedHead.Impreso,
+                d.B_Estatus,
+              ];
+            });
+
+            rowToBeAddedSelectedDetail = resp.detalle.map((d) => {
+              return [
+                true,
+                d.Compania,
+                d.ZONA,
+                d.Sucursal,
+                d.Factura,
+                d.BultosFaltantes,
+                d.BultosxCita,
+                d.PesoFaltante,
+                d.PesoxCita,
+                "",
+                d.Id_Facturas,
+                d.PesoxCita,
+              ];
+            });
+            rowSelectedDetail = detail;
+
+            /*rowSelectedDetailBills = detail.map((r) => {
+              return r[7];
+            });*/
+            //rowSelected.push(modifydAppointmentTable.row(indexes).data());
+            //rowSelected.push(modifydAppointmentTable.rows( { selected: true } ).data());
+          }
+        }
+      );
+
+      selectedAppointmentTable = new DataTable(
+        "#tbl-selected-appointment",
+        defaultDTConfig("view")
+      );
+      selectedAppointmentTable.on("click", "td.dt-control", async function (e) {
+        showLoading(true);
+        setTimeout(async () => {
+          let tr = e.target.closest("tr");
+          let row = selectedAppointmentTable.row(tr);
+          const rowData = row.data();
+
+          const t = new returnTable(
+            [
+              "Cia",
+              "Suc.",
+              "Prov.",
+              "Pedido",
+              "Factura",
+              "Bultos",
+              "F.Factura",
+            ],
+            "dt-" + rowData[1]
+          );
+          //console.log(t);
+
+          if (row.child.isShown()) {
+            console.log("test");
+            // This row is already open - close it
+            row.child.hide();
+          } else {
+            console.log("test2consulta");
+            // Open this row
+            console.log("OPENING", rowData);
+            const resp = await getAppointmentsDetail(rowData[1]);
+            const detail = resp.detalle.map((d) => {
+              return [
+                d.Compania,
+                d.Sucursal,
+                d.Proveedor,
+                d.Pedido,
+                d.Factura,
+                d.BultosxCita,
+                d.FechaFactura,
+              ];
+            });
+            console.log(detail, "RECEIVED");
+
+            row.child(t).show();
+            let tmpDt = new DataTable("#dt-" + rowData[1], {
+              aaData: detail,
+              layout: layoutOpt,
+              language: esMX,
+              bDestroy: true,
+              columnDefs: [
+                {
+                  targets: [0, 1, 2, 3, 4, 5, 6],
+                  searchable: true,
+                  orderable: false,
+                },
+              ],
+              initComplete: function () {
+                const api = this.api();
+                api.columns().every(function () {
+                  let column = this;
+                  let title = column.header().textContent;
+                  // Create input element
+                  let input = document.createElement("input");
+                  input.placeholder = title;
+                  input.className = "ui input form-control";
+                  input.placeholder = "";
+                  column.header().replaceChildren(input);
+
+                  // Event listener for user input
+                  input.addEventListener("keyup", () => {
+                    if (column.search() !== this.value) {
+                      column.search(input.value).draw();
+                    }
+                  });
+                });
+              },
+            });
+          }
+          showLoading(false);
+        }, 500);
+      });
+      selectedAppointmentTable.on("select", function (e, dt, type, indexes) {
+        rowSelected = Array.from(
+          selectedAppointmentTable.rows({ selected: true }).data()
+        );
+      });
+
+      $("#selected-appointment").on("hide.bs.modal", function (e) {
+        document.querySelectorAll(".dt-container").forEach((c) => {
+          if (c.id.includes("dt-")) {
+            c.remove();
+          }
+        });
+        //rowSelected = [];
+      });
+
+      tableAppointments = new DataTable(
+        "#tbl-appointments",
+        defaultDTConfig("view")
+      );
+
+      tableAppointments.on("click", "td.dt-control", async function (e) {
+        showLoading(true);
+        setTimeout(async () => {
+          let tr = e.target.closest("tr");
+          let row = tableAppointments.row(tr);
+          const rowData = row.data();
+
+          const t = new returnTable(
+            [
+              "Cia",
+              "Suc.",
+              "Prov.",
+              "Pedido",
+              "Factura",
+              "Bultos",
+              "F.Factura",
+            ],
+            "dt-" + rowData[1]
+          );
+          //console.log(t);
+
+          if (row.child.isShown()) {
+            console.log("test");
+            // This row is already open - close it
+            row.child.hide();
+          } else {
+            console.log("test2");
+            // Open this row
+            const resp = await getAppointmentsDetail(rowData[1]);
+            const detail = resp.detalle.map((d) => {
+              return [
+                d.Compania,
+                d.Sucursal,
+                d.Proveedor,
+                d.Pedido,
+                d.Factura,
+                d.BultosxCita,
+                d.FechaFactura,
+              ];
+            });
+
+            row.child(t).show();
+            let tmpDt = new DataTable("#dt-" + rowData[1], {
+              aaData: detail,
+              layout: layoutOpt,
+              language: esMX,
+              bDestroy: true,
+              columnDefs: [
+                {
+                  targets: [0, 1, 2, 3, 4, 5, 6],
+                  searchable: true,
+                  orderable: false,
+                },
+              ],
+              initComplete: function () {
+                const api = this.api();
+                api.columns().every(function () {
+                  let column = this;
+                  let title = column.header().textContent;
+                  // Create input element
+                  let input = document.createElement("input");
+                  input.placeholder = title;
+                  input.className = "ui input form-control";
+                  input.placeholder = "";
+                  column.header().replaceChildren(input);
+
+                  // Event listener for user input
+                  input.addEventListener("keyup", () => {
+                    if (column.search() !== this.value) {
+                      column.search(input.value).draw();
+                    }
+                  });
+                });
+              },
+            });
+          }
+          showLoading(true);
+        }, 500);
+      });
+      tableAppointments.on("select", function (e, dt, type, indexes) {
+        if (type === "row") {
+          rowSelected = Array.from(
+            tableAppointments.rows({ selected: true }).data()
+          );
+          document
+            .querySelector("#btn-download-selection")
+            .classList.remove("disabled");
+        }
+      });
+
+      tableAppointments.on("deselect", function (e, dt, type, indexes) {
+        if (type === "row") {
+          //rowSelected = [];
+          document
+            .querySelector("#btn-download-selection")
+            .classList.add("disabled");
+        }
+      });
+
+      ///////////////////////////transportista///////////////////////////
+      $("#complete").on("shown.bs.modal", function (e) {
+        setTimeout(() => {
+          document.querySelector("input[name='transport'").focus();
+          document.querySelector("input[name='transport'").select();
+        }, 0);
+      });
+
+      $("#download").on("show.bs.modal", function (e) {
+        rowSelected = Array.from(tableAppointments.row(0).select().data());
+        document.querySelector('input[name="ipt-appointment"').value =
+          rowSelected[1];
+      });
+      $("#download").on("hide.bs.modal", function (e) {
+        document.querySelectorAll(".dt-container").forEach((c) => {
+          if (c.id.includes("dt-")) {
+            c.remove();
+          }
+        });
+        transportData = {};
+        //rowSelected = [];
+      });
+
+      document
+        .querySelector("#frmTransport")
+        .addEventListener("submit", async function (ev) {
+          ev.preventDefault();
+          setTransportData();
+        });
+      //////////////////transportista////////////////////////////////
+    };
+    ///////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////
+    ///consult
+    async function view() {
+      if (!isSelected()) {
+        warningMsg("Debes seleccionar un día.");
+        return;
+      }
+
+       $("#selected-appointment").modal({ backdrop: "static" });
+      $("#selected-appointment").modal("show");
+      return;
+
+      //confirmed selected
+      if (
+        [...selected.parentElement.querySelectorAll(".sub")].some((td) => {
+          return (
+            td.classList.contains("confirmed") ||
+            td.classList.contains("selected")
+          );
+        })
+      ) {
+        console.log("yes");
+        if (selected.classList.contains("confirmed")) {
+          status = "S";
+        } else if (selected.classList.contains("selected")) {
+          status = "A";
+        } else {
+          console.log("nada");
+          status = "";
+        }
+      } else {
+        console.log("nada");
+        status = "";
+      }
+      console.log(status);
+
+      const currentAppointments = await getAppointments(
+        selected.dataset.date,
+        status
+      );
+      let mapped = currentAppointments.map((a) => [
+        "",
+        a.Id_Cita,
+        a.Compania,
+        a.HoraSolicitada,
+        a.Volumen,
+        a.Peso,
+        a.Bultos,
+        a.B_Estatus_nombre,
+        a.Nombre,
+        a.Id_TipoCita,
+      ]);
+      //.filter((a) => a.Id_Cita == rowSelected[1]);
+      if (mapped.length < 1) {
+        warningMsg("No hay citas registradas para este día.");
+        return;
+      }
+      setTimeout(() => {
+        selectedAppointmentTable.clear().rows.add(mapped).draw();
+        $("#selected-appointment").modal({ backdrop: "static" });
+        $("#selected-appointment").modal("show");
+      }, 0);
+    }
+    ///modify
+    async function modify(isCancellation = false) {
+      showLoading(true);
+      if (!isSelected()) {
+        warningMsg("Debes seleccionar un día.");
+        showLoading(false);
+        return;
+      }
+
+      if (selected.classList.contains("confirmed")) {
+        warningMsg(
+          "El día seleccionado no tiene citas disponibles para modificar. Verifique su selección."
+        );
+        showLoading(false);
+        return;
+      }
+
+       $("#modify-appointment").modal({ backdrop: "static" });
+       $("#modify-appointment").modal("show");
+       return;
+
+      const currentAppointments = await getAppointments(selected.dataset.date);
+
+      if (currentAppointments == undefined || currentAppointments.length < 1) {
+        warningMsg("No hay citas disponibles para modificar.");
+        showLoading(false);
+        return;
+      }
+
+      if (isCancellation) {
+        document.querySelector("#btnUpdate").textContent = "Cancelar";
+      } else {
+        document.querySelector("#btnUpdate").textContent = "Modificar";
+      }
+
+      let mapped = currentAppointments.map((a) => [
+        "",
+        a.Id_Cita,
+        a.Compania,
+        a.HoraSolicitada,
+        a.Volumen,
+        a.Peso,
+        a.Bultos,
+        a.B_Estatus_nombre,
+        a.Nombre,
+        a.Id_TipoCita,
+        a.Pallets,
+        a.Volumen,
+      ]);
+      // .filter((a) => a.Id_Cita == rowSelected[1]);
+      setTimeout(() => {
+        bUpdate = true;
+        ///////////////////////////////////////
+        if (isCancellation || bUpdate) {
+          console.log(currentAppointments, mapped, "CHECK");
+          //mapped = mapped.filter((r) => r[9] != 3);
+        }
+        ///////////////////////////////////////
+        modifydAppointmentTable.clear().rows.add(mapped).draw();
+        $("#modify-appointment").modal({ backdrop: "static" });
+        $("#modify-appointment").modal("show");
+      }, 0);
+      showLoading(false);
+      return;
+    }
+    document
+      .querySelector("#btnUpdate")
+      .addEventListener("click", async function (ev) {
+        if (bCancellation) {
+          showLoading(true);
+          //pending
+          const successfulCancel = await cancelAppointment({
+            CANCELAR: rowSelected.map((r) => {
+              return { CITA: r[1], USUARIO: sessionUser };
+            }),
+          });
+          if (successfulCancel) {
+            selected.parentElement.querySelectorAll("td").forEach((s) => {
+              s.removeAttribute("data-requested");
+              s.classList.remove("selected");
+              s.classList.remove("requested");
+            });
+            selected = null;
+            showLoading(false);
+            successMsg("Cita cancelada.");
+          } else {
+            warningMsg("Error al agregar la cita.");
+          }
+        } else {
+          $("#modify-appointment").modal("hide");
+          /////////////////////////////////////
+          if (rowSelected[9] == 3) {
+            warningMsg("Las citas tipo recolección no se pueden modificar.");
+            return;
+          }
+          /////////////////////////////////////
+          bUpdate = true;
+          document.querySelector("#title-appointment").textContent =
+            "Modificar Cita";
+          create();
+        }
+      });
+
+    $("#modify-appointment").on("hide.bs.modal", function (e) {
+      document.querySelectorAll(".dt-container").forEach((c) => {
+        if (c.id.includes("dt-")) {
+          c.remove();
+        }
+      });
+      //rowSelected = [];
+      rowSelectedDetail = [];
+      clearFields();
+    });
+    ////////////////////////////////////////////////////////
+    async function isAvailable(date) {
+      const notAvailableData = await getAvailabilityData(date);
+      return notAvailableData;
+    }
+
+    async function downloadData() {
+      if (!isSelected()) {
+        warningMsg("Debes seleccionar un día.");
+        return;
+      }
+      if (!selected.classList.contains("confirmed")) {
+        warningMsg(
+          "El día seleccionado no tiene citas confirmadas. Verifique su selección."
+        );
+        return;
+      }
+
+       $("#download").modal({ backdrop: "static" });
+        $("#download").modal("show");
+        return;
+
+      const currentAppointments = await getAppointments(
+        selected.dataset.date,
+        "S"
+      );
+      let mapped = currentAppointments.map((a) => [
+        "",
+        a.Id_Cita,
+        a.Compania,
+        a.HoraSolicitada,
+        a.Volumen,
+        a.Peso,
+        a.Bultos,
+        a.B_Estatus_nombre,
+        a.Nombre,
+        a.Id_TipoCita,
+      ]);
+      if (mapped.length < 1) {
+        warningMsg("No hay citas registradas para este día.");
+        return;
+      }
+      //completeData();
+      setTimeout(() => {
+        tableAppointments.clear().rows.add(mapped).draw();
+        $("#download").modal({ backdrop: "static" });
+        $("#download").modal("show");
+      }, 0);
+    }
+
+    async function bulks() {
+      window.jsPDF = window.jspdf.jsPDF;
+      var pdf = jsPDF("p", "mm", "letter");
+      //req
+      try {
+        const bulks = await getBulks(sessionUser);
+        const retrievedBulks = bulks.data;
+        const canvases = [];
+        console.log(bulks, "|||");
+        const nCanvases = retrievedBulks.length;
+        retrievedBulks.forEach((b, idx) => {
+          const tmpCanvas = document.createElement("div");
+          tmpCanvas.className = "qr";
+          tmpCanvas.dataset.idx = idx;
+          canvases.push(tmpCanvas);
+        });
+        const qrCreationPromise = new Promise((resolve, reject) => {
+          canvases.forEach((c, idx) => {
+            const qrLine = generateQRLine(retrievedBulks[idx]);
+            new QRCode(c, {
+              width: 128,
+              height: 128,
+              text: qrLine,
+            });
+          });
+          resolve(true);
+        });
+        const areQrDone = await qrCreationPromise;
+        if (!areQrDone) {
+          warningMsg("Error al generar etiquetas.");
+        }
+
+        //var c = 1;
+        //const canvases = document.querySelectorAll(".qr canvas");
+        var c = 0;
+        const rows = [];
+        let tmp = [];
+        for (let i = 0; i < canvases.length; i++) {
+          if (i % 2 == 0) {
+            tmp[0] = canvases[i];
+            tmp[1] = canvases[i + 1];
+            rows.push(tmp);
+          } else {
+            tmp = [];
+          }
+        }
+        console.log(rows);
+        let width = pdf.internal.pageSize.width / 2;
+        let height = pdf.internal.pageSize.height / 6 + 50;
+        let d = 0;
+        let x = 0;
+        let y = 0;
+        let ne = 1;
+        rows.forEach((e, idx) => {
+          c = c + 2;
+          if (idx % 3 == 0 && idx > 0) {
+            console.log(rows);
+            ne = 0;
+            pdf.addPage("letter", "portrait");
+            y = pdf.internal.pageSize.height / 6 - 45;
+          }
+          e.forEach((f, idxf) => {
+            if (d <= 2) {
+              if (f != undefined) {
+                const currentPos = retrievedBulks[f.dataset.idx];
+                var imgData = f
+                  .querySelector("canvas")
+                  .toDataURL("image/jpeg", 1.0);
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(25);
+                pdf.text("P." + currentPos.Proveedor, 10 + x, 20 + y);
+                pdf.text(currentPos.Sucursal.toString(), 55 + x, 20 + y);
+                pdf.setFontSize(14);
+                pdf.text("SUCURSAL", 50 + x, 10 + y);
+                pdf.text("Fact." + currentPos.Factura, 10 + x, 40 + y);
+                pdf.text("Ped." + currentPos.Pedido, 50 + x, 40 + y);
+                pdf.text(
+                  currentPos.Bulto + "/" + currentPos.BultosxFactura,
+                  20 + x,
+                  50 + y
+                );
+                pdf.text("BULTOS ", 14 + x, 60 + y);
+                pdf.addImage(imgData, "JPEG", 48 + x, 45 + y);
+                pdf.text(currentPos.Codigo, 12 + x, 75 + y);
+              } else {
+                //pdf.text("ola", 40, 40);
+              }
+              x += width;
+              d++;
+            } else {
+              const currentPos = retrievedBulks[f.dataset.idx];
+              var imgData = f
+                .querySelector("canvas")
+                .toDataURL("image/jpeg", 1.0);
+              pdf.setFont("helvetica", "bold");
+              pdf.setFontSize(25);
+              pdf.text("P." + currentPos.Proveedor, 10 + x, 20 + y);
+              pdf.text(currentPos.Sucursal.toString(), 55 + x, 20 + y);
+              pdf.setFontSize(14);
+              pdf.text("SUCURSAL", 50 + x, 10 + y);
+              pdf.text("Fact." + currentPos.Factura, 10 + x, 40 + y);
+              pdf.text("Ped." + currentPos.Pedido, 50 + x, 40 + y);
+              pdf.text(
+                currentPos.Bulto + "/" + currentPos.BultosxFactura,
+                20 + x,
+                50 + y
+              );
+              pdf.text("BULTOS ", 14 + x, 60 + y);
+              pdf.addImage(imgData, "JPEG", 48 + x, 45 + y);
+              pdf.text(currentPos.Codigo, 12 + x, 75 + y);
+            }
+          });
+          d = 0;
+          x = 0;
+          y += height;
+          ne++;
+        });
+        //pdf.output("pdfobjectnewwindow");
+        pdf.save("EtiquetasxBulto_" + rowSelected[1]);
+        return;
+      } catch (err) {
+        warningMsg("Error al generar etiquetas.");
+      }
+    }
+
+    async function cancel() {
+      if (selected && selected.classList.contains("selected")) {
+        const cancel = confirm("¿Desea cancelar la cita?");
+        if (cancel) {
+          modify(true);
+          bCancellation = true;
+        }
+      } else {
+        warningMsg(
+          "El día seleccionado no tiene días disponibles para cancelar. Verifique su selección."
+        );
+      }
+    }
+
+    function confirmAppointment() {
+      if (selected && selected.className.includes("requested")) {
+        const confirmed = confirm("¿Desea confirmar la cita?");
+        if (confirmed) {
+          selected.dataset.confirmed = true;
+
+          selected.classList.remove("requested");
+          selected.classList.add("confirmed");
+          [...selected.parentElement.querySelectorAll("td")].forEach((s) =>
+            s.classList.remove("requested")
+          );
+          selected = null;
+        }
+      } else {
+        warningMsg("No hay citas.");
+      }
+    }
+
+    function addClicker(ev) {
+      [...document.querySelectorAll(".sub")]
+        .filter(
+          (i) =>
+            i.parentElement.dataset.tir !=
+            ev.currentTarget.parentElement.dataset.tir
+        )
+        .forEach((i) => i.classList.remove("requested"));
+
+      /*ev.currentTarget.classList.toggle("requested");
+      ev.currentTarget.classList.toggle("unselected");*/
+      ev.currentTarget.parentElement
+        .querySelectorAll("td")
+        .forEach((i) => i.classList.toggle("requested"));
+      ev.currentTarget.parentElement
+        .querySelectorAll("td")
+        .forEach((i) => i.classList.toggle("unselected"));
+      if (ev.currentTarget.classList.contains("requested")) {
+        selected = ev.currentTarget;
+      } else {
+        selected = null;
+      }
+    }
+  </script>
+
+  </body>
+</html>

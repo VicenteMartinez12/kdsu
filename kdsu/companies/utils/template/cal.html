@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      .succ {
+        background-color: green !important;
+      }
+      .warn {
+        background-color: red !important;
+      }
+      .none {
+        background-color: grey !important;
+      }
+
+      .fc-day {
+        cursor: pointer;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@5.9.0/locales-all.global.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          locale: "es",
+          events: [
+            {
+              // this object will be "parsed" into an Event Object
+              title: "The Title", // a property!
+              start: "2025-05-27", // a property!
+              end: "2025-05-27", // a property! ** see important note below about 'end' **
+              //  display: "background",
+              className: ["succ"],
+            },
+            {
+              // this object will be "parsed" into an Event Object
+              title: "The Title", // a property!
+              start: "2025-05-27", // a property!
+              end: "2025-05-27", // a property! ** see important note below about 'end' **
+              //  display: "background",
+              className: ["succ"],
+            },
+            {
+              // this object will be "parsed" into an Event Object
+              title: "The Title", // a property!
+              start: "2025-05-29", // a property!
+              end: "2025-05-29", // a property! ** see important note below about 'end' **
+              //  display: "background",
+              className: ["warn"],
+            },
+            {
+              // this object will be "parsed" into an Event Object
+              title: "The Title", // a property!
+              start: "2025-06-01", // a property!
+              end: "2025-06-01", // a property! ** see important note below about 'end' **
+              //  display: "background",
+              className: ["none"],
+            },
+          ],
+          initialView: "dayGridFourWeek",
+          views: {
+            dayGridFourWeek: {
+              type: "dayGrid",
+              duration: { weeks: 4 },
+            },
+          },
+          dateClick: function (info) {
+            alert("Date: " + info.dateStr);
+            alert("Resource ID: " + info.resource.id);
+          },
+          eventClick: function (info) {
+            alert("Event: " + info.event.title);
+            alert(
+              "Coordinates: " + info.jsEvent.pageX + "," + info.jsEvent.pageY
+            );
+            alert("View: " + info.view.type);
+
+            // change the border color just for fun
+            info.el.style.borderColor = "red";
+          },
+        });
+        calendar.render();
+      });
+    </script>
+    <title>Calendario de Citas</title>
+  </head>
+  <body>
+
+    <!-- Loader -->
+    <div class="loader">
+      <span>Cargando...</span>
+      <img src="dxr.gif" />
+    </div>
+
+    <a class="item" id="csvLink" style="display: none"> </a>
+
+    <!-- Menu BAR -->
+    <div id="main-navbar" class="navbar navbar-inverse" role="navigation">
+      <div class="navbar-inner">
+        <div class="navbar-header">
+          <a id="refCalendario" class="navbar-brand" style="font-size: 0.9rem">
+            Calendario de Citas
+          </a>
+        </div>
+        <div
+          id="main-navbar-collapse"
+          class="collapse navbar-collapse main-navbar-collapse"
+        >
+          <div>
+            <div class="right clearfix">
+              <ul class="nav navbar-nav pull-right right-navbar-nav">
+                <!-- REFRESCAR -->
+                <li id="lirefresh" style="display: none">
+                  <a id="refresh" onclick="window.location.reload()"
+                    >Refrescar</a
+                  >
+                </li>
+                <!-- MENUS DE Calendario de Citas -->
+                <li id="linew" style="display: none" class="dropdown">
+                  <a id="btnNew" class="dropdown-toggle" onclick="create()">
+                    Solicitar cita
+                  </a>
+                </li>
+                <li id="liview" style="display: none">
+                  <a id="btnView" onclick="view()">Consultar</a>
+                </li>
+                <li id="liupdate" style="display: none">
+                  <a id="btnModify" onclick="modify()">Modificar cita</a>
+                </li>
+                <li id="licancel" style="display: none">
+                  <a id="btnCancel" class="dropdown-toggle" onclick="cancel()">
+                    Cancelar cita</a
+                  >
+                </li>
+
+                <li id="liDownload" class="dropdown" style="display: none">
+                  <a
+                    id=""
+                    class="dropdown-toggle"
+                    data-toggle="dropdown"
+                    onclick="downloadData()"
+                    >Descargar</a
+                  >
+                </li>
+
+                <!--
+                <li id="liConfirm" class="dropdown" style="display: none">
+                  <a
+                    id=""
+                    class="dropdown-toggle"
+                    data-toggle="dropdown"
+                    onclick="confirmAppointment()"
+                    >Confirmar</a
+                  >
+                </li>
+                -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="calendar"></div>
+
+
+
+    <!-- MODALES -->
+    <div id="new-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header" id="title-appointment">Nueva Cita</div>
+      <div class="content">
+      <form id="frm-new" class="ui form">
+          <div class="ui top attached tabular menu">
+            <a class="active item" data-tab="detalles">Detalles</a>
+          </div>
+          <div class="ui bottom attached active tab segment" data-tab="detalles">
+            <div class="ui grid">
+              <div class="row">
+                <div class="four wide column">Entrega:</div>
+                <div class="twelve wide column">
+                  <div class="ui fluid selection dropdown">
+                    <input type="hidden" id="cmb-method" name="cmb-method">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">SEL. ENTREGA</div>
+                    <div class="menu">
+                      <div class="item" data-value="1">CENTRA</div>
+                      <div class="item" data-value="2">EMBARQUE A SUCURSAL</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="sixteen wide column">
+                  <table id="tbl-new-appointment" class="ui celled table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Cia</th>
+                        <th>Zona</th>
+                        <th>Suc.</th>
+                        <th>Factura</th>
+                        <th>Blts.F</th>
+                        <th>Blts.S</th>
+                        <th>Kg.Falta</th>
+                        <th>Kg.Surtir</th>
+                        <th></th>
+                      </tr>
+                      <tr class="filters">
+                        <th></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th class="filterable"></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Tipo de transporte:</label></div>
+                <div class="three wide column">
+                  <select id="cmb-transport" class="ui fluid dropdown">
+                    <option value="-1">SEL. TIPO TRANS</option>
+                  </select>
+                </div>
+                <div class="three wide column"><label>Tipo de carga:</label></div>
+                <div class="three wide column">
+                  <select id="cmb-load" class="ui fluid dropdown">
+                    <option value="-1">SEL. TIPO DE CARGA</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Bultos:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-bulks" type="number" class="app-input" placeholder="BULTOS">
+                </div>
+                <div class="three wide column"><label>Total pallets:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-pallets" type="number" class="app-input" placeholder="PALLETS">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="three wide column"><label>Peso:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-weight" type="number" class="app-input" placeholder="KG">
+                </div>
+                <div class="three wide column"><label>Volumen:</label></div>
+                <div class="three wide column">
+                  <input id="ipt-volume" type="number" class="app-input" placeholder="M3">
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+        <div class="actions">
+          <div class="ui left floated text">
+            <p class="text-muted">
+              Por favor seleccione la relación de pedido-factura-bulto que va a entregar.<br>
+              Nota: Debe de ingresar el volumen aproximado de la entrega.
+            </p>
+          </div>
+          <div class="ui primary button" id="btnSaveNew">Guardar</div>
+          <div class="ui button">Cerrar</div>
+        </div>
+      </form>
+    </div>
+
+
+
+    <div id="modify-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="modificar">Detalles de las citas</a>
+        </div>
+        <div class="ui bottom attached active tab segment" data-tab="modificar">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-modify-appointment" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui primary button" id="btnUpdate">Modificar</div>
+        <div class="ui button">Cerrar</div>
+      </div>
+    </div>
+
+    <div id="selected-appointment" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="seleccionado">Detalles de las citas</a>
+        </div>
+        <div class="ui bottom attached active tab segment" data-tab="seleccionado">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-selected-appointment" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui button">Cerrar</div>
+      </div>
+    </div>
+
+
+    <div id="download" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="descarga">Detalles de las citas - Descarga</a>
+        </div>
+
+        <div class="ui bottom attached active tab segment" data-tab="descarga">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-appointments" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                      <th>IdTipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+    <div id="complete" class="ui modal">
+      <i class="close icon"></i>
+      <div class="header">Citas</div>
+
+      <form id="frmTransport" class="ui form">
+        <div class="content">
+          <div class="ui top attached tabular menu">
+            <a class="active item" data-tab="transportista">Datos del transportista de la cita</a>
+          </div>
+
+          <div class="ui bottom attached active tab segment" data-tab="transportista">
+            <div class="ui grid">
+              <div class="row">
+                <div class="four wide column right aligned">Cita:</div>
+                <div class="six wide column">
+                  <input name="ipt-appointment" type="text" readonly />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Transportista:</div>
+                <div class="six wide column">
+                  <input name="transport" type="text" maxlength="20" placeholder="NOMBRE" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Placas:</div>
+                <div class="six wide column">
+                  <input name="plates" type="text" maxlength="20" placeholder="NÚMERO" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="four wide column right aligned">Chofer:</div>
+                <div class="six wide column">
+                  <input name="driver" type="text" maxlength="20" placeholder="NOMBRE" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <p class="text-muted">
+            Para guardar y descargar la cita primero tiene que llenar los datos del transportista.
+          </p>
+
+          <button type="submit" class="ui primary button" id="btnComplete">Guardar</button>
+
+          <a
+            href="#"
+            class="ui primary button disabled"
+            id="btnAppointmentFormat"
+            onclick="receptionPDF()"
+          >
+            Descargar cita
+          </a>
+
+          <div class="ui dropdown primary button disabled" id="btn-download">
+            <span class="text">Seleccionar para descargar</span>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <div class="item" onclick="bulks()">Carta</div>
+              <!-- <div class="item" onclick="pdf()">PDF</div> -->
+              <div class="item" id="lbl-print">Serial</div>
+            </div>
+          </div>
+
+          <div class="ui green button">Cerrar</div>
+        </div>
+      </form>
+    </div>
+
+    <a href="" id="lbl"></a>
+
+    <!-- Modal de Éxito -->
+    <div id="modal-success" class="ui small modal">
+      <div class="header">
+        <i class="check circle icon green"></i> <span id="successTitle">Smartnet Web</span>
+      </div>
+      <div class="content">
+        <div id="successBody" class="ui text"></div>
+      </div>
+      <div class="actions">
+        <div class="ui green approve button">OK</div>
+      </div>
+    </div>
+
+
+    <!-- Modal de Errores -->
+    <div id="modal-warning" class="ui small modal">
+      <div class="header">
+        <i class="exclamation triangle icon yellow"></i> <span id="warningTitle">Smartnet Web</span>
+      </div>
+      <div class="content">
+        <div id="warningBody" class="ui text"></div>
+      </div>
+      <div class="actions">
+        <div class="ui yellow approve button">Cerrar</div>
+      </div>
+    </div>
+
+
+  <script>
+    $('.ui.dropdown').dropdown();
+    $('.menu .item').tab();
+    //$('#new-appointment').modal('show');
+  </script>
+
+  </body>
+</html>
