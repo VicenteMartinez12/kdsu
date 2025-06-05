@@ -89,14 +89,14 @@ def descarga_pedidos_view(request):
 
 
 def pruebaConexion(request):
-    print('anTES DE ')
+
     try:
         cliente = FTPSClient('10.105.17.49', 'fsoftware', 'An@lisis20120203')
-        print('Hola ')
+       
         files = cliente.list_files()
-        print('Hola 3')
+    
         cliente.disconnect()
-        print('Hola 3')
+    
         return JsonResponse({'status': 'success', 'files': files})
     except Exception as e:
         return JsonResponse({'status': 'error', 'error': str(e)})
@@ -105,9 +105,22 @@ def pruebaConexion(request):
 def pruebaConexionSFTP(request):
     try:
         cliente = SFTPClient('10.105.17.49', 22, 'fsoftware', 'An@lisis20120203')
+
+        # Subir archivo
+        ruta_local = r'C:\Users\desarrolladorjr1\Downloads\json-1.json'
+        ruta_remota = '/home/fsoftware/json-1.json' 
+
+        cliente.upload_file(ruta_local, ruta_remota)
+
+    
         files = cliente.list_files()
         cliente.disconnect()
-        return JsonResponse({'status': 'success', 'files': files})
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Archivo subido correctamente',
+            'files': files
+        })
     except Exception as e:
         return JsonResponse({'status': 'error', 'error': str(e)})
 

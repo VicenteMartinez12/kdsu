@@ -8,6 +8,9 @@ class SFTPClient:
 
     def list_files(self, path='.'):
         return self.sftp.listdir(path)
+    
+    def upload_file(self, local_path, remote_path):
+        self.sftp.put(local_path, remote_path)
 
     def disconnect(self):
         self.sftp.close()
