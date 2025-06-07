@@ -24,7 +24,12 @@ from django.views.decorators.http import require_GET
 from xml.etree.ElementTree import Element, SubElement, ElementTree,fromstring,parse
 from .ftp_cliente import FTPSClient
 from .sftp_cliente import SFTPClient
-
+import base64
+from . import config 
+import paramiko
+from django.views.decorators.csrf import csrf_exempt
+from .sftp_cliente import SFTPClient  # Asegúrate que este archivo esté correctamente ubicado
+from .config import USUARIO_SFTP, CONTRASENA_SFTP, TOKEN_AUTORIZADO
 
 
 
@@ -123,7 +128,45 @@ def pruebaConexionSFTP(request):
         })
     except Exception as e:
         return JsonResponse({'status': 'error', 'error': str(e)})
+    
+    
+    
+    
+    
+@csrf_exempt
+def subir_archivo(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'error': 'Método no permitido'}, status=405)
 
+    # Verificar autorización
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        if token != TOKEN_AUTORIZADO:
+            return JsonResponse({'status': 'error', 'error': 'Token inválido'}, status=403)
+    elif auth_header.startswith('Basic '):
+        return JsonResponse({'status': 'error', 'error': 'Autenticación básica no implementada'}, status=403)
+    else:
+        return JsonResponse({'status': 'error', 'error': 'Autorización requerida'}, status=403)
+
+    archivo = request.FILES.get('archivo')
+    if not archivo:
+        return JsonResponse({'status': 'error', 'error': 'No se envió el archivo'}, status=400)
+
+    try:
+        # Leer archivo en memoria
+        contenido = archivo.read()  # bytes
+
+        # Conectarse a SFTP
+        cliente = SFTPClient('10.105.17.49', 22, USUARIO_SFTP, CONTRASENA_SFTP)
+        
+        # Subir archivo usando contenido en memoria
+        cliente.upload_file_bytes(contenido, f'./{archivo.name}')
+        cliente.disconnect()
+
+        return JsonResponse({'status': 'success', 'mensaje': f'Archivo {archivo.name} subido correctamente'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'error': str(e)}, status=500)
 
 def obtener_tabla_descarga_pedidos(request):
     company_id = request.GET.get('compania_id')

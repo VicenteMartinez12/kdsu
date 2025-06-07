@@ -1,4 +1,5 @@
 import paramiko
+from io import BytesIO
 
 class SFTPClient:
     def __init__(self, host, port, username, password):
@@ -11,6 +12,10 @@ class SFTPClient:
     
     def upload_file(self, local_path, remote_path):
         self.sftp.put(local_path, remote_path)
+
+    def upload_file_bytes(self, file_bytes, remote_path):
+        with BytesIO(file_bytes) as fl:
+            self.sftp.putfo(fl, remote_path)
 
     def disconnect(self):
         self.sftp.close()
