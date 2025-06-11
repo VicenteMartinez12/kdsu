@@ -2,8 +2,8 @@ from django.db import models
 
 # Create your models here.
 class Zone(models.Model):
-    code = models.CharField(max_length=2)
-    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=2, verbose_name="Código")
+    name = models.CharField(max_length=100, verbose_name="Nombre")
 
     def __str__(self):
         return f'{self.name}'
