@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'kdsu.companies.utils',
     'kdsu.companies.documents',
     'kdsu.companies.appointments',
+    'kdsu.companies.positions',
     'corsheaders',
 ]
 
