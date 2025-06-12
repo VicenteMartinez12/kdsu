@@ -87,6 +87,12 @@ class Appointment(models.Model):
         max_length=10,
         choices=APPOINTMENT_STATUSES)
 
+    def with_docs(self):
+        return AppointmentDocuments.objects.filter(appointment=self)
+
+    def with_confirmation(self):
+        return AppointmentConfirmation.objects.filter(appointment=self)
+
     def validate_documents(_appointment, appointment_documents):
         resp = {
             "valido": True,
@@ -169,3 +175,23 @@ class AppointmentDocuments(models.Model):
         max_digits=6, decimal_places=2, default=Decimal('0.00'))
     delivered_packages = models.IntegerField()
     rejected_packages = models.IntegerField()
+
+class AppointmentConfirmation(models.Model):
+    appointment = models.ForeignKey( Appointment, on_delete=models.CASCADE, verbose_name='Cita')
+    assigned_date = models.DateTimeField('Fecha Asignada', auto_now_add=True)
+    timespan = models.IntegerField('Tiempo asignado')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, verbose_name='Andén')
+    confirmation_date = models.DateTimeField('Fecha de confirmación', auto_now_add=True)
+    confirming_user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class Incident(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, verbose_name='Cita')
+    incident_type = models.CharField('Tipo de Incidencia', max_length=1000)
+    comment = models.TextField('Comentarios', max_length=100)
+    reporting_datetime = models.DateTimeField('Fecha de registro', auto_now_add=True)
+    reporting_user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class IncidentEvidence(models.Model):
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, verbose_name='Incidencia')
+    filename = models.TextField('Archivo', max_length=100)

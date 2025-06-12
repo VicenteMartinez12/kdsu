@@ -8,7 +8,7 @@ from django.core.serializers import serialize
 from kdsu.companies.documents.models import Documento, Desglose
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-from .models import Appointment, AppointmentCategory, AppointmentDocuments, TransportationCategory, LoadCategory
+from .models import Appointment, AppointmentCategory, AppointmentDocuments, AppointmentConfirmation, Platform, APPOINTMENT_STATUSES, TransportationCategory, LoadCategory
 from kdsu.companies.documents.models import Company, Supplier
 from django.contrib.auth.models import User
 
@@ -42,8 +42,9 @@ def calendario(request):
     wd = datetime.today().weekday()
     start = datetime.today().date() - timedelta(days=(datetime.today().weekday()+1))
     end = get_date_n_weeks_from_now(3) + timedelta(days=(6-(wd+1)))
-    apps = Appointment.objects.filter(requested_date__range=(start, end)).order_by('requested_date')
-    data  = serializers.serialize('json', apps)
+    apps = Appointment.objects.filter(
+        requested_date__range=(start, end)).order_by('requested_date')
+    data = serializers.serialize('json', apps)
    # Step 1: parse string into Python objects
     parsed = json.loads(data)
     # Step 2: extract only the "fields" part
@@ -52,44 +53,124 @@ def calendario(request):
     appointments_json = json.dumps(fields_only)
     loadCats = LoadCategory.objects.all()
     transCats = TransportationCategory.objects.all()
-    #print()
+    appCats = AppointmentCategory.objects.filter(status='activo')
+    # print()
     return render(request, 'calendario.html',
-    {'appointments_json': appointments_json,
-     'loadCats': loadCats,
-     'transCats': transCats})
+                  {'appointments_json': appointments_json,
+                   'loadCats': loadCats,
+                   'transCats': transCats,
+                   'appCats': appCats})
 
 
-##get list
+# get list
 def orders_to_be_appointed(request):
-    type = request.GET.get('type')
-    #model query with type
-    data = ()
-    return JsonResponse({'data': ()})
+    docs = Documento.objects.all()
+    return JsonResponse({'docs_json':  list(docs.values())})
 
-##post
+# post
+def orders_by_date(request):
+    if request.method == "POST":
+     try:
+        data = json.loads(request.body)
+        date_string = data['date']  # Example date string
+        date_object = datetime.strptime(date_string, "%Y-%m-%d").date()
+        docs = Appointment.objects.filter(requested_date=date_object)
+        result = [
+            {
+                "id": doc.id,
+                "company_id": Company.objects.get(id=doc.company_id).short_name,
+                "volume": doc.volume,
+                "weight": doc.weight,
+                "total_packages": doc.total_packages,
+                "status": doc.status,
+                "appointment_category_id": AppointmentCategory.objects.get(id=doc.appointment_category_id).name,
+            }
+            for doc in docs
+        ]
+     except json.JSONDecodeError:
+         return JsonResponse({'docs_json':  list(())})
+    return JsonResponse({'docs_json':  result})
+
+def orders_detail_by_appointment(request):
+    if request.method == "GET":
+     try:
+        ##adoc
+        adocs = Appointment.objects.get(id=1).with_docs()
+        ##iterate and get docs
+        docs = [
+            {
+                "cia":  Company.objects.get(id=adoc.document.compania_id).short_name,
+                "supplier":  Supplier.objects.get(id=adoc.document.proveedor_id).short_name,
+                "bill":  adoc.document.folio,
+                "packages":   adoc.document.totalBultos,
+                "date":  adoc.document.fecha.date()
+            }
+              for adoc in adocs
+        ]
+        ##map
+     except json.JSONDecodeError:
+            return JsonResponse({'docs_json':  list(())})
+    return JsonResponse({'docs_json':  docs})
+
 def storeAppointment(request):
     bresult = False
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-
-
-
-
             ##################################################################
+            now = datetime.now()
+            newApp = Appointment(
+                company=Company.objects.get(id=1),
+                supplier=Supplier.objects.get(id=1),  # data[0]['PROVEEDOR']
+                appointment_category=AppointmentCategory.objects.get(
+                    id=data['ID_TIPOCITA']),
+                transportation_category=TransportationCategory.objects.get(
+                    id=data['ID_TRANSPORTE']),
+                load_category=LoadCategory.objects.get(id=data['ID_CARGA']),
+                request_user=User.objects.get(id=1),
+                volume=data['VOLUMEN'],
+                weight=data['PESO'],
+                total_packages=data['BULTOS'],
+                total_pallets=data['PALLETS'],
+                carrier_name=data['TRANSPORTISTA'],
+                carrier_license_plates=data['PLACAS'],
+                carrier_driver=data['CHOFER'],
+                status=APPOINTMENT_STATUSES.get('SOLICITADA')
+            )
+            newApp.save()
+            ##################################################################
+            ac = AppointmentConfirmation(
+                appointment=newApp,
+                assigned_date=now,
+                timespan=0,
+                platform=Platform.objects.get(id=1),
+                confirmation_date=now,
+                confirming_user=User.objects.get(id=1)
+            )
+            ac.save()
+            ##################################################################
+            """  print(repr(Documento.objects.filter(folio="FAB82784")[0] ))
+            print("eso tilin") """
             bills = data['FACTURAS']
             for bill in bills:
-                #update every doc
-                 AppointmentDocuments.objects.filter(folio=bill.folio).update(
-                    packages=bill.totalBultos,
-                    weight=bill.totalPeso
+                # update every doc
+
+                ad = AppointmentDocuments(
+                    appointment = newApp,
+                    document=Documento.objects.filter(folio="FAB82784")[0],
+                    packages = bill['BULTOSXCITA'],
+                    weight = bill['PESOXCITA'],
+                    delivered_packages = 0,
+                    rejected_packages = 0
                 )
+                ad.save()
             bresult = True
             ###################################################################
-            return JsonResponse({'result':bresult})
+            return JsonResponse({'result': bresult})
         except json.JSONDecodeError:
             return JsonResponse({'result': bresult}, status=400)
-    return
+    return JsonResponse({'result': bresult}, status=400)
+
 
 def get_date_n_weeks_from_now(n):
     """

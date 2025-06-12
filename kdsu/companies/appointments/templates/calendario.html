@@ -5,7 +5,32 @@
   </head>
   <body>
 
-        <style>
+      <style>
+         table.dataTable thead > tr > th.dt-orderable-asc,
+      table.dataTable thead > tr > th.dt-orderable-desc,
+      table.dataTable thead > tr > th.dt-ordering-asc,
+      table.dataTable thead > tr > th.dt-ordering-desc,
+      table.dataTable thead > tr > td.dt-orderable-asc,
+      table.dataTable thead > tr > td.dt-orderable-desc,
+      table.dataTable thead > tr > td.dt-ordering-asc,
+      table.dataTable thead > tr > td.dt-ordering-desc {
+        position: relative;
+        padding-right: unset;
+      }
+      .btn-link:hover {
+        color: #ddd;
+      }
+      table.dataTable tbody tr.selected > * {
+        box-shadow: inset 0 0 0 9999px #4b9ed5 !important;
+        color: rgb(255, 255, 255);
+        color: rgb(var(--dt-row-selected-text));
+      }
+      .btn-link {
+        color: rgb(30, 116, 165);
+        font-weight: 400;
+        cursor: pointer;
+        border-radius: 0;
+      }
       .confirmed {
         background-color: rgb(35, 119, 35) !important;
       }
@@ -58,6 +83,17 @@
         color:rgb(0, 0, 0) !important
       }
 
+      .filters input.form-control{
+        width:50px !important
+      }
+
+      #main-navbar a{
+        padding:10px
+      }
+
+      #modal-success, #modal-warning{
+        width: 50%
+      }
     </style>
 
     <a class="item" id="csvLink" style="display: none"> </a>
@@ -119,8 +155,9 @@
     <div id="new-appointment" class="ui modal">
       <i class="close icon"></i>
       <div class="header" id="title-appointment">Nueva Cita</div>
-      <div class="content">
       <form id="frm-new" class="ui form">
+        {% csrf_token %}
+      <div class="content">
           <div class="ui top attached tabular menu">
             <a class="active item" data-tab="detalles">Detalles</a>
           </div>
@@ -134,8 +171,9 @@
                     <i class="dropdown icon"></i>
                     <div class="default text">SEL. ENTREGA</div>
                     <div class="menu">
-                      <div class="item" data-value="1">CENTRA</div>
-                      <div class="item" data-value="2">EMBARQUE A SUCURSAL</div>
+                       {% for cat in appCats %}
+                          <div class="item" data-value="{{cat.id}}">{{cat.name}}</div>
+                        {% endfor %}
                     </div>
                   </div>
                 </div>
@@ -148,19 +186,15 @@
                       <tr>
                         <th></th>
                         <th>Cia</th>
-                        <th>Zona</th>
-                        <th>Suc.</th>
                         <th>Factura</th>
                         <th>Blts.F</th>
-                        <th>Blts.S</th>
                         <th>Kg.Falta</th>
+                        <th>Blts.S</th>
                         <th>Kg.Surtir</th>
                         <th></th>
                       </tr>
                       <tr class="filters">
                         <th></th>
-                        <th class="filterable"></th>
-                        <th class="filterable"></th>
                         <th class="filterable"></th>
                         <th class="filterable"></th>
                         <th class="filterable"></th>
@@ -221,19 +255,68 @@
           </div>
       </div>
 
-        <div class="actions">
-          <div class="ui left floated text">
-            <p class="text-muted">
-              Por favor seleccione la relación de pedido-factura-bulto que va a entregar.<br>
-              Nota: Debe de ingresar el volumen aproximado de la entrega.
-            </p>
-          </div>
-          <div class="ui primary button" id="btnSaveNew">Guardar</div>
-          <div class="ui button close">Cerrar</div>
+        <div class="actions" style="display:flex;flex-direction: column;justify-content: space-between;align-items: flex-end;padding:10px 10px">
+            <div class="ui left floated text">
+              <p class="text-muted">
+                Por favor seleccione la relación de pedido-factura-bulto que va a entregar.<br>
+                Nota: Debe de ingresar el volumen aproximado de la entrega.
+              </p>
+            </div>
+            <div>
+              <button type="submit" class="ui  primary button" id="btnSaveNew">Guardar</button>
+            <div class="ui cancel button">Cerrar</div>
+            </div>
         </div>
       </form>
     </div>
 
+    <div id="selected-appointment" class="ui large  modal">
+      <i class="close icon"></i>
+      <div class="header">Citas asignadas</div>
+      <div class="content">
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="seleccionado">Detalles de las citas</a>
+        </div>
+        <div class="ui bottom attached active tab segment" data-tab="seleccionado">
+          <div class="ui grid">
+            <div class="row">
+              <div class="sixteen wide column">
+                <table id="tbl-selected-appointment" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Cita</th>
+                      <th>Cia</th>
+                      <th>Hora</th>
+                      <th>Vol.</th>
+                      <th>Peso</th>
+                      <th>Bultos</th>
+                      <th>Estado</th>
+                      <th>TipoCita</th>
+                    </tr>
+                    <tr class="filters">
+                      <th></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                      <th class="filterable"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui cancel button">Cerrar</div>
+      </div>
+    </div>
 
 
     <div id="modify-appointment" class="ui modal">
@@ -287,55 +370,7 @@
       </div>
     </div>
 
-    <div id="selected-appointment" class="ui modal">
-      <i class="close icon"></i>
-      <div class="header">Citas asignadas</div>
-      <div class="content">
-        <div class="ui top attached tabular menu">
-          <a class="active item" data-tab="seleccionado">Detalles de las citas</a>
-        </div>
-        <div class="ui bottom attached active tab segment" data-tab="seleccionado">
-          <div class="ui grid">
-            <div class="row">
-              <div class="sixteen wide column">
-                <table id="tbl-selected-appointment" class="ui celled table">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Cita</th>
-                      <th>Cia</th>
-                      <th>Hora</th>
-                      <th>Vol.</th>
-                      <th>Peso</th>
-                      <th>Bultos</th>
-                      <th>Estado</th>
-                      <th>TipoCita</th>
-                      <th>IdTipoCita</th>
-                    </tr>
-                    <tr class="filters">
-                      <th></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th class="filterable"></th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="actions">
-        <div class="ui button">Cerrar</div>
-      </div>
-    </div>
+
 
 
     <div id="download" class="ui modal">
@@ -527,10 +562,10 @@
         const chosen = table.rows({ selected: true, page: "all" }).data();
         console.log(chosen);
         totalBulks = chosen
-          .map((e) => e[6])
+          .map((e) => e[5])
           .reduce((a, b) => Number(a) + Number(b), 0);
         totalWeight = chosen
-          .map((e) => e[8])
+          .map((e) => e[6])
           .reduce((a, b) => Number(a) + Number(b), 0);
       }
 
@@ -540,50 +575,55 @@
       document.querySelector("#ipt-weight").value = totalWeight;
     };
 
-    let table = new DataTable("#tbl-new-appointment", {
+    let table = null
+    function isSelected() {
+      return selected != null;
+    }
+
+    //new
+    async function create() {
+      console.log('new')
+      table =  table = new DataTable("#tbl-new-appointment", {
       aaData: [],
+      destroy: true,
       layout: layoutOpt,
       select: "multi",
       language: esMX,
+
       columnDefs: [
         {
           targets: 0,
           data: null,
           defaultContent: "",
           render: function (data, type, row, meta) {
-            return `<input data-bill="${row[10]}"  data-bulks="${row[6]}" data-weight="${row[8]}" class="chk-new" type="checkbox" name=""  />`;
+            return `<input data-bill="${row[2]}"  data-bulks="${row[6]}"  data-supplier="${row[7]}" data-weight="${row[5]}" class="chk-new" type="checkbox" name=""  />`;
           },
           orderable: false,
           searchable: true,
           //className: 'select-checkbox'
         },
         {
-          targets: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          targets: [1, 2, 3, 4, 5,6],
+          width:'50px',
           searchable: true,
           orderable: false,
         },
-        {
-          targets: 4,
-          class: "dt-string",
-        },
-        {
-          targets: 6,
+         {
+          targets: [5,6],
           class: "editable",
         },
         {
-          targets: 8,
-          class: "editable",
-        },
-        {
-          target: 9,
+          target: 7,
+          orderable: false,
           render: function (data, type, row, meta) {
             return `<span class="btn-link row-edit" href="" />Editar<span>`;
           },
           createdCell: function (td, cellData, rowData, row, col) {
             td.addEventListener("click", function (ev) {
               const row = ev.currentTarget.parentElement;
+              console.log(row)
               const fields = row.querySelectorAll(
-                "td.dt-type-numeric.editable"
+                "td.editable"
               );
               const rowEditLink = row.querySelector(".row-edit");
               const isChecked = row.querySelector(
@@ -594,7 +634,7 @@
                 fields.forEach((i) => {
                   i.style.display = "table-cell";
                   const tmpInput = document.createElement("input");
-                  tmpInput.className = "form-control row-input input-number";
+                  tmpInput.className = "row-input input-number";
                   tmpInput.type = "text";
                   tmpInput.dataset.isDecimal = false;
                   tmpInput.dataset.numberDecimals = 0;
@@ -631,76 +671,23 @@
                   )
                 );*/
                 let hasError = false;
-                if (newRowData[0] > rowData[6]) {
+                if (newRowData[0] > rowData[5]) {
                   warningMsg(
                     "Los bultos no pueden ser más de la cantidad original."
                   );
                   hasError = true;
                 }
 
-                if (newRowData[1] > rowData[8]) {
+                if (newRowData[1] > rowData[6]) {
                   warningMsg("El peso no puede ser mayor.");
                   hasError = true;
                 }
 
-                if (newRowData[0] > rowData[11]) {
-                  warningMsg(
-                    "No puede ingresar una cantidad mayor que el restante de bultos de la factura. Por favor verifique la información."
-                  );
-                  hasError = true;
-                }
-
-                if (newRowData[1] > rowData[12]) {
-                  warningMsg(
-                    "No puede ingresar un peso mayor al restante de la factura. Por favor verifique la información."
-                  );
-                  hasError = true;
-                }
-
-                if (
-                  newRowData[1] == rowData[13] &&
-                  newRowData[0] < rowData[14]
-                ) {
-                  warningMsg(
-                    "El peso no puede ser igual al peso total de la factura si faltan bultos por agendar."
-                  );
-                  hasError = true;
-                }
-
-                if (
-                  newRowData[1] == rowData[12] &&
-                  newRowData[0] < rowData[11]
-                ) {
-                  warningMsg(
-                    "El peso no puede ser igual al peso restante de la factura si faltan bultos por agendar."
-                  );
-                  hasError = true;
-                }
-
-                if (
-                  newRowData[1] < rowData[13] &&
-                  newRowData[0] == rowData[14]
-                ) {
-                  warningMsg(
-                    "Los bultos no pueden ser igual al total de bultos de la factura si falta peso por asignar."
-                  );
-                  hasError = true;
-                }
-
-                if (
-                  newRowData[1] == rowData[12] &&
-                  newRowData[0] == rowData[11]
-                ) {
-                  warningMsg(
-                    "Los bultos no pueden ser igual al restante de bultos de la factura si falta peso por asignar."
-                  );
-                  hasError = true;
-                }
 
                 if (hasError) {
                   row.classList.add("error-row");
-                  newRowData[0] = rowData[6];
-                  newRowData[1] = rowData[8];
+                  newRowData[0] = rowData[5];
+                  newRowData[1] = rowData[6];
                 } else {
                   row.classList.remove("error-row");
                 }
@@ -709,18 +696,15 @@
                 table
                   .row(currentIndex)
                   .data([
-                    true,
+                    rowData[0],
                     rowData[1],
                     rowData[2],
                     rowData[3],
                     rowData[4],
-                    rowData[5],
                     newRowData[0],
-                    rowData[7],
                     newRowData[1],
-                    rowData[9],
-                    rowData[10],
-                    rowData[11],
+                    rowData[7],
+                    rowData[8],
                   ])
                   .draw();
                 //console.log("hi");
@@ -728,9 +712,9 @@
                   table.rows({ selected: true }).data()
                 ).map((e) => {
                   return {
-                    bill: e[10],
+                    bill: e[2],
                     bulks: e[6],
-                    weight: e[8],
+                    weight: e[5],
                   };
                 });
                 setTimeout(() => {
@@ -770,6 +754,7 @@
             column.header().replaceChildren(checkbox);
             const dtInstance = this;
             checkbox.addEventListener("click", function () {
+              console.log(table)
               if (checkbox.checked) {
                 table.rows().select();
                 Array.from(table.rows({ selected: true, page: "all" })).forEach(
@@ -803,7 +788,7 @@
               }
             });
           }
-          if (column.index() != 0 && column.index() != 9) {
+          if (column.index() != 0 && column.index() != 7) {
             // Create input element
             let input = document.createElement("input");
             input.placeholder = title;
@@ -821,20 +806,104 @@
         });
       },
     });
+      table.on("select", function (e, dt, type, indexes) {
+      currentIndex = indexes[0];
+      if (!bUpdate) {
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (
+            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
+            table.row(indexes).selected()
+          ) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+              supplier: ev.dataset.supplier,
+            });
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = true;
+          } else {
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+          }
+        }
+      } else {
+        console.log("select update");
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (table.row(indexes).selected()) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+              weight: ev.dataset.supplier,
+               supplier: ev.dataset.supplier,
+            });
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = true;
+          }
+        }
+      }
+      setTimeout(() => {
+        sumBulksAndWeight();
+      }, 0);
+    });
 
-    function isSelected() {
-      return selected != null;
-    }
+      table.on("deselect", function (e, dt, type, indexes) {
+      currentIndex = indexes[0];
+      if (!bUpdate) {
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (
+            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
+            table.row(indexes).selected()
+          ) {
+            billSelected.push({
+              bill: ev.dataset.bill,
+              bulks: ev.dataset.bulks,
+              weight: ev.dataset.weight,
+              supplier: ev.dataset.supplier,
+            });
+          } else {
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+          }
+        }
+      } else {
+        console.log("deselect update");
+        if (type == "row") {
+          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
+          if (!table.row(indexes).selected()) {
+            table
+              .rows(currentIndex)
+              .nodes()[0]
+              .querySelector('input[type="checkbox"]').checked = false;
+            billSelected = billSelected.filter(
+              (r) => r.bill != ev.dataset.bill
+            );
+          }
+        }
+      }
+      setTimeout(() => {
+        sumBulksAndWeight();
+      }, 0);
+    });
 
-    function alreadyHasApppointments() {
-      return [...selected.parentElement.querySelectorAll("td a.fc-event")].some((e) =>
-        e.classList.contains("confirmed")
-      );
-    }
-
-    //new
-    async function create() {
-      console.log('new')
       showLoading(true);
       if (!isSelected()) {
         warningMsg("Debes seleccionar un día.");
@@ -918,22 +987,16 @@
         document.querySelector("#cmb-method").value
       );
       let finalMappedRows = [];
-      let mapped = currentAppointments.map((a) => [
-        false,
-        2,
-        a.Zona,
-        a.Sucursal,
-        a.Factura,
-        a.BultosFaltantes,
-        a.BultosxCita,
-        a.PesoFaltante,
-        a.PesoxCita,
-        "",
-        a.Id_Facturas,
-        a.BultosxCitaOrigen,
-        a.PesoxCitaOrigen,
-        a.Peso,
-        a.BultosxFactura,
+      let mapped = currentAppointments.docs_json.map((a) => [
+        a.id,
+        a.compania_id,
+        a.folio,
+        a.totalPeso,
+        a.totalBultos,
+        a.totalPeso,
+        a.totalBultos,
+        a.proveedor_id,
+        a.fecha,
       ]);
       if (mapped.length < 1) {
         warningMsg("No hay citas que ver.");
@@ -945,12 +1008,13 @@
           new Set(rowToBeAddedSelectedDetail.concat(mapped))
         );
         document.querySelector("#ipt-pallets").value = rowSelected[10];
-        document.querySelector("#ipt-volume").value = rowSelected[11];
+        document.querySelector("#ipt-volume").value = rowSelected[6];
       } else {
         finalMappedRows = mapped;
       }
 
-      table.clear().rows.add(finalMappedRows).draw();
+      setTimeout(() => {
+       table.clear().rows.add(finalMappedRows).draw();}, 200)
       if (bUpdate) {
         table
           .rows((idx, data, node) => {
@@ -965,124 +1029,34 @@
       //}
     }
 
-    $("#new-appointment").modal({
-      onHide: function(){
-          console.log('olaa')
-          document.querySelectorAll(".dt-container").forEach((c) => {
-            if (c.id.includes("dt-")) {
-              c.remove();
-            }
-            //rowSelected = [];
-          });
-          clearFields();
-          billSelected = [];
-          table.clear().draw();
-          document.querySelector("#title-appointment").textContent = "Nueva Cita";
-          bUpdate = false;
-          document.querySelector("#ipt-pallets").value = 0;
-          document.querySelector("#ipt-volume").value = 1;
-      }
-    })
-
-    table.on("select", function (e, dt, type, indexes) {
-      currentIndex = indexes[0];
-      if (!bUpdate) {
-        if (type == "row") {
-          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
-          if (
-            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
-            table.row(indexes).selected()
-          ) {
-            billSelected.push({
-              bill: ev.dataset.bill,
-              bulks: ev.dataset.bulks,
-              weight: ev.dataset.weight,
-            });
-            table
-              .rows(currentIndex)
-              .nodes()[0]
-              .querySelector('input[type="checkbox"]').checked = true;
-          } else {
-            billSelected = billSelected.filter(
-              (r) => r.bill != ev.dataset.bill
-            );
-            table
-              .rows(currentIndex)
-              .nodes()[0]
-              .querySelector('input[type="checkbox"]').checked = false;
-          }
-        }
-      } else {
-        console.log("select update");
-        if (type == "row") {
-          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
-          if (table.row(indexes).selected()) {
-            billSelected.push({
-              bill: ev.dataset.bill,
-              bulks: ev.dataset.bulks,
-              weight: ev.dataset.weight,
-            });
-            table
-              .rows(currentIndex)
-              .nodes()[0]
-              .querySelector('input[type="checkbox"]').checked = true;
-          }
-        }
-      }
-      setTimeout(() => {
-        sumBulksAndWeight();
-      }, 0);
-    });
-
-    table.on("deselect", function (e, dt, type, indexes) {
-      currentIndex = indexes[0];
-      if (!bUpdate) {
-        if (type == "row") {
-          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
-          if (
-            billSelected.filter((r) => r.bill == ev.dataset.bill) < 1 &&
-            table.row(indexes).selected()
-          ) {
-            billSelected.push({
-              bill: ev.dataset.bill,
-              bulks: ev.dataset.bulks,
-              weight: ev.dataset.weight,
-            });
-          } else {
-            table
-              .rows(currentIndex)
-              .nodes()[0]
-              .querySelector('input[type="checkbox"]').checked = false;
-            billSelected = billSelected.filter(
-              (r) => r.bill != ev.dataset.bill
-            );
-          }
-        }
-      } else {
-        console.log("deselect update");
-        if (type == "row") {
-          const ev = table.rows(indexes).nodes()[0].querySelector(".chk-new");
-          if (!table.row(indexes).selected()) {
-            table
-              .rows(currentIndex)
-              .nodes()[0]
-              .querySelector('input[type="checkbox"]').checked = false;
-            billSelected = billSelected.filter(
-              (r) => r.bill != ev.dataset.bill
-            );
-          }
-        }
-      }
-      setTimeout(() => {
-        sumBulksAndWeight();
-      }, 0);
-    });
-
     //window load
     const main =
     async function (e) {
-      loadUIVariables();
-
+      $("#new-appointment").modal({
+        onApprove: function(e){
+          console.log('asdlasdaspod')
+        return false;},
+        onDeny: function(e){
+          console.log('asdlasdaspod')
+        return false;},
+        onHide: function(){
+            table.destroy();
+            console.log('onHide')
+            document.querySelectorAll(".dt-container").forEach((c) => {
+              if (c.id.includes("dt-")) {
+                c.remove();
+              }
+              //rowSelected = [];
+            });
+            clearFields();
+            billSelected = [];
+            table.clear().draw();
+            document.querySelector("#title-appointment").textContent = "Nueva Cita";
+            bUpdate = false;
+            document.querySelector("#ipt-pallets").value = 0;
+            document.querySelector("#ipt-volume").value = 1;
+        }
+      })
       document
         .querySelector("#lbl-print")
         .addEventListener("click", async (ev) => {
@@ -1116,6 +1090,8 @@
           cmbWeightVal = cmbWeight.value;
           cmbVolumeVal = cmbVolume.value;
           let bills = [];
+
+
 
           /////////////////////////////////////////////////
           if (Number(iptBulksVal) <= 0) {
@@ -1299,6 +1275,7 @@
                   ID_FACTURAS: r[10],
                   BULTOSXCITA: r[6],
                   PESOXCITA: r[8],
+                  PROVEEDOR:   r[7],
                 };
               });
             } else {
@@ -1308,6 +1285,7 @@
                   ID_FACTURAS: r.bill,
                   BULTOSXCITA: r.bulks,
                   PESOXCITA: r.weight,
+                  PROVEEDOR:  r.supplier,
                 };
               });
             }
@@ -1320,15 +1298,10 @@
             console.log(selectedRow);
 
             const req = {
-              PROVCONSUMOINTERNO: "0",
               ID_TIPOCITA: cmbMethodVal,
               ID_TRANSPORTE: cmbTransportVal,
               ID_CARGA: cmbLoadVal,
-              ID_ANDEN: bUpdate ? selectedRow.Id_Anden : "2",
               COMPANIA: "2", //en teoria deberían ser igual para todos
-              FECHASOLICITADA: selected.dataset.date,
-              TIEMPOASIGNADO: !bUpdate ? 0 : selectedRow.TiempoAsignado, //en teoria deberían ser igual para todos
-              INDICADORTIEMPO: !bUpdate ? "H" : selectedRow.IndicadorTiempo, //en teoria deberían ser igual para todos
               VOLUMEN: cmbVolumeVal,
               PESO: cmbWeightVal,
               PALLETS: iptPalletsVal,
@@ -1336,8 +1309,7 @@
               TRANSPORTISTA: bUpdate ? selectedRow.Transportista : "", //en teoria deberían ser igual para todos
               PLACAS: bUpdate ? selectedRow.Placas : "", //en teoria deberían ser igual para todos
               CHOFER: bUpdate ? selectedRow.Chofer : "", //en teoria deberían ser igual para todos
-              IMPRESO: bUpdate ? selectedRow.Impreso : "01/01/1900 00:00:00", //en teoria deberían ser igual para todos
-              B_ESTATUS: bUpdate ? selectedRow.B_Estatus : "A", //en teoria deberían ser igual para todos
+              STATUS: bUpdate ? selectedRow.Status : "solicitada", //en teoria deberían ser igual para todos
               USUARIO: sessionUser,
               FACTURAS: bills,
             };
@@ -1386,14 +1358,15 @@
             } else {
               createAppointment(req)
                 .then((res) => {
-                  if (res[0].Resultado) {
+                  console.log(res, "RESPEUWSSSSASA")
+                  if (res.result) {
                     selected.classList.remove("requested");
                     selected.classList.add("selected");
                     selected.dataset.requested = true;
                     $("#new-appointment").modal("hide");
                     selected = null;
-                    if (
-                      pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL
+                    if (true
+                      //pgCalendarioCitasTipoProveedor == SUPPLIER_TYPES.NORMAL
                     ) {
                       if (new Date().getDay() == 6) {
                         successMsg(
@@ -1442,144 +1415,22 @@
       showLoading(false);
 
       //modify
-      modifydAppointmentTable = new DataTable(
-        "#tbl-modify-appointment",
-        defaultDTConfig("modify")
-      );
 
-      modifydAppointmentTable.on("click", "td.dt-control", async function (e) {
-        showLoading(true);
-        setTimeout(() => {
-          console.log("aspdksapodskapo");
-          let tr = e.target.closest("tr");
-          let row = modifydAppointmentTable.row(tr);
-          const rowData = row.data();
+      //////////////////transportista////////////////////////////////
+    };
 
-          const t = new returnTable(
-            [
-              "Cia",
-              "Suc.",
-              "Prov.",
-              "Pedido",
-              "Factura",
-              "Bultos",
-              "F.Factura",
-            ],
-            "dt-" + rowData[1]
-          );
+    $(document).ready(function(e){
+      main();
+    })
+    ///////////////////////////////////////////////////////////////
 
-          if (row.child.isShown()) {
-            // This row is already open - close it
-            row.child.hide();
-          } else {
-            console.log("test2", rowSelectedDetail, "ROW", row);
-            // Open this row
-
-            row.child(t).show();
-            let tmpDt = new DataTable("#dt-" + rowData[1], {
-              aaData: rowSelectedDetail,
-              layout: layoutOpt,
-              language: esMX,
-              bDestroy: true,
-              columnDefs: [
-                {
-                  targets: [0, 1, 2, 3, 4, 5, 6],
-                  searchable: true,
-                  orderable: false,
-                },
-              ],
-              initComplete: function () {
-                const api = this.api();
-                api.columns().every(function () {
-                  let column = this;
-                  let title = column.header().textContent;
-                  // Create input element
-                  let input = document.createElement("input");
-                  input.placeholder = title;
-                  input.className = "ui input form-control";
-                  input.placeholder = "";
-                  column.header().replaceChildren(input);
-
-                  // Event listener for user input
-                  input.addEventListener("keyup", () => {
-                    if (column.search() !== this.value) {
-                      column.search(input.value).draw();
-                    }
-                  });
-                });
-              },
-            });
-            showLoading(false);
-          }
-        }, 500);
-      });
-
-      modifydAppointmentTable.on(
-        "select",
-        async function (e, dt, type, indexes) {
-          if (type === "row") {
-            //console.log(modifydAppointmentTable.row(indexes).data())
-            //console.log(modifydAppointmentTable.rows( { selected: true } ).data())
-            rowSelected = Array.from(
-              modifydAppointmentTable.rows({ selected: true }).data()
-            )[0];
-            const resp = await getAppointmentsDetail(rowSelected[1]);
-            rowSelectedHead = resp.cabecera[0];
-            console.log("RESPUESTA", rowSelectedHead);
-            const detail = resp.detalle.map((d) => {
-              return [
-                d.Compania,
-                d.Sucursal,
-                d.Proveedor,
-                d.Pedido,
-                d.Factura,
-                d.BultosxCita,
-                d.FechaFactura,
-                d.Id_Facturas,
-                d.ZONA,
-                rowSelectedHead.Id_Anden,
-                rowSelectedHead.TiempoAsignado,
-                rowSelectedHead.IndicadorTiempo,
-                rowSelectedHead.Tranportista,
-                rowSelectedHead.Placas,
-                rowSelectedHead.Chofer,
-                rowSelectedHead.Impreso,
-                d.B_Estatus,
-              ];
-            });
-
-            rowToBeAddedSelectedDetail = resp.detalle.map((d) => {
-              return [
-                true,
-                d.Compania,
-                d.ZONA,
-                d.Sucursal,
-                d.Factura,
-                d.BultosFaltantes,
-                d.BultosxCita,
-                d.PesoFaltante,
-                d.PesoxCita,
-                "",
-                d.Id_Facturas,
-                d.PesoxCita,
-              ];
-            });
-            rowSelectedDetail = detail;
-
-            /*rowSelectedDetailBills = detail.map((r) => {
-              return r[7];
-            });*/
-            //rowSelected.push(modifydAppointmentTable.row(indexes).data());
-            //rowSelected.push(modifydAppointmentTable.rows( { selected: true } ).data());
-          }
-        }
-      );
-
-      selectedAppointmentTable = new DataTable(
+    //////////////////////////////////////////////////////////////
+     selectedAppointmentTable = new DataTable(
         "#tbl-selected-appointment",
         defaultDTConfig("view")
       );
       selectedAppointmentTable.on("click", "td.dt-control", async function (e) {
+        console.log('abriendo detalle')
         showLoading(true);
         setTimeout(async () => {
           let tr = e.target.closest("tr");
@@ -1589,9 +1440,7 @@
           const t = new returnTable(
             [
               "Cia",
-              "Suc.",
               "Prov.",
-              "Pedido",
               "Factura",
               "Bultos",
               "F.Factura",
@@ -1609,15 +1458,13 @@
             // Open this row
             console.log("OPENING", rowData);
             const resp = await getAppointmentsDetail(rowData[1]);
-            const detail = resp.detalle.map((d) => {
+            const detail = resp.docs_json.map((d) => {
               return [
-                d.Compania,
-                d.Sucursal,
-                d.Proveedor,
-                d.Pedido,
-                d.Factura,
-                d.BultosxCita,
-                d.FechaFactura,
+                d.cia,
+                d.supplier,
+                d.bill,
+                d.packages,
+                d.date,
               ];
             });
             console.log(detail, "RECEIVED");
@@ -1630,7 +1477,7 @@
               bDestroy: true,
               columnDefs: [
                 {
-                  targets: [0, 1, 2, 3, 4, 5, 6],
+                  targets: [0, 1, 2, 3, 4],
                   searchable: true,
                   orderable: false,
                 },
@@ -1666,204 +1513,39 @@
         );
       });
 
-      $("#selected-appointment").on("hide.bs.modal", function (e) {
-        document.querySelectorAll(".dt-container").forEach((c) => {
-          if (c.id.includes("dt-")) {
-            c.remove();
-          }
-        });
-        //rowSelected = [];
-      });
-
-      tableAppointments = new DataTable(
-        "#tbl-appointments",
-        defaultDTConfig("view")
-      );
-
-      tableAppointments.on("click", "td.dt-control", async function (e) {
-        showLoading(true);
-        setTimeout(async () => {
-          let tr = e.target.closest("tr");
-          let row = tableAppointments.row(tr);
-          const rowData = row.data();
-
-          const t = new returnTable(
-            [
-              "Cia",
-              "Suc.",
-              "Prov.",
-              "Pedido",
-              "Factura",
-              "Bultos",
-              "F.Factura",
-            ],
-            "dt-" + rowData[1]
-          );
-          //console.log(t);
-
-          if (row.child.isShown()) {
-            console.log("test");
-            // This row is already open - close it
-            row.child.hide();
-          } else {
-            console.log("test2");
-            // Open this row
-            const resp = await getAppointmentsDetail(rowData[1]);
-            const detail = resp.detalle.map((d) => {
-              return [
-                d.Compania,
-                d.Sucursal,
-                d.Proveedor,
-                d.Pedido,
-                d.Factura,
-                d.BultosxCita,
-                d.FechaFactura,
-              ];
-            });
-
-            row.child(t).show();
-            let tmpDt = new DataTable("#dt-" + rowData[1], {
-              aaData: detail,
-              layout: layoutOpt,
-              language: esMX,
-              bDestroy: true,
-              columnDefs: [
-                {
-                  targets: [0, 1, 2, 3, 4, 5, 6],
-                  searchable: true,
-                  orderable: false,
-                },
-              ],
-              initComplete: function () {
-                const api = this.api();
-                api.columns().every(function () {
-                  let column = this;
-                  let title = column.header().textContent;
-                  // Create input element
-                  let input = document.createElement("input");
-                  input.placeholder = title;
-                  input.className = "ui input form-control";
-                  input.placeholder = "";
-                  column.header().replaceChildren(input);
-
-                  // Event listener for user input
-                  input.addEventListener("keyup", () => {
-                    if (column.search() !== this.value) {
-                      column.search(input.value).draw();
-                    }
-                  });
-                });
-              },
-            });
-          }
-          showLoading(true);
-        }, 500);
-      });
-      tableAppointments.on("select", function (e, dt, type, indexes) {
-        if (type === "row") {
-          rowSelected = Array.from(
-            tableAppointments.rows({ selected: true }).data()
-          );
-          document
-            .querySelector("#btn-download-selection")
-            .classList.remove("disabled");
-        }
-      });
-
-      tableAppointments.on("deselect", function (e, dt, type, indexes) {
-        if (type === "row") {
+      $("#selected-appointment").modal({
+        onHide: function (e) {
+          document.querySelectorAll(".dt-container").forEach((c) => {
+            if (c.id.includes("dt-")) {
+              c.remove();
+            }
+          });
           //rowSelected = [];
-          document
-            .querySelector("#btn-download-selection")
-            .classList.add("disabled");
         }
       });
-
-      ///////////////////////////transportista///////////////////////////
-      $("#complete").on("shown.bs.modal", function (e) {
-        setTimeout(() => {
-          document.querySelector("input[name='transport'").focus();
-          document.querySelector("input[name='transport'").select();
-        }, 0);
-      });
-
-      $("#download").on("show.bs.modal", function (e) {
-        rowSelected = Array.from(tableAppointments.row(0).select().data());
-        document.querySelector('input[name="ipt-appointment"').value =
-          rowSelected[1];
-      });
-      $("#download").on("hide.bs.modal", function (e) {
-        document.querySelectorAll(".dt-container").forEach((c) => {
-          if (c.id.includes("dt-")) {
-            c.remove();
-          }
-        });
-        transportData = {};
-        //rowSelected = [];
-      });
-
-      document
-        .querySelector("#frmTransport")
-        .addEventListener("submit", async function (ev) {
-          ev.preventDefault();
-          setTransportData();
-        });
-      //////////////////transportista////////////////////////////////
-    };
-    ///////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////
     ///consult
-    async function view() {
+  async function view() {
       if (!isSelected()) {
         warningMsg("Debes seleccionar un día.");
         return;
       }
 
-       $("#selected-appointment").modal({ backdrop: "static" });
-      $("#selected-appointment").modal("show");
-      return;
-
-      //confirmed selected
-      if (
-        [...selected.parentElement.querySelectorAll(".sub")].some((td) => {
-          return (
-            td.classList.contains("confirmed") ||
-            td.classList.contains("selected")
-          );
-        })
-      ) {
-        console.log("yes");
-        if (selected.classList.contains("confirmed")) {
-          status = "S";
-        } else if (selected.classList.contains("selected")) {
-          status = "A";
-        } else {
-          console.log("nada");
-          status = "";
-        }
-      } else {
-        console.log("nada");
-        status = "";
-      }
-      console.log(status);
-
       const currentAppointments = await getAppointments(
-        selected.dataset.date,
-        status
+        {date:selected.dataset.date}
       );
-      let mapped = currentAppointments.map((a) => [
+
+      let mapped = currentAppointments.docs_json.map((a) => [
         "",
-        a.Id_Cita,
-        a.Compania,
-        a.HoraSolicitada,
-        a.Volumen,
-        a.Peso,
-        a.Bultos,
-        a.B_Estatus_nombre,
-        a.Nombre,
-        a.Id_TipoCita,
+        a.id,
+        a.company_id,
+        a.company_id,
+        a.volume,
+        a.weight,
+        a.total_packages,
+        a.status,
+        a.appointment_category_id,
       ]);
+
       //.filter((a) => a.Id_Cita == rowSelected[1]);
       if (mapped.length < 1) {
         warningMsg("No hay citas registradas para este día.");
@@ -1875,6 +1557,10 @@
         $("#selected-appointment").modal("show");
       }, 0);
     }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
     ///modify
     async function modify(isCancellation = false) {
       showLoading(true);
